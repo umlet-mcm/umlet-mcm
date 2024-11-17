@@ -1,0 +1,24 @@
+<node xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="../../mcm-backend/mcm-core/src/main/resources/dsl/node.xsd">
+    <name>UMLClass</name>
+    <id>1</id>
+    <text>Test</text>
+    <type>PPR</type>
+    <tags>
+        <tag>test</tag>
+    </tags>
+    <properties>
+        <property>
+            <key>prop1</key>
+            <value>val1</value>
+        </property>
+    </properties>
+    <metadata>
+        <coordinates>
+            <x>1</x>
+            <y>2</y>
+            <w>3</w>
+            <h>4</h>
+        </coordinates>
+    </metadata>
+</node>

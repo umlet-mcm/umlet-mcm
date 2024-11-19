@@ -2,6 +2,7 @@ package at.ac.tuwien.model.change.management.core.service;
 
 import at.ac.tuwien.model.change.management.core.model.Configuration;
 import at.ac.tuwien.model.change.management.core.model.Model;
+import at.ac.tuwien.model.change.management.core.model.intermediary.ModelUxf;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
@@ -21,7 +22,7 @@ public class UxfServiceImpl implements UxfService {
         JAXBContext context;
         Unmarshaller unmarshaller;
         try {
-            context = JAXBContext.newInstance(Model.class);
+            context = JAXBContext.newInstance(ModelUxf.class);
             unmarshaller = context.createUnmarshaller();
         } catch (JAXBException e) {
             return null;
@@ -34,12 +35,14 @@ public class UxfServiceImpl implements UxfService {
             return null;
         }
 
-//        try {
-//            Model res = (Model) unmarshaller.unmarshal(input);
-//            log.debug(res.toString());
-//        } catch (JAXBException e) {
-//            return null;
-//        }
+        try {
+            ModelUxf res = (ModelUxf) unmarshaller.unmarshal(input);
+            Model m = res.toMcmRepresentation();
+            log.debug(m.toString());
+            log.debug(res.toString());
+        } catch (JAXBException e) {
+            return null;
+        }
 
         return null;
     }

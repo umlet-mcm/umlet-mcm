@@ -1,5 +1,6 @@
-package at.ac.tuwien.model.change.management.core.model.attributes;
+package at.ac.tuwien.model.change.management.core.model.intermediary;
 
+import at.ac.tuwien.model.change.management.core.model.intermediary.BaseAttributesUxf;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,7 +12,7 @@ import java.util.Map;
  */
 @Getter
 @Setter
-public class ElementAttributes extends BaseAttributes {
+public class ElementAttributesUxf extends BaseAttributesUxf {
     @Nullable
     private Map<String, String> umletAttributes;
 }

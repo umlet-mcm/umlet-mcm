@@ -1,12 +1,11 @@
 package at.ac.tuwien.model.change.management.core.model;
 
-import at.ac.tuwien.model.change.management.core.model.attributes.ElementAttributes;
-import jakarta.xml.bind.annotation.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -17,38 +16,10 @@ import java.util.Set;
 @Getter
 @Setter
 
-@XmlRootElement(name = "element")
-@XmlAccessorType(XmlAccessType.FIELD) // needed because of the Lombok getter and setter
-public class Node {
-    @XmlElement(name = "id")
-    private String elementType; // e.g. UMLClass, Relation
-
-    /**
-     * Attributes defined in the panel_attributes. This includes both MCM
-     * and Umlet attributes.
-     */
-    @XmlElement(name = "panel_attributes")
-    //@XmlJavaTypeAdapter(NodeAttributesAdapter.class)
-    private ElementAttributes attributes;
-
-    /**
-     * Attributes used internally by Umlet. E.g. the points of a relation.
-     */
-    @XmlElement(name = "additional_attributes")
-    //@XmlJavaTypeAdapter(AdditionalAttributesAdapter.class)
+public class Node extends BaseAttributes {
+    private String elementType;
+    private Map<String, String> umletAttributes;
     private List<Object> generatedAttributes;
-
-    @XmlElement(name = "coordinates")
     private UMLetPosition umletPosition;
-
-    /**
-     * This stores the original text from the panel_attributes, in case we have to use it as a reference.
-     *
-     * @deprecated {@link #attributes} should be used for accessing node attributes
-     */
-    @Deprecated
-    @XmlElement(name = "panel_attributes")
-    private String panelAttributesFullText;
-
     private Set<Relation> relations = new HashSet<>();
 }

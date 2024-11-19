@@ -1,7 +1,7 @@
 package at.ac.tuwien.model.change.management.core.model;
 
 import at.ac.tuwien.model.change.management.core.model.attributes.AttributeKeys;
-import at.ac.tuwien.model.change.management.core.model.attributes.ElementAttributes;
+import at.ac.tuwien.model.change.management.core.model.intermediary.ElementAttributesUxf;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -13,12 +13,11 @@ import java.util.List;
 @Getter
 @Setter
 @Slf4j
-public class Relation {
+public class Relation extends BaseAttributes{
     private String type; // line type e.g. "<<-"
     @Nullable
     private Node target;
     private UMLetPosition umletPosition; // bounding box (including the handle circles) top left corner
-    private ElementAttributes attributes;
 
     // position of the start of the line relative to the umletPosition
     // this is usually (10, 10) which is the default size of handle circles at the ends of the relation
@@ -49,13 +48,13 @@ public class Relation {
      */
     @Nullable
     public static Relation fromNode(Node source) {
-        if(!source.getElementType().equals("Relation")){
-            log.error("Error attempting to parse element type '"+source.getElementType()+"' to relation");
+        if (!source.getElementType().equals("Relation")) {
+            log.error("Error attempting to parse element type '" + source.getElementType() + "' to relation");
             return null;
         }
         Relation r = new Relation();
 
-        String lt = source.getAttributes().getUmletAttributes().get(AttributeKeys.LINE_TYPE);
+        String lt = source.getUmletAttributes().get(AttributeKeys.LINE_TYPE);
         r.setType(lt);
         r.setUmletPosition(source.getUmletPosition());
 

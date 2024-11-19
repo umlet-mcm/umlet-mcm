@@ -1,5 +1,6 @@
-package at.ac.tuwien.model.change.management.core.model.attributes;
+package at.ac.tuwien.model.change.management.core.model.intermediary;
 
+import at.ac.tuwien.model.change.management.core.model.attributes.AttributeKeys;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,7 +13,7 @@ import java.util.Map;
  */
 @Getter
 @Setter
-public class BaseAttributes {
+public class BaseAttributesUxf {
     protected String description;
     protected Map<String, Object> mcmAttributes;
 

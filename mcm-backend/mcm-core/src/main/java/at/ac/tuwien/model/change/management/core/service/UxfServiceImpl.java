@@ -34,12 +34,12 @@ public class UxfServiceImpl implements UxfService {
             return null;
         }
 
-        try {
-            Model res = (Model) unmarshaller.unmarshal(input);
-            log.debug(res.toString());
-        } catch (JAXBException e) {
-            return null;
-        }
+//        try {
+//            Model res = (Model) unmarshaller.unmarshal(input);
+//            log.debug(res.toString());
+//        } catch (JAXBException e) {
+//            return null;
+//        }
 
         return null;
     }

@@ -4,6 +4,9 @@ package at.ac.tuwien.model.change.management.core.mapper;
 import at.ac.tuwien.model.change.management.core.model.Node;
 import at.ac.tuwien.model.change.management.core.model.Relation;
 import at.ac.tuwien.model.change.management.graphdb.entities.NodeEntity;
+import lombok.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
@@ -14,13 +17,21 @@ import java.util.stream.Collectors;
  */
 @Component
 public class NodeEntityMapperImpl implements NodeEntityMapper {
-    PositionMapper positionMapper;
+    @Autowired
+    private PositionMapper positionMapper;
+
+    @Autowired
+    @Lazy
+    private RelationEntityMapper relationEntityMapper;
+
     @Override
     public NodeEntity toEntity(Node node) {
         NodeEntity nodeEntity = new NodeEntity();
 
         // TODO: check if this is generated only through Neo4j
-        nodeEntity.setGeneratedID(Long.parseLong(node.getId()));
+        if (node.getId() != null) {
+            nodeEntity.setGeneratedID(Long.parseLong(node.getId()));
+        }
 
         // TODO: check if Text is really the label name
         nodeEntity.setName(node.getText());
@@ -32,11 +43,16 @@ public class NodeEntityMapperImpl implements NodeEntityMapper {
         nodeEntity.setType(node.getType());
 
         // Set the relations of the node
-        nodeEntity.setRelations(node.getRelations().stream().map(relation -> toEntity(relation.getTarget())).collect(Collectors.toSet()));
+        if(node.getRelations() != null) {
+            nodeEntity.setRelations(node.getRelations().stream().map(relation -> relationEntityMapper.toEntity(relation)).collect(Collectors.toSet()));
+        }
 
         // Set the properties of the node
         // TODO: Not sure why we need an Object, should be probably a String (e.g Map<String, String>)
-        nodeEntity.setProperties(node.getProperties().keySet());
+        if(node.getProperties() != null) {
+            nodeEntity.setProperties(node.getProperties().keySet());
+        }
+
 
         // Set the position of the node
         nodeEntity.setPosition(positionMapper.toGraphProperties(node.getUmletPosition()));
@@ -53,7 +69,7 @@ public class NodeEntityMapperImpl implements NodeEntityMapper {
         node.setId(nodeEntity.getGeneratedID().toString());
 
         // Set the text of the node
-        // TODO: Proably the name of the node
+        // TODO: Probably the name of the node
         node.setText(nodeEntity.getName());
 
         // TODO: Map relations back to the Node

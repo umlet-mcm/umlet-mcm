@@ -14,6 +14,7 @@ import java.util.Set;
 @Node("Node")
 @Getter
 @Setter
+@NoArgsConstructor
 public class NodeEntity {
     @Id @GeneratedValue
     private Long generatedID;
@@ -29,12 +30,12 @@ public class NodeEntity {
 
     /* Relations with other elements in UMLet Diagram, i.e. connected with line */
     @Relationship(type = "RELATION")
-    private Set<NodeEntity> relations;
+    private Set<RelationEntity> relations = Set.of();
 
     /* The properties of the element in UMLet Diagram */
-    private Set<String> properties;
+    private Set<String> properties = Set.of();
 
     /* The original position of the element in UMLet Diagram */
     @CompositeProperty
-    private Map<String, Integer> position;
+    private Map<String, Integer> position = Map.of();
 }

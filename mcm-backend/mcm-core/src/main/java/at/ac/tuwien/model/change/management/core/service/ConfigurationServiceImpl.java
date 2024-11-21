@@ -14,6 +14,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     @Override
     public Configuration create(@NonNull Configuration configuration) {
-        return configurationRepository.save(configuration);
+        return configurationRepository.create(configuration);
     }
 }

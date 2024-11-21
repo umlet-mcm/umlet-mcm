@@ -24,7 +24,7 @@ public class GitConfigurationRepository implements ConfigurationRepository {
     }
 
     @Override
-    public Configuration save(Configuration configuration) {
+    public Configuration create(Configuration configuration) {
         var repositoryPath = properties.getRepositoryPath().resolve(configuration.getName());
 
         if (gitRepositoryExists(repositoryPath)) {

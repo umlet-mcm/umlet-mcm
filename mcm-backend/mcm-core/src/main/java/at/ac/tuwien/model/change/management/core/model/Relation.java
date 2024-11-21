@@ -1,7 +1,6 @@
 package at.ac.tuwien.model.change.management.core.model;
 
 import at.ac.tuwien.model.change.management.core.model.attributes.AttributeKeys;
-import at.ac.tuwien.model.change.management.core.model.intermediary.ElementAttributesUxf;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;

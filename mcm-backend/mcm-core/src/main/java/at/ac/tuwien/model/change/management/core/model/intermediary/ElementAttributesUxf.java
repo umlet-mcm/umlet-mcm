@@ -1,6 +1,5 @@
 package at.ac.tuwien.model.change.management.core.model.intermediary;
 
-import at.ac.tuwien.model.change.management.core.model.intermediary.BaseAttributesUxf;
 import lombok.Getter;
 import lombok.Setter;
 

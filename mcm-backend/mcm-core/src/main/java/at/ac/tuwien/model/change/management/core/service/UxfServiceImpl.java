@@ -1,12 +1,17 @@
 package at.ac.tuwien.model.change.management.core.service;
 
+import at.ac.tuwien.model.change.management.core.mapper.ElementUxfMapper;
+import at.ac.tuwien.model.change.management.core.mapper.ModelUxfMapper;
 import at.ac.tuwien.model.change.management.core.model.Configuration;
 import at.ac.tuwien.model.change.management.core.model.Model;
+import at.ac.tuwien.model.change.management.core.model.Node;
+import at.ac.tuwien.model.change.management.core.model.intermediary.ElementUxf;
 import at.ac.tuwien.model.change.management.core.model.intermediary.ModelUxf;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +21,13 @@ import java.io.InputStream;
 @Service
 @Slf4j
 public class UxfServiceImpl implements UxfService {
+    private ModelUxfMapper modelUxfMapper;
+
+    @Autowired
+    public UxfServiceImpl(ModelUxfMapper modelUxfMapper) {
+        this.modelUxfMapper = modelUxfMapper;
+    }
+
     @Override
     public Configuration createConfigurationFromUxf(InputStreamSource file) {
         InputStream input;
@@ -37,7 +49,7 @@ public class UxfServiceImpl implements UxfService {
 
         try {
             ModelUxf res = (ModelUxf) unmarshaller.unmarshal(input);
-            Model m = res.toMcmRepresentation();
+            Model m = modelUxfMapper.toModel(res);
             log.debug(m.toString());
             log.debug(res.toString());
         } catch (JAXBException e) {

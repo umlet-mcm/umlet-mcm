@@ -16,7 +16,7 @@ import java.util.List;
 @Setter
 @XmlRootElement(name = "element")
 @XmlAccessorType(XmlAccessType.FIELD) // needed because of the Lombok getter and setter
-public class ElementUxf implements Serializable, McmMappable<Node> {
+public class ElementUxf implements Serializable {
     @XmlElement(name = "id")
     private String elementType; // e.g. UMLClass, Relation
 
@@ -44,16 +44,4 @@ public class ElementUxf implements Serializable, McmMappable<Node> {
     @Deprecated
     @XmlElement(name = "panel_attributes")
     private String panelAttributesFullText;
-
-    @Override
-    public Node toMcmRepresentation() {
-        Node n = new Node();
-        n.setElementType(this.elementType);
-        n.setDescription(this.attributes.getDescription());
-        n.setMcmAttributes(this.attributes.getMcmAttributes());
-        n.setUmletAttributes(this.attributes.getUmletAttributes());
-        n.setGeneratedAttributes(this.generatedAttributes);
-        n.setUmletPosition(this.umletPosition);
-        return n;
-    }
 }

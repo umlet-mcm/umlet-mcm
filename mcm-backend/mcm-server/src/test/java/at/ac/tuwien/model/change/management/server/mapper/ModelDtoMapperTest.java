@@ -1,10 +1,8 @@
 package at.ac.tuwien.model.change.management.server.mapper;
 
-import at.ac.tuwien.model.change.management.core.model.Configuration;
 import at.ac.tuwien.model.change.management.core.model.Model;
 import at.ac.tuwien.model.change.management.core.model.Node;
 import at.ac.tuwien.model.change.management.core.model.UMLetPosition;
-import at.ac.tuwien.model.change.management.server.dto.ConfigurationDTO;
 import at.ac.tuwien.model.change.management.server.dto.ModelDTO;
 import at.ac.tuwien.model.change.management.server.dto.NodeDTO;
 import org.junit.jupiter.api.Test;

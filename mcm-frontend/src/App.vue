@@ -1,7 +1,14 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
+import LeftPannel from "@/components/left-side/LeftPannel.vue";
+import MainContent from "@/components/main-content/MainContent.vue";
+import RightPannel from "@/components/right-side/RightPannel.vue";
+
 </script>
 
 <template>
-  <HelloWorld msg="Vite + Vue + Shadcn" />
+  <div class="flex h-screen">
+    <LeftPannel/>
+    <MainContent/>
+    <RightPannel/>
+  </div>
 </template>

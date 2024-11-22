@@ -22,17 +22,24 @@ public class Relation extends BaseAttributes {
     private List<RelativePosition> relativeMidPoints; // midpoints relative to umletPosition
     private RelativePosition relativeEndpoint; // position of the end of the line relative to the umletPosition
 
-    public Point getStartPoint() {
-        return new Point(
-                relativeStartPoint.getAbsX(),
-                relativeStartPoint.getAbsY()
+    private Point startPoint;
+    private Point endPoint;
+
+    // also updates the startPoint
+    public void setRelativeStartPoint(RelativePosition point) {
+        this.relativeStartPoint = point;
+        this.startPoint = new Point(
+                point.getAbsX(),
+                point.getAbsY()
         );
     }
 
-    public Point getEndPoint() {
-        return new Point(
-                relativeEndpoint.getAbsX(),
-                relativeEndpoint.getAbsY()
+    // also updates the endPoint
+    public void setRelativeEndPoint(RelativePosition point) {
+        this.relativeEndpoint = point;
+        this.endPoint = new Point(
+                point.getAbsX(),
+                point.getAbsY()
         );
     }
 }

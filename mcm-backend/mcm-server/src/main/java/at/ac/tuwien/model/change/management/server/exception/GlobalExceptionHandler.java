@@ -1,6 +1,6 @@
 package at.ac.tuwien.model.change.management.server.exception;
 
-import at.ac.tuwien.model.change.management.git.exception.PersistenceException;
+import at.ac.tuwien.model.change.management.git.exception.ConfigurationPersistenceException;
 import at.ac.tuwien.model.change.management.git.exception.ConfigurationAlreadyExistsException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,8 +22,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return defaultHandleExceptionInternal(e, HttpStatus.CONFLICT, request);
     }
 
-    @ExceptionHandler(PersistenceException.class)
-    public ResponseEntity<Object> handlePersistenceException(PersistenceException e, WebRequest request) {
+    @ExceptionHandler(ConfigurationPersistenceException.class)
+    public ResponseEntity<Object> handlePersistenceException(ConfigurationPersistenceException e, WebRequest request) {
         return defaultHandleExceptionInternal(e, HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 }

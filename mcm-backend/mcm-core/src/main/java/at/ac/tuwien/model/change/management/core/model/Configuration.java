@@ -10,4 +10,5 @@ import java.util.Set;
 public class Configuration {
     private String name;
     private Set<Model> models;
+    private String version;
 }

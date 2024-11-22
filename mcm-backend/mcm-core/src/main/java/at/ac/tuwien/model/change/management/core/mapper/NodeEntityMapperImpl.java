@@ -9,7 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -50,7 +52,9 @@ public class NodeEntityMapperImpl implements NodeEntityMapper {
         // Set the properties of the node
         // TODO: Not sure why we need an Object, should be probably a String (e.g Map<String, String>)
         if(node.getProperties() != null) {
-            nodeEntity.setProperties(node.getProperties().keySet());
+            val map = new HashMap<String, String>();
+            node.getProperties().forEach((key, value) -> map.put(key, value.toString()));
+            nodeEntity.setProperties(map);
         }
 
 
@@ -78,8 +82,8 @@ public class NodeEntityMapperImpl implements NodeEntityMapper {
         // Set the type of the node
         node.setType(nodeEntity.getType());
 
-        // TODO: Map properties back to the Node (should be a map ("color", "red"))
-        node.setProperties(nodeEntity.getProperties().stream().collect(Collectors.toMap(property -> property, property -> "")));
+        // Maps the properties of the node entity back to node model
+        node.setProperties(nodeEntity.getProperties().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
 
         // TODO: Not sure what labels are
         node.setLabels(new HashSet<>());

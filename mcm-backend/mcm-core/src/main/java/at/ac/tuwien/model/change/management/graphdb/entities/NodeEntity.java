@@ -33,7 +33,8 @@ public class NodeEntity {
     private Set<RelationEntity> relations = Set.of();
 
     /* The properties of the element in UMLet Diagram */
-    private Set<String> properties = Set.of();
+    @CompositeProperty
+    private Map<String,String> properties = Map.of();
 
     /* The original position of the element in UMLet Diagram */
     @CompositeProperty

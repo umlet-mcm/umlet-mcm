@@ -15,7 +15,10 @@
     "radix-vue": "^1.9.10",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
-    "vue": "^3.5.12"
+    "vue": "^3.5.12",
+    "vue-codemirror": "^6.1.1",
+    "@codemirror/theme-one-dark": "^6.1.2",
+    "vis-network": "^9.1.9"
   },
   "devDependencies": {
     "@types/node": "^22.9.1",

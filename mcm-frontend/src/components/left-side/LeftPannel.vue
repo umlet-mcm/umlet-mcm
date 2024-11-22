@@ -12,11 +12,19 @@ const projectName = AppConfig.projectName
 const version = AppConfig.version
 const models = ref<Model[]>(models_data)
 
-const selectedModel = ref<number | undefined>()
+defineProps({
+  selectedModel: {
+    type: Number,
+    required: false
+  }
+});
+
+const emit = defineEmits(["update:selectedModel"]);
 
 const placeholder = () => {
   console.log('Placeholder')
 }
+
 </script>
 
 <template>
@@ -74,7 +82,7 @@ const placeholder = () => {
     <Separator />
     <div>
       <h2 class="text-sm font-semibold mb-2">Models within configuration</h2>
-      <ModelList v-model:selected-model="selectedModel" :items="models" />
+      <ModelList :selected-model="selectedModel" :items="models" @update:selectedModel="emit('update:selectedModel', $event)"/>
     </div>
   </div>
 </template>

@@ -4,11 +4,21 @@ import { Model } from '@/datamodel/Model.ts'
 import {Button} from "@/components/ui/button";
 import {Trash} from "lucide-vue-next";
 
-interface ModelListProps {
-  items: Model[]
-}
-defineProps<ModelListProps>()
-const selectedModel = defineModel<number>('selectedModel', { required: false })
+defineProps({
+  items: {
+    type: Array as () => Model[],
+    required: true
+  },
+  selectedModel: {
+    type: Number,
+    required: false
+  }
+});
+
+const emit = defineEmits(["update:selectedModel"]);
+const selectModel = (id: number) => {
+  emit("update:selectedModel", id);
+};
 
 const placeholder = () => {
   console.log('Placeholder')
@@ -24,7 +34,7 @@ const placeholder = () => {
             :key="item.id"
             :class="cn(
             'flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent bg-primary-light', selectedModel === item.id && 'bg-muted')"
-            @click="selectedModel = item.id">
+            @click="selectModel(item.id)">
           <div class="flex w-full flex-col gap-1">
             <div class="flex items-center">
               <div class="flex items-center gap-2">

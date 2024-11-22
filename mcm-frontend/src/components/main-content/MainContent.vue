@@ -13,10 +13,15 @@ defineProps({
   selectedModel: {
     type: Number,
     required: false
+  },
+  selectedNode: {
+    type: String,
+    required: false
   }
 });
 
-const selectedNode = ref<string | undefined>()
+const emit = defineEmits(["update:selectedNode"]);
+
 const executeQuery = () => {
   console.log('Executing query:', query.value)
 }
@@ -56,7 +61,10 @@ const previewQuery = () => {
       </div>
     </div>
     <div class="flex-1 p-2 overflow-hidden">
-      <GraphVisualisation class="h-full w-full" v-model:selected-node="selectedNode" />
+      <GraphVisualisation
+          class="h-full w-full"
+          :selected-node="selectedNode"
+          @update:selectedModel="emit('update:selectedNode', $event)"/>
     </div>
   </div>
 </template>

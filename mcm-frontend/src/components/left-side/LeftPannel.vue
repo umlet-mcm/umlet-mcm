@@ -82,7 +82,10 @@ const placeholder = () => {
     <Separator />
     <div>
       <h2 class="text-sm font-semibold mb-2">Models within configuration</h2>
-      <ModelList :selected-model="selectedModel" :items="models" @update:selectedModel="emit('update:selectedModel', $event)"/>
+      <ModelList
+          :selected-model="selectedModel"
+          :items="models"
+          @update:selectedModel="emit('update:selectedModel', $event)"/>
     </div>
   </div>
 </template>

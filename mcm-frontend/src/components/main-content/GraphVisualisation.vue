@@ -5,7 +5,17 @@ import {nodes_data, edges_data} from "@/datamodel/Node.ts"
 
 const container = ref<HTMLElement>()
 
-const selectedNode = defineModel<string>('selectedNode', { required: false })
+defineProps({
+  selectedNode: {
+    type: String,
+    required: false
+  }
+});
+
+const emit = defineEmits(["update:selectedModel"]);
+const selectNode = (id: string) => {
+  emit("update:selectedModel", id);
+};
 
 onMounted(() => {
   if (!container.value) return
@@ -36,7 +46,7 @@ onMounted(() => {
     if (params.nodes.length > 0) {
       const nodeId = params.nodes[0]
       const node = nodes.find(n => n.id === nodeId)
-      if (node) selectedNode.value = node.id
+      if (node) selectNode(node.id)
     }})
 })
 </script>

@@ -7,7 +7,6 @@ import java.util.Set;
 
 @Getter
 @Setter
-public class Model {
-    private String id;
+public class Model extends BaseAttributes {
     private Set<Node> nodes;
 }

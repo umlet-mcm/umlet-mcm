@@ -22,5 +22,5 @@ public interface PositionMapper {
      * @param properties the Map of properties to convert
      * @return the converted UMLetPosition
      */
-    UMLetPosition toLocation(Map<String, ?> properties);
+    UMLetPosition toLocation(Map<String, Integer> properties);
 }

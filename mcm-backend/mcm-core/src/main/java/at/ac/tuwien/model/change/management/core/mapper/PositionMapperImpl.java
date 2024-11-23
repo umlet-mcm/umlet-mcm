@@ -11,23 +11,34 @@ import java.util.Map;
  */
 @Component
 public class PositionMapperImpl implements PositionMapper {
+    private static final String X = "x";
+    private static final String Y = "y";
+    private static final String WIDTH = "width";
+    private static final String HEIGHT = "height";
+
     @Override
     public Map<String, Integer> toGraphProperties(UMLetPosition umLetPosition) {
         Map<String, Integer> properties = new HashMap<>();
         if (umLetPosition != null) {
-            properties.put("x", umLetPosition.x());
-            properties.put("y", umLetPosition.y());
-            properties.put("width", umLetPosition.width());
-            properties.put("height", umLetPosition.height());
+            properties.put(X, umLetPosition.getX());
+            properties.put(Y, umLetPosition.getY());
+            properties.put(WIDTH, umLetPosition.getWidth());
+            properties.put(HEIGHT, umLetPosition.getHeight());
         }
         return properties;
     }
 
     @Override
-    public UMLetPosition toLocation(Map<String, ?> properties) {
-        if (properties == null) {
+    public UMLetPosition toLocation(Map<String, Integer> position) {
+        if (position == null) {
             return null;
         }
-        return new UMLetPosition((Integer) properties.get("x"), (Integer) properties.get("y"), (Integer) properties.get("width"), (Integer) properties.get("height"));
+
+        var convertedPosition = new UMLetPosition();
+        convertedPosition.setX(position.getOrDefault(X,0));
+        convertedPosition.setY(position.getOrDefault(Y,0));
+        convertedPosition.setWidth(position.getOrDefault(WIDTH,0));
+        convertedPosition.setHeight(position.getOrDefault(HEIGHT,0));
+        return convertedPosition;
     }
 }

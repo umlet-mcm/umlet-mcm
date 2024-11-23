@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -19,6 +20,8 @@ import java.util.stream.Collectors;
  */
 @Component
 public class NodeEntityMapperImpl implements NodeEntityMapper {
+    private final static String TAGS = "tags";
+
     @Autowired
     private PositionMapper positionMapper;
 
@@ -30,33 +33,32 @@ public class NodeEntityMapperImpl implements NodeEntityMapper {
     public NodeEntity toEntity(Node node) {
         NodeEntity nodeEntity = new NodeEntity();
 
-        // TODO: check if this is generated only through Neo4j
+        // If node already exists inside the database, set the ID
+        // Becomes update instead of insert
         if (node.getId() != null) {
             nodeEntity.setGeneratedID(Long.parseLong(node.getId()));
         }
 
-        // TODO: check if Text is really the label name
-        nodeEntity.setName(node.getText());
-
-        // TODO: Description can be properties probably
-        nodeEntity.setDescription(node.getText());
+        // Set the name of the node
+        nodeEntity.setName(node.getDescription());
 
         // Set the type of the node
-        nodeEntity.setType(node.getType());
+        nodeEntity.setType(node.getElementType());
 
         // Set the relations of the node
         if(node.getRelations() != null) {
             nodeEntity.setRelations(node.getRelations().stream().map(relation -> relationEntityMapper.toEntity(relation)).collect(Collectors.toSet()));
         }
 
-        // Set the properties of the node
-        // TODO: Not sure why we need an Object, should be probably a String (e.g Map<String, String>)
-        if(node.getProperties() != null) {
-            val map = new HashMap<String, String>();
-            node.getProperties().forEach((key, value) -> map.put(key, value.toString()));
-            nodeEntity.setProperties(map);
+        // Set the properties of the node, i.e. the attributes
+        if(node.getUmletAttributes() != null) {
+            nodeEntity.setProperties(node.getUmletAttributes());
         }
 
+        // Set the tags of the node
+        if(node.getMcmAttributes() != null && node.getMcmAttributes().containsKey(TAGS) && node.getMcmAttributes().get(TAGS) instanceof Set) {
+            nodeEntity.setTags((Set<String>) node.getMcmAttributes().get(TAGS));
+        }
 
         // Set the position of the node
         nodeEntity.setPosition(positionMapper.toGraphProperties(node.getUmletPosition()));
@@ -73,20 +75,25 @@ public class NodeEntityMapperImpl implements NodeEntityMapper {
         node.setId(nodeEntity.getGeneratedID().toString());
 
         // Set the text of the node
-        // TODO: Probably the name of the node
-        node.setText(nodeEntity.getName());
+        node.setDescription(nodeEntity.getName());
 
-        // TODO: Map relations back to the Node
+        // Map relations back to the Node
         node.setRelations(nodeEntity.getRelations().stream().map(relation -> new Relation()).collect(Collectors.toSet()));
 
         // Set the type of the node
-        node.setType(nodeEntity.getType());
+        node.setElementType(nodeEntity.getType());
 
         // Maps the properties of the node entity back to node model
-        node.setProperties(nodeEntity.getProperties().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+        node.setUmletAttributes(nodeEntity.getProperties());
 
-        // TODO: Not sure what labels are
-        node.setLabels(new HashSet<>());
+        // Set the tags of the node
+        if(node.getMcmAttributes() != null) {
+            node.getMcmAttributes().put(TAGS, nodeEntity.getTags());
+        } else {
+            Map<String, Object> mcmAttributes = new HashMap<>();
+            mcmAttributes.put(TAGS, nodeEntity.getTags());
+            node.setMcmAttributes(mcmAttributes);
+        }
 
         // Set the position of the node
         node.setUmletPosition(positionMapper.toLocation(nodeEntity.getPosition()));

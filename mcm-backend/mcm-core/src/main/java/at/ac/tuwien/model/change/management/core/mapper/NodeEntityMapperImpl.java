@@ -4,6 +4,7 @@ package at.ac.tuwien.model.change.management.core.mapper;
 import at.ac.tuwien.model.change.management.core.model.Node;
 import at.ac.tuwien.model.change.management.core.model.Relation;
 import at.ac.tuwien.model.change.management.graphdb.entities.NodeEntity;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -29,9 +30,18 @@ public class NodeEntityMapperImpl implements NodeEntityMapper {
     @Lazy
     private RelationEntityMapper relationEntityMapper;
 
+    @Autowired
+    private CycleAvoidingMappingContext context;
+
     @Override
-    public NodeEntity toEntity(Node node) {
+    public NodeEntity toEntity(@NotNull Node node) {
+        if(context.getMappedInstance(node, NodeEntity.class) != null) {
+            return (NodeEntity) context.getMappedInstance(node, NodeEntity.class);
+        }
+
         NodeEntity nodeEntity = new NodeEntity();
+
+        context.storeMappedInstance(node, nodeEntity);
 
         // If node already exists inside the database, set the ID
         // Becomes update instead of insert
@@ -68,8 +78,16 @@ public class NodeEntityMapperImpl implements NodeEntityMapper {
     }
 
     @Override
-    public Node fromEntity(NodeEntity nodeEntity) {
+    public Node fromEntity(@NotNull NodeEntity nodeEntity) {
+        // To prevent cycles, check if the node entity is already mapped
+        if(context.getMappedInstance(nodeEntity, Node.class) != null) {
+            return (Node) context.getMappedInstance(nodeEntity, Node.class);
+        }
+
         Node node = new Node();
+
+        // Store the mapping because it has not been mapped yet
+        context.storeMappedInstance(nodeEntity, node);
 
         // Set an assigned ID to the node
         node.setId(nodeEntity.getGeneratedID().toString());

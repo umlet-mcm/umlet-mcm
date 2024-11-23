@@ -1,6 +1,7 @@
 package at.ac.tuwien.model.change.management.core.model.intermediary;
 
-import at.ac.tuwien.model.change.management.core.model.*;
+import at.ac.tuwien.model.change.management.core.model.adapter.AdditionalAttributesAdapter;
+import at.ac.tuwien.model.change.management.core.model.adapter.ElementAttributesAdapter;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -9,6 +10,7 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.List;
 
@@ -25,18 +27,19 @@ public class ElementUxf implements Serializable {
      * and Umlet attributes.
      */
     @XmlElement(name = "panel_attributes")
-    //@XmlJavaTypeAdapter(ElementAttributesAdapter.class)
+    @XmlJavaTypeAdapter(ElementAttributesAdapter.class)
     private ElementAttributesUxf attributes;
 
     /**
      * Attributes used internally by Umlet. E.g. the points of a relation.
      */
+    @Nullable
     @XmlElement(name = "additional_attributes")
-    //@XmlJavaTypeAdapter(AdditionalAttributesAdapter.class)
+    @XmlJavaTypeAdapter(AdditionalAttributesAdapter.class)
     private List<Object> generatedAttributes;
 
     @XmlElement(name = "coordinates")
-    private UMLetPosition umletPosition;
+    private UmletPositionUxf umletPosition;
 
     /**
      * This stores the original text from the panel_attributes, in case we have to use it as a reference.

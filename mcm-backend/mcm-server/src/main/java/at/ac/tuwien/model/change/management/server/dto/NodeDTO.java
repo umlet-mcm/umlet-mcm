@@ -1,6 +1,6 @@
 package at.ac.tuwien.model.change.management.server.dto;
 
-import at.ac.tuwien.model.change.management.core.model.UMLetPosition;
+import at.ac.tuwien.model.change.management.core.model.intermediary.UmletPositionUxf;
 import jakarta.validation.constraints.NotBlank;
 
 import java.util.Map;
@@ -13,6 +13,6 @@ public record NodeDTO(
         String type,
         Map<String, Object> properties,
         Set<String> labels,
-        UMLetPosition umletPosition
+        UmletPositionUxf umletPosition
 ) {
 }

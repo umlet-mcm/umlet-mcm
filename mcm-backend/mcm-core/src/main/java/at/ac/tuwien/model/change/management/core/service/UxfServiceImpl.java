@@ -1,11 +1,8 @@
 package at.ac.tuwien.model.change.management.core.service;
 
-import at.ac.tuwien.model.change.management.core.mapper.ElementUxfMapper;
-import at.ac.tuwien.model.change.management.core.mapper.ModelUxfMapper;
+import at.ac.tuwien.model.change.management.core.mapper.uxf.ModelUxfMapper;
 import at.ac.tuwien.model.change.management.core.model.Configuration;
 import at.ac.tuwien.model.change.management.core.model.Model;
-import at.ac.tuwien.model.change.management.core.model.Node;
-import at.ac.tuwien.model.change.management.core.model.intermediary.ElementUxf;
 import at.ac.tuwien.model.change.management.core.model.intermediary.ModelUxf;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;

@@ -16,7 +16,7 @@ public class Relation extends BaseAttributes{
     private String type; // line type e.g. "<<-"
     @Nullable
     private Node target;
-    private UMLetPosition umletPosition; // bounding box (including the handle circles) top left corner
+    private UmletPosition umletPosition; // bounding box (including the handle circles) top left corner
 
     // position of the start of the line relative to the umletPosition
     // this is usually (10, 10) which is the default size of handle circles at the ends of the relation
@@ -77,16 +77,16 @@ public class Relation extends BaseAttributes{
         r.setRelativeStartPoint(new RelativePosition(
                 (int) source.getGeneratedAttributes().get(0),
                 (int) source.getGeneratedAttributes().get(1),
-                r.getUmletPosition().x,
-                r.getUmletPosition().y
+                r.getUmletPosition().getX(),
+                r.getUmletPosition().getY()
         ));
 
         // The last 2 values are the end point of the line relative to the umletPosition
         r.setRelativeEndpoint(new RelativePosition(
                 (int) source.getGeneratedAttributes().get(pointCount - 2),
                 (int) source.getGeneratedAttributes().get(pointCount - 1),
-                r.getUmletPosition().x,
-                r.getUmletPosition().y
+                r.getUmletPosition().getX(),
+                r.getUmletPosition().getY()
         ));
 
         // Parse any additional midpoints if the line isn't straight
@@ -97,8 +97,8 @@ public class Relation extends BaseAttributes{
                 r.getRelativeMidPoints().add(new RelativePosition(
                         (int) source.getGeneratedAttributes().get(i),
                         (int) source.getGeneratedAttributes().get(i + 1),
-                        r.getUmletPosition().x,
-                        r.getUmletPosition().y
+                        r.getUmletPosition().getX(),
+                        r.getUmletPosition().getY()
                 ));
             }
         }

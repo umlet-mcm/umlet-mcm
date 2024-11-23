@@ -1,4 +1,4 @@
-package at.ac.tuwien.model.change.management.core.mapper;
+package at.ac.tuwien.model.change.management.core.mapper.uxf;
 
 import at.ac.tuwien.model.change.management.core.model.Model;
 import at.ac.tuwien.model.change.management.core.model.intermediary.ModelUxf;

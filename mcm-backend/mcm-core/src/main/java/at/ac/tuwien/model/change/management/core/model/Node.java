@@ -15,11 +15,14 @@ import java.util.Set;
  */
 @Getter
 @Setter
-
 public class Node extends BaseAttributes {
     private String elementType;
     private Map<String, String> umletAttributes;
+
+    /**
+     * Attributes used internally by Umlet. E.g. the points of a relation.
+     */
     private List<Object> generatedAttributes;
-    private UMLetPosition umletPosition;
+    private UmletPosition umletPosition;
     private Set<Relation> relations = new HashSet<>();
 }

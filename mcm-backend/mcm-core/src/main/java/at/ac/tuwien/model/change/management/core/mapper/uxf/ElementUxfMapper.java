@@ -1,11 +1,11 @@
-package at.ac.tuwien.model.change.management.core.mapper;
+package at.ac.tuwien.model.change.management.core.mapper.uxf;
 
 import at.ac.tuwien.model.change.management.core.model.Node;
 import at.ac.tuwien.model.change.management.core.model.intermediary.ElementUxf;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {UmletPositionUxfMapper.class})
 public interface ElementUxfMapper {
     @Mapping(source = "attributes.description", target = "description")
     @Mapping(source = "attributes.mcmAttributes", target = "mcmAttributes")

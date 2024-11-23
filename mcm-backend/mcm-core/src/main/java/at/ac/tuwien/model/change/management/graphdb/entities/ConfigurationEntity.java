@@ -7,14 +7,18 @@ import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
+import javax.annotation.Nullable;
 import java.util.Set;
 
 @Node("Configuration")
 @Getter
 @Setter
 public class ConfigurationEntity {
+
+    /* The id of the configuration, null when new configuration */
     @Id
     @GeneratedValue
+    @Nullable
     private String id;
 
     /* The name of the configuration */

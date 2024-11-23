@@ -1,10 +1,10 @@
 package at.ac.tuwien.model.change.management.graphdb.entities;
 
-import at.ac.tuwien.model.change.management.core.model.Relation;
 import at.ac.tuwien.model.change.management.core.model.UMLetPosition;
 import lombok.*;
 import org.springframework.data.neo4j.core.schema.*;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,14 +16,13 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 public class NodeEntity {
+    /* The id of the node, null when new node */
     @Id @GeneratedValue
+    @Nullable
     private Long generatedID;
 
     /* The name of the element in UMLet Diagram */
     private String name;
-
-    /* The description of the element in UMLet Diagram */
-    private String description;
 
     /* The type of the element in UMLet Diagram */
     private String type;
@@ -36,7 +35,10 @@ public class NodeEntity {
     @CompositeProperty
     private Map<String,String> properties = Map.of();
 
+    /* The tags of the element in UMLet Diagram */
+    private Set<String> tags = Set.of();
+
     /* The original position of the element in UMLet Diagram */
     @CompositeProperty
-    private Map<String, Integer> position = Map.of();
+    private Map<String, Integer> position;
 }

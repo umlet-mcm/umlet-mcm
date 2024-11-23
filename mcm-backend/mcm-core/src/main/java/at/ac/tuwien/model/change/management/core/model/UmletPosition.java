@@ -5,8 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-
-public class UMLetPosition {
+public class UmletPosition {
     int x;
     int y;
     int width;

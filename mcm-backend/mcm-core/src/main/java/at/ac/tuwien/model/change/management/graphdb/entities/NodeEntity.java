@@ -1,8 +1,8 @@
 package at.ac.tuwien.model.change.management.graphdb.entities;
 
-import at.ac.tuwien.model.change.management.core.model.UMLetPosition;
 import lombok.*;
 import org.springframework.data.neo4j.core.schema.*;
+import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -28,7 +28,7 @@ public class NodeEntity {
     private String type;
 
     /* Relations with other elements in UMLet Diagram, i.e. connected with line */
-    @Relationship(type = "RELATION")
+    @Relationship(type = "RELATION", direction = Relationship.Direction.OUTGOING)
     private Set<RelationEntity> relations = Set.of();
 
     /* The properties of the element in UMLet Diagram */

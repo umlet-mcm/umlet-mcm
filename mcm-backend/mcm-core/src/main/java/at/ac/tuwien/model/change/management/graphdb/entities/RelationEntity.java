@@ -3,6 +3,7 @@ package at.ac.tuwien.model.change.management.graphdb.entities;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.neo4j.core.schema.*;
+import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
 import javax.annotation.Nullable;
 
@@ -14,9 +15,7 @@ import javax.annotation.Nullable;
 @Setter
 public class RelationEntity {
     /* The id of the relation, null when new relation */
-    @Id
-    @GeneratedValue
-    @Nullable
+    @RelationshipId
     private Long graphId;
 
     /* The type of the relation */

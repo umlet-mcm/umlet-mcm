@@ -4,18 +4,18 @@ import QueryEditor from "@/components/main-content/QueryEditor.vue"
 import GraphVisualisation from "@/components/main-content/GraphVisualisation.vue"
 import { ref } from "vue"
 import { Play, Eye, ArrowLeft, Save } from 'lucide-vue-next'
-import {Model, models_data} from "@/datamodel/Model.ts";
+import {Model} from "@/datamodel/Model.ts";
+import {Node} from "@/datamodel/Node.ts";
 
 const query = ref('')
-const models = ref<Model[]>(models_data)
 
 defineProps({
   selectedModel: {
-    type: Number,
+    type: Object as () => Model,
     required: false
   },
   selectedNode: {
-    type: String,
+    type: Object as () => Node,
     required: false
   }
 });
@@ -49,7 +49,7 @@ const previewQuery = () => {
     </div>
     <div class="flex items-center justify-between p-4">
       <h1 class="text-xl font-bold p-4">
-        Current model : {{ models.find(m => m.id === selectedModel)?.name }}
+        Current model : {{ selectedModel?.name }}
       </h1>
       <div class="flex gap-4">
         <Button class="p-2 rounded-full" variant="outline">
@@ -64,7 +64,8 @@ const previewQuery = () => {
       <GraphVisualisation
           class="h-full w-full"
           :selected-node="selectedNode"
-          @update:selectedModel="emit('update:selectedNode', $event)"/>
+          :selected-model-id="selectedModel?.id"
+          @update:selectedNode="emit('update:selectedNode', $event)"/>
     </div>
   </div>
 </template>

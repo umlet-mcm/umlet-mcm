@@ -6,12 +6,13 @@ import { Separator } from '@/components/ui/separator'
 import { Configuration } from '@/datamodel/Configuration.ts'
 import ModelList from "@/components/left-side/ModelList.vue"
 import { FileUp, Save, FileOutput, FileStack, Settings } from 'lucide-vue-next'
+import {Model} from "@/datamodel/Model.ts";
 
 const version = AppConfig.version
 
 defineProps({
   selectedModel: {
-    type: Number,
+    type: Object as () => Model,
     required: false
   },
   selectedConfiguration: {

@@ -14,11 +14,11 @@ export const configurations_data = [
         path: 'path/to/configuration1',
         models: [
             {
-                id: 1,
+                id: '1',
                 name: 'Model 1'
             },
             {
-                id: 2,
+                id: '2',
                 name: 'Model 2'
             }
         ],

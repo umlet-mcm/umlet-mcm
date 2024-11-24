@@ -7,9 +7,11 @@ import ProjectList from "@/components/first-window/ProjectList.vue";
 import NewProjectForm from "@/components/first-window/NewProjectForm.vue";
 import {Configuration} from "@/datamodel/Configuration";
 import {getAllConfigurations} from "@/api/configuration.ts";
+import {Model} from "@/datamodel/Model.ts";
+import {Node} from "@/datamodel/Node.ts";
 
-const selectedModel = ref<number | undefined>()
-const selectedNode = ref<string | undefined>()
+const selectedModel = ref<Model | undefined>()
+const selectedNode = ref<Node | undefined>()
 const selectedConfiguration = ref<Configuration | undefined>(undefined);
 const projects = ref<Configuration[]>([]);
 
@@ -49,7 +51,7 @@ onMounted(() => {
     <div class="flex h-screen">
       <LeftPannel v-model:selectedModel="selectedModel" :selectedConfiguration="selectedConfiguration"/>
       <MainContent :selectedModel="selectedModel" v-model:selectedNode="selectedNode"/>
-      <RightPannel :selectedNode="selectedNode"/>
+      <RightPannel :selectedModel="selectedModel" :selectedNode="selectedNode"/>
     </div>
   </div>
   <div v-else>

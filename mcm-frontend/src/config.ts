@@ -1,4 +1,4 @@
 export const AppConfig = {
-    projectName: "UMLetino project",
+    projectName: "UMLetino MCM",
     version: "v1.0.0"
 }

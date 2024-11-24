@@ -20,8 +20,6 @@ const selectNode = (id: string) => {
 onMounted(() => {
   if (!container.value) return
 
-  // Sample data - replace with actual Neo4j data
-
   const nodes = nodes_data.map((node) => {
     return { id: node.id, label: node.name }
   })

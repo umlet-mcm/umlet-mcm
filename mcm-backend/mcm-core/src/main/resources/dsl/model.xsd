@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:include schemaLocation="node.xsd"/>
+    <xs:include schemaLocation="relation.xsd"/>
+    <xs:include schemaLocation="metadata.xsd"/>
+
+    <xs:element name="model">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                    <xs:element name="node" type="Node"/>
+                    <xs:element name="relation" type="Relation"/>
+                </xs:choice>
+                <xs:element name="metadata" type="Metadata" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

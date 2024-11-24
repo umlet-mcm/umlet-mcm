@@ -1,0 +1,11 @@
+<model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="../../mcm-backend/mcm-core/src/main/resources/dsl/model.xsd">
+    <metadata>
+        <panel_attributes>
+            <panel_attribute>
+                <key>bg</key>
+                <value>#5ef49</value>
+            </panel_attribute>
+        </panel_attributes>
+    </metadata>
+</model>

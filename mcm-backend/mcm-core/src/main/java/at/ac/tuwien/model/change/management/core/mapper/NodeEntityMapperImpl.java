@@ -2,17 +2,13 @@ package at.ac.tuwien.model.change.management.core.mapper;
 
 
 import at.ac.tuwien.model.change.management.core.model.Node;
-import at.ac.tuwien.model.change.management.core.model.Relation;
 import at.ac.tuwien.model.change.management.graphdb.entities.NodeEntity;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -22,6 +18,7 @@ import java.util.stream.Collectors;
 @Component
 public class NodeEntityMapperImpl implements NodeEntityMapper {
     private final static String TAGS = "tags";
+    private final static String ID = "Id";
 
     @Autowired
     private PositionMapper positionMapper;
@@ -34,7 +31,11 @@ public class NodeEntityMapperImpl implements NodeEntityMapper {
     private CycleAvoidingMappingContext context;
 
     @Override
-    public NodeEntity toEntity(@NotNull Node node) {
+    public NodeEntity toEntity(Node node) {
+        if(node == null) {
+            return null;
+        }
+
         if(context.getMappedInstance(node, NodeEntity.class) != null) {
             return (NodeEntity) context.getMappedInstance(node, NodeEntity.class);
         }
@@ -78,7 +79,11 @@ public class NodeEntityMapperImpl implements NodeEntityMapper {
     }
 
     @Override
-    public Node fromEntity(@NotNull NodeEntity nodeEntity) {
+    public Node fromEntity(NodeEntity nodeEntity) {
+        if(nodeEntity == null) {
+            return null;
+        }
+
         // To prevent cycles, check if the node entity is already mapped
         if(context.getMappedInstance(nodeEntity, Node.class) != null) {
             return (Node) context.getMappedInstance(nodeEntity, Node.class);
@@ -89,14 +94,17 @@ public class NodeEntityMapperImpl implements NodeEntityMapper {
         // Store the mapping because it has not been mapped yet
         context.storeMappedInstance(nodeEntity, node);
 
+        val mcmAttributes = new HashMap<String, Object>();
         // Set an assigned ID to the node
-        node.setId(nodeEntity.getGeneratedID().toString());
+        if(nodeEntity.getGeneratedID() != null) {
+            mcmAttributes.put(ID, nodeEntity.getGeneratedID().toString());
+        }
 
         // Set the text of the node
         node.setDescription(nodeEntity.getName());
 
         // Map relations back to the Node
-        node.setRelations(nodeEntity.getRelations().stream().map(relation -> new Relation()).collect(Collectors.toSet()));
+        node.setRelations(nodeEntity.getRelations().stream().map(relation -> relationEntityMapper.fromEntity(relation)).collect(Collectors.toSet()));
 
         // Set the type of the node
         node.setElementType(nodeEntity.getType());
@@ -105,13 +113,8 @@ public class NodeEntityMapperImpl implements NodeEntityMapper {
         node.setUmletAttributes(nodeEntity.getProperties());
 
         // Set the tags of the node
-        if(node.getMcmAttributes() != null) {
-            node.getMcmAttributes().put(TAGS, nodeEntity.getTags());
-        } else {
-            Map<String, Object> mcmAttributes = new HashMap<>();
-            mcmAttributes.put(TAGS, nodeEntity.getTags());
-            node.setMcmAttributes(mcmAttributes);
-        }
+        mcmAttributes.put(TAGS, nodeEntity.getTags());
+        node.setMcmAttributes(mcmAttributes);
 
         // Set the position of the node
         node.setUmletPosition(positionMapper.toLocation(nodeEntity.getPosition()));

@@ -16,6 +16,10 @@ public class ConfigurationEntityMapperImpl implements ConfigurationEntityMapper 
     private ModelEntityMapper modelEntityMapper;
     @Override
     public ConfigurationEntity toEntity(Configuration configuration) {
+        if(configuration == null) {
+            return null;
+        }
+
         ConfigurationEntity configurationEntity = new ConfigurationEntity();
 
         // Set the name of the configuration
@@ -29,6 +33,10 @@ public class ConfigurationEntityMapperImpl implements ConfigurationEntityMapper 
 
     @Override
     public Configuration fromEntity(ConfigurationEntity configurationEntity) {
+        if(configurationEntity == null) {
+            return null;
+        }
+
         Configuration configuration = new Configuration();
 
         // Set the name of the configuration

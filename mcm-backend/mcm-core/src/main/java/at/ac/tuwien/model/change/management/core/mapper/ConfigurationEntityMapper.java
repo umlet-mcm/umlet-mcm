@@ -2,7 +2,6 @@ package at.ac.tuwien.model.change.management.core.mapper;
 
 import at.ac.tuwien.model.change.management.core.model.Configuration;
 import at.ac.tuwien.model.change.management.graphdb.entities.ConfigurationEntity;
-import org.mapstruct.Mapper;
 
 /**
  * Mapper for converting between Configuration and ConfigurationEntity

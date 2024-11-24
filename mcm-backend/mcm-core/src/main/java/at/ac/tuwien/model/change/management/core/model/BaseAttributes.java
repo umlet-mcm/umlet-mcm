@@ -29,6 +29,5 @@ public abstract class BaseAttributes {
                 this.mcmType = (String) a.getValue();
             }
         }
-        this.id = (String) mcmAttributes.get(AttributeKeys.ID);
     }
 }

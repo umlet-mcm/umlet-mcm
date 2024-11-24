@@ -1,0 +1,12 @@
+<model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="../../../main/resources/dsl/model.xsd">
+    <id>1</id>
+    <text>Model</text>
+    <mcm_type>PPR</mcm_type>
+    <properties>
+        <property>
+            <key>key1</key>
+            <value>val1</value>
+        </property>
+    </properties>
+</model>

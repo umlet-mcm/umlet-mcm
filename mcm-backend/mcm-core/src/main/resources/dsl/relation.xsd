@@ -5,6 +5,8 @@
         <xs:sequence>
             <xs:element name="id" type="xs:integer"/>
             <xs:element name="text" type="xs:string"/>
+            <xs:element name="element_type" type="xs:string"/>
+            <xs:element name="mcm_type" type="xs:string"/>
             <xs:element name="source">
                 <xs:complexType>
                     <xs:sequence>

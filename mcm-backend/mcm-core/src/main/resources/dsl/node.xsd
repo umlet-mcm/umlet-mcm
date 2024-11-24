@@ -3,10 +3,10 @@
     <xs:include schemaLocation="metadata.xsd"/>
     <xs:complexType name="Node">
         <xs:sequence>
-            <xs:element name="name" type="xs:string"/>
             <xs:element name="id" type="xs:integer"/>
             <xs:element name="text" type="xs:string"/>
-            <xs:element name="type" type="xs:string"/>
+            <xs:element name="element_type" type="xs:string"/>
+            <xs:element name="mcm_type" type="xs:string"/>
             <xs:element name="tags">
                 <xs:complexType>
                     <xs:sequence>

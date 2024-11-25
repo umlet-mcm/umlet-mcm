@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class RepositoryUtils {
 
     public static boolean repositoryExists(Repository repository) {
-        return repository.getObjectDatabase() != null;
+        return repository.getObjectDatabase() != null && repository.getObjectDatabase().exists();
     }
 
     public static String headCommitHash(Repository repository) throws IOException {
@@ -25,9 +25,9 @@ public class RepositoryUtils {
     }
 
     public static Set<Path> writeConfigurationToRepository(Configuration configuration, Repository repository) {
-            return configuration.getModels().stream()
-                    .flatMap(model -> writeModelToRepository(model, repository.getWorkTree().toPath()).stream())
-                    .collect(Collectors.toSet());
+        return configuration.getModels().stream()
+                .flatMap(model -> writeModelToRepository(model, repository.getWorkTree().toPath()).stream())
+                .collect(Collectors.toSet());
     }
 
     private static Set<Path> writeModelToRepository(Model model, Path repositoryWorkDir) {

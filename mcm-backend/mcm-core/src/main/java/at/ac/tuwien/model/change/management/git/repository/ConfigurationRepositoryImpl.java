@@ -30,7 +30,7 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
     @Override
     public Configuration create(Configuration configuration) {
         return repositoryAdapter.withRepository(configuration.getName(), false, repository -> {
-            if (!RepositoryUtils.repositoryExists(repository)) {
+            if (RepositoryUtils.repositoryExists(repository)) {
                 throw new ConfigurationAlreadyExistsException("Could not create configuration '" + configuration.getName() + "', because it already exists");
             }
 

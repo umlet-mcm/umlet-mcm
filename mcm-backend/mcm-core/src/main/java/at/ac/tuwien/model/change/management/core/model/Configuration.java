@@ -13,5 +13,4 @@ public class Configuration {
     @Nullable
     private String version; // hash of the git commit
     private Set<Model> models;
-    private String version;
 }

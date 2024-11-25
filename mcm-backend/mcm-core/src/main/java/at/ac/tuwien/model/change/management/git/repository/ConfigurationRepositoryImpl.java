@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -49,8 +50,11 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
     public Configuration update(Configuration configuration) {
         return repositoryAdapter.withGit(configuration.getName(), git -> {
             try {
+                var updatedConfigurationVersion = Optional.ofNullable(configuration.getVersion())
+                        .orElseThrow(() -> new ConfigurationUpdateException("Could not update configuration '" + configuration.getName() + "', because it has no version"));
                 var headCommitVersion = RepositoryUtils.headCommitHash(git.getRepository());
-                if (configuration.getVersion().equals(headCommitVersion)) {
+
+                if (updatedConfigurationVersion.equals(headCommitVersion)) {
                     // TODO: write configuration to repo worktree
                     var commitMessage = "Update for models: " + configuration.getModels().stream().map(Model::getId).collect(Collectors.joining(", "));
                     git.commit().setMessage(commitMessage).call();
@@ -88,7 +92,8 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
         });
     }
 
-    @Override public List<Configuration> findAll() {
+    @Override
+    public List<Configuration> findAll() {
         try (var files = Files.list(repositoryAdapter.gitRepositoriesPath())) {
             return files.map(Path::getFileName)
                     .map(Path::toString)

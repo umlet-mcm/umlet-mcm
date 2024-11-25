@@ -98,4 +98,20 @@ class ModelEntityMapperImplTest {
         assertEquals("1", result.getId());
         assertTrue(result.getNodes().isEmpty());
     }
+
+    @Test
+    void fromEntity_withIdInsideMcmAttributes() {
+        ModelEntity modelEntity = new ModelEntity();
+        modelEntity.setId("1");
+        modelEntity.setNodes(Set.of());
+
+        Model result = modelEntityMapper.fromEntity(modelEntity);
+
+        assertEquals("1", result.getId());
+        assertNotNull(result.getMcmAttributes());
+        assertFalse(result.getMcmAttributes().isEmpty());
+        assertEquals("1", result.getMcmAttributes().get("Id"));
+        assertEquals(1, result.getMcmAttributes().size());
+        assertTrue(result.getNodes().isEmpty());
+    }
 }

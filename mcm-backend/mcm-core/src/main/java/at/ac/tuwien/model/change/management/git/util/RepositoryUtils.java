@@ -24,9 +24,9 @@ public class RepositoryUtils {
         return repository.resolve(Constants.HEAD).getName();
     }
 
-    public static Set<Path> writeConfigurationToRepository(Configuration configuration, Path repositoryWorkDir) {
+    public static Set<Path> writeConfigurationToRepository(Configuration configuration, Repository repository) {
             return configuration.getModels().stream()
-                    .flatMap(model -> writeModelToRepository(model, repositoryWorkDir).stream())
+                    .flatMap(model -> writeModelToRepository(model, repository.getWorkTree().toPath()).stream())
                     .collect(Collectors.toSet());
     }
 
@@ -47,5 +47,9 @@ public class RepositoryUtils {
     private static Set<Path> writeNodeToRepository(Node node, Path modelWorkDir) {
         // TODO: implement. Don't forget to also add relations
         return Set.of();
+    }
+
+    public static Configuration readConfigurationFromRepository(Repository repository) {
+        return null;
     }
 }

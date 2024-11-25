@@ -4,4 +4,8 @@ public class ConfigurationUpdateException extends ConfigurationPersistenceExcept
     public ConfigurationUpdateException(String message, Throwable cause) {
         super(message, cause);
     }
+
+    public ConfigurationUpdateException(String message) {
+        super(message);
+    }
 }

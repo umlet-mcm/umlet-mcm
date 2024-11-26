@@ -21,4 +21,14 @@ public class UmletPositionUxf {
     int width;
     @XmlElement(name = "h")
     int height;
+
+    @Override
+    public boolean equals(Object obj) {
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+
+        UmletPositionUxf pos = (UmletPositionUxf) obj;
+        return pos.x == this.x && pos.y == this.y && pos.height == this.height && pos.width == this.width;
+    }
 }

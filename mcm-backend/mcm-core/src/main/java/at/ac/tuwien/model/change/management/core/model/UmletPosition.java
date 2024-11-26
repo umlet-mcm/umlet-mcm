@@ -10,4 +10,14 @@ public class UmletPosition {
     int y;
     int width;
     int height;
+
+    @Override
+    public boolean equals(Object obj) {
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+
+        UmletPosition pos = (UmletPosition) obj;
+        return pos.x == this.x && pos.y == this.y && pos.height == this.height && pos.width == this.width;
+    }
 }

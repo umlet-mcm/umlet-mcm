@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -17,6 +18,7 @@ public class Relation extends BaseAttributes {
     @Nullable
     private Node target;
     private UmletPosition umletPosition; // bounding box (including the handle circles) top left corner
+    private Map<String, String> umletAttributes;
 
     // position of the start of the line relative to the umletPosition
     // this is usually (10, 10) which is the default size of handle circles at the ends of the relation
@@ -61,8 +63,11 @@ public class Relation extends BaseAttributes {
         Relation r = new Relation();
 
         String lt = source.getUmletAttributes().get(AttributeKeys.LINE_TYPE);
+        lt = lt == null ? "-" : lt; // default to "-" if the line type was missing
         r.setType(lt);
         r.setUmletPosition(source.getUmletPosition());
+        r.setUmletAttributes(source.getUmletAttributes());
+        r.setOriginalText(source.getOriginalText());
 
         // The points of the relation are stored in the additional_attributes
         // Each valid relation contains at least 2 points so 4 values
@@ -72,26 +77,18 @@ public class Relation extends BaseAttributes {
             return null;
         }
 
-        // Values must be integers
-        for (Object o : source.getGeneratedAttributes()) {
-            if (!(o instanceof Integer)) {
-                log.error("Could not parse relation attribute to int: " + o);
-                return null;
-            }
-        }
-
         // The first 2 values are the start point of the line relative to the umletPosition
         r.setRelativeStartPoint(new RelativePosition(
-                (int) source.getGeneratedAttributes().get(0),
-                (int) source.getGeneratedAttributes().get(1),
+                source.getGeneratedAttributes().get(0),
+                source.getGeneratedAttributes().get(1),
                 r.getUmletPosition().getX(),
                 r.getUmletPosition().getY()
         ));
 
         // The last 2 values are the end point of the line relative to the umletPosition
         r.setRelativeEndPoint(new RelativePosition(
-                (int) source.getGeneratedAttributes().get(pointCount - 2),
-                (int) source.getGeneratedAttributes().get(pointCount - 1),
+                source.getGeneratedAttributes().get(pointCount - 2),
+                source.getGeneratedAttributes().get(pointCount - 1),
                 r.getUmletPosition().getX(),
                 r.getUmletPosition().getY()
         ));
@@ -100,10 +97,10 @@ public class Relation extends BaseAttributes {
         if (pointCount > 4) {
             r.setRelativeMidPoints(new ArrayList<>());
             // process i and i+1 at once so upper bound -1
-            for (int i = 2; i < pointCount - 2 - 1; i++) {
+            for (int i = 2; i < pointCount - 2 - 1; i += 2) {
                 r.getRelativeMidPoints().add(new RelativePosition(
-                        (int) source.getGeneratedAttributes().get(i),
-                        (int) source.getGeneratedAttributes().get(i + 1),
+                        source.getGeneratedAttributes().get(i),
+                        source.getGeneratedAttributes().get(i + 1),
                         r.getUmletPosition().getX(),
                         r.getUmletPosition().getY()
                 ));
@@ -111,5 +108,21 @@ public class Relation extends BaseAttributes {
         }
 
         return r;
+    }
+
+    public ArrayList<Integer> getGeneratedAttributes() {
+        ArrayList<Integer> genAttrs = new ArrayList<>();
+        genAttrs.add(relativeStartPoint.getOffsetX());
+        genAttrs.add(relativeStartPoint.getOffsetY());
+        if (relativeMidPoints != null) {
+            for (RelativePosition rp : relativeMidPoints) {
+                genAttrs.add(rp.getOffsetX());
+                genAttrs.add(rp.getOffsetY());
+            }
+        }
+        genAttrs.add(relativeEndpoint.getOffsetX());
+        genAttrs.add(relativeEndpoint.getOffsetY());
+
+        return genAttrs;
     }
 }

@@ -12,6 +12,12 @@ import java.util.Map;
 @Getter
 @Setter
 public class BaseAttributesUxf {
+    protected String originalText;
     protected String description;
     protected Map<String, Object> mcmAttributes;
+
+    @Override
+    public String toString() {
+        return originalText;
+    }
 }

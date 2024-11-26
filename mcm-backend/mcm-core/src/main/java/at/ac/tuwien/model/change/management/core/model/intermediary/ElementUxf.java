@@ -36,7 +36,7 @@ public class ElementUxf implements Serializable {
     @Nullable
     @XmlElement(name = "additional_attributes")
     @XmlJavaTypeAdapter(AdditionalAttributesAdapter.class)
-    private List<Object> generatedAttributes;
+    private List<Integer> generatedAttributes;
 
     @XmlElement(name = "coordinates")
     private UmletPositionUxf umletPosition;

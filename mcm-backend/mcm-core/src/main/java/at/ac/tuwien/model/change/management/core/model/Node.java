@@ -22,7 +22,7 @@ public class Node extends BaseAttributes {
     /**
      * Attributes used internally by Umlet. E.g. the points of a relation.
      */
-    private List<Object> generatedAttributes;
+    private List<Integer> generatedAttributes;
     private UmletPosition umletPosition;
     private Set<Relation> relations = new HashSet<>();
 }

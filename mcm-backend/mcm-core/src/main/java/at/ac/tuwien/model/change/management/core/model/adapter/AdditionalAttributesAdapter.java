@@ -21,15 +21,21 @@ public class AdditionalAttributesAdapter extends XmlAdapter<String, List<Object>
         ArrayList<Object> attributes = new ArrayList<>();
         String[] vals = v.split(ATTRIBUTE_VALUE_DELIM);
         for (String val : vals) {
-            attributes.add(ParserUtils.tryParseString(val));
+            attributes.add(ParserUtils.tryParseString(val, false));
         }
 
         return attributes;
     }
 
-    // todo
     @Override
     public String marshal(List<Object> v) {
-        return null;
+        StringBuilder sb = new StringBuilder();
+        for (Object o : v) {
+            sb.append(o);
+            sb.append(ATTRIBUTE_VALUE_DELIM);
+        }
+        sb.deleteCharAt(sb.length() - 1); // remove trailing delimiter
+
+        return sb.toString();
     }
 }

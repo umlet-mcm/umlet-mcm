@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
-import { Network } from 'vis-network'
-import { nodes_data, edges_data } from "@/datamodel/Node.ts"
+import { Network, Edge } from 'vis-network'
 import {Node} from "@/datamodel/Node.ts";
+import {Model} from "@/datamodel/Model.ts";
 
 const container = ref<HTMLElement | null>(null)
 
@@ -11,34 +11,40 @@ const props = defineProps({
     type: Object as () => Node,
     required: false
   },
-  selectedModelId: {
-    type: String,
+  selectedModel: {
+    type: Object as () => Model,
     required: false
   }
 })
 
 const emit = defineEmits(["update:selectedNode"]);
 
-const selectNode = (node: Node) => {
+const selectNode = (nodeId: string) => {
+  const node = props.selectedModel?.nodes.find((node) => node.id === nodeId);
   emit("update:selectedNode", node);
 };
 
 let network: Network | null = null;
 
 const initializeGraph = () => {
-  if (!container.value || !props.selectedModelId) return;
+  if (!container.value || !props.selectedModel) return;
 
-  const nodes = nodes_data.filter(value => value.model_id === props.selectedModelId).map((node) => ({
+  const nodes = props.selectedModel.nodes.map((node) => ({
     id: node.id,
-    label: node.name,
+    label: node.id,
   }));
 
-  const edges = edges_data.filter(value => value.model_id === props.selectedModelId).map((edge) => ({
-    from: edge.from,
-    to: edge.to,
-    label: edge.name,
-    arrows: 'to',
-  }));
+  const edges: Edge[] = []
+  props.selectedModel.nodes.forEach((node) => {
+    node.relations.forEach((relation) => {
+      edges.push({
+        from: relation.source,
+        to: relation.target,
+        label: relation.text,
+        arrows: 'to',
+      });
+    });
+  })
 
   const options = {
     nodes: {
@@ -76,7 +82,7 @@ const initializeGraph = () => {
 
     },
     layout: {
-      improvedLayout: true, // Algorithme d'agencement pour éviter les chevauchements
+      improvedLayout: true
     },
   };
 
@@ -89,13 +95,12 @@ const initializeGraph = () => {
   network.on('click', (params) => {
     if (params.nodes.length > 0) {
       const nodeId = params.nodes[0];
-      const node = nodes.find((n) => n.id === nodeId);
-      if (node) selectNode(nodes_data.find((n) => n.id === node.id) as Node);
+      if (nodeId) selectNode(nodeId);
     }
   });
 };
 
-watch(() => props.selectedModelId, (newValue, oldValue) => {
+watch(() => props.selectedModel, (newValue, oldValue) => {
   if (newValue !== oldValue) {
     //todo fetch nodes and edges based on selectedModelId (newValue)
     initializeGraph();

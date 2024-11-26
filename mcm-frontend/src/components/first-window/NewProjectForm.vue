@@ -7,15 +7,9 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
 import * as z from 'zod'
 import {createConfiguration} from "@/api/configuration.ts";
+import { useRouter } from 'vue-router'
 
-defineProps({
-  selectedConfiguration: {
-    type: Object,
-    required: false
-  }
-});
-
-const emit = defineEmits(["update:selectedConfiguration"]);
+const router = useRouter()
 
 const formSchema = toTypedSchema(z.object({
   configName: z.string().min(2).max(50)
@@ -27,8 +21,8 @@ const form = useForm({
 
 const createProject = async (data: { projectName: string }) => {
   try {
-    const project = await createConfiguration(data);
-    emit('update:selectedConfiguration', project);
+    const createdConfig = await createConfiguration(data);
+    await router.push({name: 'configview', params: {id: createdConfig.name}})
   } catch (error) {
     form.setFieldError('configName', 'Error creating project');
   }
@@ -51,7 +45,7 @@ const onSubmit = form.handleSubmit((values) => {
           <FormItem>
             <FormLabel>Configuration name</FormLabel>
             <FormControl>
-              <Input type="text" required placeholder="Configuration name" v-bind="componentField" />
+              <Input type="text" required placeholder="Name" v-bind="componentField" />
             </FormControl>
           </FormItem>
           <FormMessage v-if="errorMessage">{{ errorMessage }}</FormMessage>
@@ -60,7 +54,6 @@ const onSubmit = form.handleSubmit((values) => {
         <PlusIcon class="w-5 h-5" />
         Create
       </Button>
-
     </form>
   </div>
 </template>

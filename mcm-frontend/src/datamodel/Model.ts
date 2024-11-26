@@ -1,4 +1,6 @@
+import {Node} from "@/datamodel/Node.ts";
+
 export type Model = {
     id: string
-    name: string
+    nodes: Node[]
 }

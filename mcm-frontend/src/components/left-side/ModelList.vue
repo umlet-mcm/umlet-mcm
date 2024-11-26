@@ -39,7 +39,7 @@ const placeholder = () => {
             <div class="flex items-center">
               <div class="flex items-center gap-2">
                 <div class="font-semibold">
-                  {{ item.name }}
+                  {{ item.id }}
                 </div>
               </div>
               <div :class="cn('ml-auto', selectedModel?.id === item.id ? 'visible' : 'invisible')">

@@ -18,16 +18,21 @@ export const getAllConfigurations = async (): Promise<Configuration[]> => {
     }
 };
 
+export const getConfigurationById = async (data: { id: string }): Promise<Configuration> => {
+    try {
+        // const response = await apiClient.get('/configurations'); //todo use api
+        // return response.data;
+        return configurations_data[0]
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const createConfiguration = async (data: { projectName: string }): Promise<Configuration> => {
     try {
         // const response = await apiClient.post('/configurations', data); //todo use api
         // return response.data;
-        return {
-            id: '1',
-            name: data.projectName,
-            path: 'path/to/configuration1',
-            models: [],
-        }
+        return configurations_data[0]
     } catch (error) {
         throw error;
     }

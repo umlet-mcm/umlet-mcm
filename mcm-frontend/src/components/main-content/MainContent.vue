@@ -49,7 +49,7 @@ const previewQuery = () => {
     </div>
     <div class="flex items-center justify-between p-4">
       <h1 class="text-xl font-bold p-4">
-        Current model : {{ selectedModel?.name }}
+        Current model : {{ selectedModel?.id }}
       </h1>
       <div class="flex gap-4">
         <Button class="p-2 rounded-full" variant="outline">
@@ -60,12 +60,20 @@ const previewQuery = () => {
         </Button>
       </div>
     </div>
+
     <div class="flex-1 p-2 overflow-hidden">
-      <GraphVisualisation
-          class="h-full w-full"
-          :selected-node="selectedNode"
-          :selected-model-id="selectedModel?.id"
-          @update:selectedNode="emit('update:selectedNode', $event)"/>
+      <div v-if="selectedModel" class="h-full w-full">
+        <GraphVisualisation
+            class="h-full w-full"
+            :selected-node="selectedNode"
+            :selected-model="selectedModel"
+            @update:selectedNode="emit('update:selectedNode', $event)"/>
+      </div>
+      <div v-else class="h-full w-full">
+        <div class="flex-1 flex justify-center">
+          <p class="text-muted-foreground">No model selected</p>
+        </div>
+      </div>
     </div>
   </div>
 </template>

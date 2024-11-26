@@ -43,19 +43,19 @@ const placeholder = () => {
     <Separator />
     <div class="space-y-4">
       <div>
-        <h2 class="text-sm font-semibold mb-2">Project Operations</h2>
+        <h2 class="text-sm font-semibold mb-2">Configuration Operations</h2>
         <div class="space-y-2">
-          <Button variant="outline" class="w-full justify-start" @click="placeholder">
+          <Button variant="outline" class="w-full justify-start" @click="$router.push({name:'home'})">
             <FileUp class="mr-2" />
-            Open new project
+            Open new configuration
           </Button>
           <Button variant="outline" class="w-full justify-start" @click="placeholder">
             <Save class="mr-2" />
-            Save project
+            Save configuration
           </Button>
           <Button variant="outline" class="w-full justify-start" @click="placeholder">
             <FileOutput class="mr-2" />
-            Export project to UXF
+            Export to UXF
           </Button>
           <Button variant="outline" class="w-full justify-start" @click="placeholder">
             <FileOutput class="mr-2" />

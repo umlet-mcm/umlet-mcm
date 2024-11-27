@@ -218,7 +218,9 @@ public class ParserUtils {
      * and not modified.
      */
     public static Object tryParseString(String in, boolean wrapInList) {
-        if (in.startsWith("\"") && in.endsWith("\"") && in.length() > 1) {
+        if (((in.startsWith("\"") && in.endsWith("\"")) ||
+                (in.startsWith("`") && in.endsWith("`")))
+                        && in.length() > 1) {
             // the value was originally a string, remove the leading and trailing "
             String res = in.substring(1, in.length() - 1);
             return wrapInList ? new ArrayList<>(List.of(res)) : res;

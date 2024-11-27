@@ -17,7 +17,7 @@ public class Relation extends BaseAttributes {
     private String type; // line type e.g. "<<-"
     @Nullable
     private Node target;
-    private UmletPosition umletPosition; // bounding box (including the handle circles) top left corner
+    private UMLetPosition umletPosition; // bounding box (including the handle circles) top left corner
     private Map<String, String> umletAttributes;
 
     // position of the start of the line relative to the umletPosition

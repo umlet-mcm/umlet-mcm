@@ -1,11 +1,13 @@
 package at.ac.tuwien.model.change.management.core.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class UmletPosition {
+@AllArgsConstructor
+public class UMLetPosition {
     int x;
     int y;
     int width;
@@ -17,7 +19,7 @@ public class UmletPosition {
             return false;
         }
 
-        UmletPosition pos = (UmletPosition) obj;
+        UMLetPosition pos = (UMLetPosition) obj;
         return pos.x == this.x && pos.y == this.y && pos.height == this.height && pos.width == this.width;
     }
 }

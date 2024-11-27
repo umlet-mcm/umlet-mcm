@@ -1,12 +1,10 @@
 package at.ac.tuwien.model.change.management.core.model;
 
+import at.ac.tuwien.model.change.management.core.model.attributes.ElementAttributes;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Java representation for 'element' types in the uxf files. Initially every element is parsed
@@ -15,14 +13,15 @@ import java.util.Set;
  */
 @Getter
 @Setter
-public class Node extends BaseAttributes {
+public class Node extends ElementAttributes {
     private String elementType;
-    private Map<String, String> umletAttributes;
 
     /**
      * Attributes used internally by Umlet. E.g. the points of a relation.
      */
     private List<Integer> generatedAttributes;
+
     private UMLetPosition umletPosition;
+
     private Set<Relation> relations = new HashSet<>();
 }

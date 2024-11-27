@@ -1,5 +1,6 @@
 package at.ac.tuwien.model.change.management.core.model;
 
+import at.ac.tuwien.model.change.management.core.model.attributes.BaseAttributes;
 import lombok.Getter;
 import lombok.Setter;
 

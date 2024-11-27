@@ -1,6 +1,7 @@
 package at.ac.tuwien.model.change.management.core.model;
 
 import at.ac.tuwien.model.change.management.core.model.attributes.AttributeKeys;
+import at.ac.tuwien.model.change.management.core.model.attributes.ElementAttributes;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -8,17 +9,15 @@ import lombok.extern.slf4j.Slf4j;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Getter
 @Setter
 @Slf4j
-public class Relation extends BaseAttributes {
+public class Relation extends ElementAttributes {
     private String type; // line type e.g. "<<-"
     @Nullable
     private Node target;
     private UMLetPosition umletPosition; // bounding box (including the handle circles) top left corner
-    private Map<String, String> umletAttributes;
 
     // position of the start of the line relative to the umletPosition
     // this is usually (10, 10) which is the default size of handle circles at the ends of the relation

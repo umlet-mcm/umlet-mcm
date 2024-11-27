@@ -11,9 +11,12 @@ import java.util.LinkedHashMap;
  */
 @Getter
 @Setter
-public abstract class ElementAttributes extends BaseAttributes{
+public abstract class ElementAttributes extends BaseAttributes {
     protected String mcmModel;
 
+    /**
+     * key=value attributes extracted from panel_attributes. E.g. background color
+     */
     private LinkedHashMap<String, String> umletAttributes;
 
     @Nullable

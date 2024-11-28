@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Objects;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -25,6 +27,6 @@ public class UMLetPosition {
 
     @Override
     public int hashCode() {
-        return Objects.hash(x,y,height,width);
+        return Objects.hash(x, y, height, width);
     }
 }

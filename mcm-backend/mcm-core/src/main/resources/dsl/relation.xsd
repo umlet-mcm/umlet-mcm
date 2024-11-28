@@ -1,23 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
     <xs:include schemaLocation="metadata.xsd"/>
+
     <xs:complexType name="Relation">
         <xs:sequence>
             <xs:element name="id" type="xs:integer"/>
-            <xs:element name="text" type="xs:string"/>
-            <xs:element name="source">
+            <xs:element name="mcm_model" type="xs:string"/>
+            <xs:element name="title" type="xs:string"/>
+            <xs:element name="description" type="xs:string"/>
+            <xs:element name="element_type" type="xs:string"/>
+            <xs:element name="ppr_type" type="xs:string"/>
+            <xs:element name="tags">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element name="id" type="xs:integer"/>
-                        <xs:element name="text" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="target">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element name="id" type="xs:integer"/>
-                        <xs:element name="text" type="xs:string"/>
+                        <xs:element name="tag" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -35,7 +31,23 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="metadata" type="Metadata"/>
+            <xs:element name="source">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="id" type="xs:integer"/>
+                        <xs:element name="text" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="target">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="id" type="xs:integer"/>
+                        <xs:element name="text" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="metadata" type="Metadata" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
     <xs:element name="relation" type="Relation"/>

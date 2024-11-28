@@ -22,7 +22,7 @@ public class Relation extends ElementAttributes {
     private RelativePosition relativeStartPoint;
     private List<RelativePosition> relativeMidPoints; // midpoints relative to umletPosition
     private RelativePosition relativeEndpoint; // position of the end of the line relative to the umletPosition
-
+    
     private Point startPoint;
     private Point endPoint;
 

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:include schemaLocation="relative_position.xsd"/>
+
+    <xs:complexType name="Metadata">
+        <xs:sequence>
+            <xs:element name="coordinates" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="x" type="xs:string"/>
+                        <xs:element name="y" type="xs:string"/>
+                        <xs:element name="w" type="xs:string"/>
+                        <xs:element name="h" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="positions" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="relative_start_point" type="RelativePosition"/>
+                        <xs:element name="relative_mid_points" minOccurs="0">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="relative_mid_point" type="RelativePosition"
+                                                maxOccurs="unbounded"/>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                        <xs:element name="relative_end_point" type="RelativePosition"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="panel_attributes" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="panel_attribute" maxOccurs="unbounded">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="key" type="xs:string"/>
+                                    <xs:element name="value" type="xs:string"/>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="additional_attributes" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="additional_attribute"
+                                    maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

@@ -4,7 +4,7 @@ import at.ac.tuwien.model.change.management.core.model.Configuration;
 import at.ac.tuwien.model.change.management.core.model.Model;
 import at.ac.tuwien.model.change.management.git.annotation.GitComponent;
 import at.ac.tuwien.model.change.management.git.exception.*;
-import at.ac.tuwien.model.change.management.git.util.RepositoryAdapter;
+import at.ac.tuwien.model.change.management.git.util.RepositoryManager;
 import at.ac.tuwien.model.change.management.git.util.RepositoryUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,11 +25,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 
-    private final RepositoryAdapter repositoryAdapter;
+    private final RepositoryManager repositoryManager;
 
     @Override
     public Configuration create(Configuration configuration) {
-        return repositoryAdapter.withRepository(configuration.getName(), false, repository -> {
+        return repositoryManager.withRepository(configuration.getName(), false, repository -> {
             if (RepositoryUtils.repositoryExists(repository)) {
                 throw new ConfigurationAlreadyExistsException("Could not create configuration '" + configuration.getName() + "', because it already exists");
             }
@@ -48,7 +48,7 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 
     @Override
     public Configuration update(Configuration configuration) {
-        return repositoryAdapter.withGit(configuration.getName(), git -> {
+        return repositoryManager.withGit(configuration.getName(), git -> {
             try {
                 var updatedConfigurationVersion = Optional.ofNullable(configuration.getVersion())
                         .orElseThrow(() -> new ConfigurationUpdateException("Could not update configuration '" + configuration.getName() + "', because it has no version"));
@@ -74,7 +74,7 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
     @Override
     public void delete(String name) {
         // TODO: maybe use withGit? would allow caching. However, delete operations are supposed to be idempotent
-        repositoryAdapter.withRepository(name, false, repository -> {
+        repositoryManager.withRepository(name, false, repository -> {
             try {
                 if (!FileSystemUtils.deleteRecursively(repository.getWorkTree().toPath())) {
                     throw new ConfigurationDeleteException("Failed to delete configuration '" + name + "'");
@@ -87,17 +87,17 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 
     @Override
     public Configuration findConfigurationByName(String name) {
-        return repositoryAdapter.withGit(name, git -> {
+        return repositoryManager.withGit(name, git -> {
             return RepositoryUtils.readConfigurationFromRepository(git.getRepository());
         });
     }
 
     @Override
     public List<Configuration> findAll() {
-        try (var files = Files.list(repositoryAdapter.gitRepositoriesPath())) {
+        try (var files = Files.list(repositoryManager.gitRepositoriesPath())) {
             return files.map(Path::getFileName)
                     .map(Path::toString)
-                    .map(repositoryName -> repositoryAdapter.withRepository(repositoryName, false, repository -> {
+                    .map(repositoryName -> repositoryManager.withRepository(repositoryName, false, repository -> {
                         if (RepositoryUtils.repositoryExists(repository)) {
                             return RepositoryUtils.readConfigurationFromRepository(repository);
                         }

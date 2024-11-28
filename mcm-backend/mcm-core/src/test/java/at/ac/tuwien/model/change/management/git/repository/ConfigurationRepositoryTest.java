@@ -3,7 +3,7 @@ package at.ac.tuwien.model.change.management.git.repository;
 import at.ac.tuwien.model.change.management.core.model.Configuration;
 import at.ac.tuwien.model.change.management.git.config.GitProperties;
 import at.ac.tuwien.model.change.management.git.exception.ConfigurationAlreadyExistsException;
-import at.ac.tuwien.model.change.management.git.util.RepositoryAdapter;
+import at.ac.tuwien.model.change.management.git.util.RepositoryManager;
 import at.ac.tuwien.model.change.management.git.util.RepositoryUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +19,7 @@ public class ConfigurationRepositoryTest {
 
     @TempDir
     private Path tempDir;
-    private RepositoryAdapter repositoryAdapter;
+    private RepositoryManager repositoryManager;
     private ConfigurationRepository configurationRepository;
 
 
@@ -27,8 +27,8 @@ public class ConfigurationRepositoryTest {
     public void setUp() {
         var gitProperties = mock(GitProperties.class);
         when(gitProperties.getRepositoryPath()).thenReturn(tempDir);
-        repositoryAdapter = new RepositoryAdapter(gitProperties);
-        configurationRepository = new ConfigurationRepositoryImpl(repositoryAdapter);
+        repositoryManager = new RepositoryManager(gitProperties);
+        configurationRepository = new ConfigurationRepositoryImpl(repositoryManager);
     }
 
     @Test
@@ -38,7 +38,7 @@ public class ConfigurationRepositoryTest {
         configuration.setName(configurationName);
         configurationRepository.create(configuration);
 
-        assertThat(repositoryAdapter.withRepository(configurationName, true, RepositoryUtils::repositoryExists)).isTrue();
+        assertThat(repositoryManager.withRepository(configurationName, true, RepositoryUtils::repositoryExists)).isTrue();
         assertThat(tempDir.resolve("test").resolve(".git")).exists();
     }
 
@@ -61,7 +61,7 @@ public class ConfigurationRepositoryTest {
         configuration.setName(configurationName);
         configurationRepository.create(configuration);
         configurationRepository.delete(configurationName);
-        assertThat(repositoryAdapter.withRepository(configurationName, false, RepositoryUtils::repositoryExists)).isFalse();
+        assertThat(repositoryManager.withRepository(configurationName, false, RepositoryUtils::repositoryExists)).isFalse();
         assertThat(tempDir.resolve("test")).doesNotExist();
     }
 }

@@ -16,7 +16,7 @@ import java.nio.file.Path;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class RepositoryAdapter {
+public class RepositoryManager {
 
     private final GitProperties gitProperties;
     private static final String GIT_DIRECTORY = ".git";

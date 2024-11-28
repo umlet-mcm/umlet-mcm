@@ -1,0 +1,22 @@
+<model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="../../../main/resources/dsl/model.xsd">
+    <id>1</id>
+    <title>Model</title>
+    <description>Model description</description>
+    <tags>
+        <tag>1</tag>
+        <tag>2</tag>
+    </tags>
+    <properties>
+        <property>
+            <key>key1</key>
+            <value>val1</value>
+        </property>
+    </properties>
+    <metadata>
+        <original_text>
+            Model
+            Model description
+        </original_text>
+    </metadata>
+</model>

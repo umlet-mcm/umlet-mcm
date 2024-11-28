@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Separator } from '@/components/ui/separator'
-import {Model} from "@/datamodel/Model.ts";
-import {Node} from "@/datamodel/Node.ts";
+import {Model} from "@/types/Model.ts";
+import {Node} from "@/types/Node.ts";
 
 defineProps({
   selectedModel: {
@@ -24,7 +24,7 @@ defineProps({
     </div>
     <Separator />
     <h2 class="text-lg font-semibold mb-4">
-      Node attributes of : {{ selectedNode?.name }}
+      Node attributes of : {{ selectedNode?.id }}
     </h2>
     <div class="flex justify-center h-full">
       <p v-if="selectedNode === undefined" class="text-muted-foreground flex h-full items-center">
@@ -38,7 +38,7 @@ defineProps({
         </tr>
         </thead>
         <tbody>
-        <tr class="bg-primary-light" v-for="(attribute, index) in selectedNode?.attributes" :key="index">
+        <tr class="bg-primary-light" v-for="(attribute, index) in selectedNode?.properties" :key="index">
           <td class="border border-gray-300 px-4 py-2">{{ attribute[0] }}</td>
           <td class="border border-gray-300 px-4 py-2">{{ attribute[1] }}</td>
         </tr>

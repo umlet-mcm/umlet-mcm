@@ -1,4 +1,4 @@
-import {Model} from "@/datamodel/Model.ts";
+import {Model} from "@/types/Model.ts";
 
 export type Configuration = {
     name: string

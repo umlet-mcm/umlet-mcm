@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { FileIcon } from 'lucide-vue-next'
-import {Configuration} from "@/datamodel/Configuration";
+import {Configuration} from "@/types/Configuration";
 
 defineProps<{
   configuration: Configuration

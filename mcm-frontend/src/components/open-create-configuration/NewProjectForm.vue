@@ -19,17 +19,17 @@ const form = useForm({
   validationSchema: formSchema,
 })
 
-const createProject = async (data: { projectName: string }) => {
+const createProject = async (data: { name: string }) => {
   try {
     const createdConfig = await createConfiguration(data);
-    await router.push({name: 'configview', params: {id: createdConfig.name}})
+    await router.push({name: 'mainview', params: {id: createdConfig.name}})
   } catch (error) {
     form.setFieldError('configName', 'Error creating project');
   }
 }
 
 const onSubmit = form.handleSubmit((values) => {
-  createProject({ projectName: values.configName })
+  createProject({ name: values.configName })
 })
 
 </script>

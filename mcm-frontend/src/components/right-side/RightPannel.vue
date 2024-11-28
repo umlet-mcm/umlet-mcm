@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Separator } from '@/components/ui/separator'
-import {Model} from "@/datamodel/Model.ts";
-import {Node} from "@/datamodel/Node.ts";
+import {Model} from "@/types/Model.ts";
+import {Node} from "@/types/Node.ts";
 
 defineProps({
   selectedModel: {

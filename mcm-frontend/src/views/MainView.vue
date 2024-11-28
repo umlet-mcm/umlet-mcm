@@ -4,10 +4,10 @@ import LeftPannel from "@/components/left-side/LeftPannel.vue";
 import RightPannel from "@/components/right-side/RightPannel.vue";
 import MainContent from "@/components/main-content/MainContent.vue";
 import { useRoute } from 'vue-router'
-import {Model} from "@/datamodel/Model.ts";
-import {Node} from "@/datamodel/Node.ts";
+import {Model} from "@/types/Model.ts";
+import {Node} from "@/types/Node.ts";
 import {onMounted, ref} from "vue";
-import {Configuration} from "@/datamodel/Configuration.ts";
+import {Configuration} from "@/types/Configuration.ts";
 import {getConfigurationById} from "@/api/configuration.ts";
 const route = useRoute()
 

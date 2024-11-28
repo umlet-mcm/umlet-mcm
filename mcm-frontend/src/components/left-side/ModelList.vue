@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { cn } from '@/lib/utils'
-import { Model } from '@/datamodel/Model.ts'
+import { Model } from '@/types/Model.ts'
 import {Button} from "@/components/ui/button";
 import {Trash} from "lucide-vue-next";
 

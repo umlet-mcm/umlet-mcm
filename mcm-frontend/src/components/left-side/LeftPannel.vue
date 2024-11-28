@@ -3,10 +3,10 @@
 import { AppConfig } from "@/config.ts";
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { Configuration } from '@/datamodel/Configuration.ts'
+import { Configuration } from '@/types/Configuration.ts'
 import ModelList from "@/components/left-side/ModelList.vue"
 import { FileUp, Save, FileOutput, FileStack, Settings } from 'lucide-vue-next'
-import {Model} from "@/datamodel/Model.ts";
+import {Model} from "@/types/Model.ts";
 
 const version = AppConfig.version
 

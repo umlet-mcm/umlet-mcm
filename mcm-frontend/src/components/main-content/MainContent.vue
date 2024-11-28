@@ -4,8 +4,8 @@ import QueryEditor from "@/components/main-content/QueryEditor.vue"
 import GraphVisualisation from "@/components/main-content/GraphVisualisation.vue"
 import { ref } from "vue"
 import { Play, Eye, ArrowLeft, Save } from 'lucide-vue-next'
-import {Model} from "@/datamodel/Model.ts";
-import {Node} from "@/datamodel/Node.ts";
+import {Model} from "@/types/Model.ts";
+import {Node} from "@/types/Node.ts";
 
 const query = ref('')
 

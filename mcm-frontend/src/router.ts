@@ -1,16 +1,15 @@
-import OpenCreateProjectView from "@/components/first-window/OpenCreateProjectView.vue";
-import MainView from "@/components/main-content/MainView.vue";
+import OpenCreateProjectView from "@/views/OpenCreateProjectView.vue";
+import MainView from "@/views/MainView.vue";
 import {createRouter, createWebHistory} from "vue-router";
 
 const routes = [
     { path: '/', name: "home", component: OpenCreateProjectView },
     {
         path: '/configuration/:id',
-        name: "configview",
+        name: "mainview",
         component: MainView,
         props: route => ({
-            id: route.params.id,
-            model: route.query.model
+            id: route.params.id
         }),
     }
 ]

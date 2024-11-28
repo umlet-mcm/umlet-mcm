@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { FolderIcon } from 'lucide-vue-next'
-import {Configuration} from "@/datamodel/Configuration";
-import ProjectListView from "@/components/first-window/ProjectListView.vue";
+import {Configuration} from "@/types/Configuration";
+import ProjectListView from "@/components/open-create-configuration/ProjectListView.vue";
 import {ScrollArea} from "@/components/ui/scroll-area";
 
 defineProps<{
@@ -22,7 +22,7 @@ defineProps<{
           v-for="config in configurations"
           :key="config.name"
           :configuration="config"
-          @select="$router.push({ name: 'configview', params: { id: config.name } })"
+          @select="$router.push({ name: 'mainview', params: { id: config.name } })"
       />
       </ScrollArea>
     </div>

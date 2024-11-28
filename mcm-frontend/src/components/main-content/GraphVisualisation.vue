@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { Network, Edge } from 'vis-network'
-import {Node} from "@/datamodel/Node.ts";
-import {Model} from "@/datamodel/Model.ts";
+import {Node} from "@/types/Node.ts";
+import {Model} from "@/types/Model.ts";
 
 const container = ref<HTMLElement | null>(null)
 
@@ -102,7 +102,6 @@ const initializeGraph = () => {
 
 watch(() => props.selectedModel, (newValue, oldValue) => {
   if (newValue !== oldValue) {
-    //todo fetch nodes and edges based on selectedModelId (newValue)
     initializeGraph();
   }
 });

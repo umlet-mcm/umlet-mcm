@@ -1,4 +1,4 @@
-import {Node} from "@/datamodel/Node.ts";
+import {Node} from "@/types/Node.ts";
 
 export type Model = {
     id: string

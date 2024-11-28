@@ -1,5 +1,6 @@
 package at.ac.tuwien.model.change.management.core.model;
 
+import at.ac.tuwien.model.change.management.core.model.attributes.ElementAttributes;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +11,7 @@ import java.util.List;
 @Getter
 @Setter
 @Slf4j
-public class Relation extends BaseAttributes {
+public class Relation extends ElementAttributes {
     private String type; // line type e.g. "<<-"
     @Nullable
     private Node target;

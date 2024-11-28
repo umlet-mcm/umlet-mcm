@@ -12,7 +12,7 @@ import {ref} from "vue";
 
 const version = AppConfig.version
 
-defineProps({
+const props = defineProps({
   selectedModel: {
     type: Object as () => Model,
     required: false
@@ -25,6 +25,11 @@ defineProps({
 
 const emit = defineEmits(["update:selectedModel"]);
 const isMergeDialogOpen = ref(false)
+
+const handleMerge = (mergedModel: Model) => {
+  props.selectedConfiguration.models.push(mergedModel)
+  emit('update:selectedModel', mergedModel)
+}
 
 const placeholder = () => {
   console.log('Placeholder')
@@ -98,5 +103,6 @@ const placeholder = () => {
   <DialogMerge
       v-model:isOpen="isMergeDialogOpen"
       :models="selectedConfiguration.models"
+      @merge="handleMerge"
   />
 </template>

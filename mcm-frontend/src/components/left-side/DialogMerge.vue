@@ -7,8 +7,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Model } from '@/types/Model'
+import {mergeModels} from "@/api/model.ts";
 
-defineProps({
+const props = defineProps({
   isOpen: {
     type: Boolean,
     required: true
@@ -20,36 +21,43 @@ defineProps({
 });
 
 const emit = defineEmits<{
-  'update:isOpen': [value: boolean]
+  'update:isOpen': [value: boolean],
+  merge: [mergedModel: Model]
 }>()
 
-const selectedModels = ref<string[]>([])
+const selectedModelsId = ref<string[]>([])
 const newModelName = ref('')
 
 const canMerge = computed(() => {
-  return selectedModels.value.length >= 2 && newModelName.value.trim().length > 0
+  return selectedModelsId.value.length >= 2 && newModelName.value.trim().length > 0
 })
 
 const toggleModel = (modelId: string) => {
-  const index = selectedModels.value.indexOf(modelId)
+  const index = selectedModelsId.value.indexOf(modelId)
   if (index === -1) {
-    selectedModels.value.push(modelId)
+    selectedModelsId.value.push(modelId)
   } else if (index !== -1) {
-    selectedModels.value.splice(index, 1)
+    selectedModelsId.value.splice(index, 1)
   }
 }
 
 const handleMerge = async () => {
   if (canMerge.value) {
-    console.log('Merging models:', selectedModels.value, 'into new model:', newModelName.value)
-    selectedModels.value = []
-    newModelName.value = ''
-    emit('update:isOpen', false)
+    try {
+      const selectedModel: Model[] = selectedModelsId.value.map(id => props.models.find(m => m.id === id) as Model)
+      const newModel = await mergeModels(selectedModel, newModelName.value)
+      selectedModelsId.value = []
+      newModelName.value = ''
+      emit('merge', newModel)
+      emit('update:isOpen', false)
+    } catch (error) {
+      console.error('Error merging models:', error)
+    }
   }
 }
 
 const closeDialog = () => {
-  selectedModels.value = []
+  selectedModelsId.value = []
   newModelName.value = ''
   emit('update:isOpen', false)
 }
@@ -76,7 +84,7 @@ const closeDialog = () => {
                      class="flex items-center space-x-2">
                   <Checkbox
                       :id="model.id"
-                      :checked="selectedModels.includes(model.id)"
+                      :checked="selectedModelsId.includes(model.id)"
                       @update:checked="() => toggleModel(model.id)"/>
                   <label
                       :for="model.id"
@@ -104,10 +112,10 @@ const closeDialog = () => {
                     placeholder="Enter new model name"/>
               </div>
 
-              <div v-if="selectedModels.length > 0" class="text-sm">
+              <div v-if="selectedModelsId.length > 0" class="text-sm">
                 Selected models to merge:
                 <ul class="list-disc list-inside mt-2">
-                  <li v-for="modelId in selectedModels" :key="modelId">
+                  <li v-for="modelId in selectedModelsId" :key="modelId">
                     {{ models.find(m => m.id === modelId)?.id }}
                   </li>
                 </ul>

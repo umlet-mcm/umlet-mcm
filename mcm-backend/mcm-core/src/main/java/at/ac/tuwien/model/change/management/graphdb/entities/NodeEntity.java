@@ -17,23 +17,34 @@ import java.util.Set;
 @NoArgsConstructor
 public class NodeEntity {
     /* The id of the node, null when new node */
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue(generatorClass = UUIDStringGenerator.class)
     @Nullable
-    private Long generatedID;
+    private String generatedID;
 
     /* The name of the element in UMLet Diagram */
     private String name;
 
+    /* The description of the element in UMLet Diagram */
+    private String description;
+
     /* The type of the element in UMLet Diagram */
     private String type;
+
+    @Nullable
+    private String pprType;
 
     /* Relations with other elements in UMLet Diagram, i.e. connected with line */
     @Relationship(type = "RELATION", direction = Relationship.Direction.OUTGOING)
     private Set<RelationEntity> relations = Set.of();
 
-    /* The properties of the element in UMLet Diagram */
+    /* The properties of the element defined by user in UMLet Diagram */
     @CompositeProperty
-    private Map<String,String> properties = Map.of();
+    private Map<String,Object> properties = Map.of();
+
+    /* The properties of the element in UMLet Diagram e.g. color */
+    @CompositeProperty
+    private Map<String,String> umletProperties = Map.of();
 
     /* The tags of the element in UMLet Diagram */
     private Set<String> tags = Set.of();

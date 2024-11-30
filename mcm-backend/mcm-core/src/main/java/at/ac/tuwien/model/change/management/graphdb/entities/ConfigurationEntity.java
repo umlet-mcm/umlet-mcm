@@ -6,6 +6,7 @@ import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
+import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
 import javax.annotation.Nullable;
 import java.util.Set;
@@ -17,7 +18,7 @@ public class ConfigurationEntity {
 
     /* The id of the configuration, null when new configuration */
     @Id
-    @GeneratedValue
+    @GeneratedValue(generatorClass = UUIDStringGenerator.class)
     @Nullable
     private String id;
 

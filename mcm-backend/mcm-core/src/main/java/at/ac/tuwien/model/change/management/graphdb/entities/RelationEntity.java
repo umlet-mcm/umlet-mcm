@@ -3,9 +3,9 @@ package at.ac.tuwien.model.change.management.graphdb.entities;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.neo4j.core.schema.*;
-import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
-import javax.annotation.Nullable;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Entity representing a relation in the database.
@@ -16,10 +16,27 @@ import javax.annotation.Nullable;
 public class RelationEntity {
     /* The id of the relation, null when new relation */
     @RelationshipId
-    private Long graphId;
+    private String graphId;
+
+    /* The name of the relation in UMLet Diagram */
+    private String name;
+
+    /* The description of the relation in UMLet Diagram */
+    private String description;
 
     /* The type of the relation */
     private String type;
+
+    /* The properties of the relation in UMLet Diagram */
+    @CompositeProperty
+    private Map<String,Object> properties = Map.of();
+
+    /* The attributes of the relation in UMLet Diagram e.g. color */
+    @CompositeProperty
+    private Map<String,String> umletProperties = Map.of();
+
+    /* The tags of the relation in UMLet Diagram */
+    private Set<String> tags = Set.of();
 
     /* The target of the relation */
     @TargetNode

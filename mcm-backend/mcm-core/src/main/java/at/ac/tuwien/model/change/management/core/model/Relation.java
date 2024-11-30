@@ -1,6 +1,7 @@
 package at.ac.tuwien.model.change.management.core.model;
 
 import lombok.AllArgsConstructor;
+import at.ac.tuwien.model.change.management.core.model.attributes.ElementAttributes;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Slf4j
-public class Relation extends BaseAttributes {
+public class Relation extends ElementAttributes {
     private String type; // line type e.g. "<<-"
     @Nullable
     private Node target;
@@ -25,7 +26,7 @@ public class Relation extends BaseAttributes {
     private RelativePosition relativeStartPoint;
     private List<RelativePosition> relativeMidPoints; // midpoints relative to umletPosition
     private RelativePosition relativeEndpoint; // position of the end of the line relative to the umletPosition
-
+    
     private Point startPoint;
     private Point endPoint;
 

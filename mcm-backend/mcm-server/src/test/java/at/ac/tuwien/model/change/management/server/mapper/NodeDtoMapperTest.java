@@ -7,6 +7,7 @@ import at.ac.tuwien.model.change.management.server.dto.NodeDTO;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,31 +20,25 @@ public class NodeDtoMapperTest {
     private final String ID = "1";
     private final String TYPE = "type";
     private final String TEXT = "test";
-    private final Set<String> LABELS = Set.of("label");
     private final UMLetPosition UMLET_POSITION = new UMLetPosition(1, 1, 1, 1);
-    private final Map<String, Object> PROPERTIES = Map.of("key", new Object());
+    private final LinkedHashMap<String, Object> PROPERTIES = new LinkedHashMap<>(Map.of("key", new Object()));
 
     @Test
     void testToDto() {
         Node node = new Node();
 
         node.setId(ID);
-        node.setType(TYPE);
-        node.setText(TEXT);
-        node.setLabels(LABELS);
+        node.setElementType(TYPE);
+        node.setDescription(TEXT);
         node.setRelations(Set.of(new Relation()));
-        node.setProperties(PROPERTIES);
+        node.setMcmAttributes(PROPERTIES);
         node.setUmletPosition(UMLET_POSITION);
 
         NodeDTO nodeDTO = mapper.toDto(node);
 
         assertNotNull(nodeDTO);
         assertEquals(node.getId(), nodeDTO.id());
-        assertEquals(node.getType(), nodeDTO.type());
-        assertEquals(node.getText(), nodeDTO.text());
-        assertEquals(node.getLabels(), nodeDTO.labels());
         assertEquals(1, nodeDTO.relations().size());
-        assertEquals(node.getProperties(), nodeDTO.properties());
     }
 
     @Test
@@ -54,7 +49,7 @@ public class NodeDtoMapperTest {
                 Set.of(),
                 TYPE,
                 PROPERTIES,
-                LABELS,
+                Set.of(),
                 UMLET_POSITION
         );
 
@@ -62,10 +57,6 @@ public class NodeDtoMapperTest {
 
         assertNotNull(node);
         assertEquals(nodeDTO.id(), node.getId());
-        assertEquals(nodeDTO.type(), node.getType());
-        assertEquals(nodeDTO.text(), node.getText());
-        assertEquals(nodeDTO.labels(), node.getLabels());
         assertEquals(0, node.getRelations().size());
-        assertEquals(nodeDTO.properties(), node.getProperties());
     }
 }

@@ -1,0 +1,377 @@
+<model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="../../mcm-backend/mcm-core/src/main/resources/dsl/model.xsd">
+    <!-- Nodes -->
+    <node>
+        <name>UMLActor</name>
+        <id>1</id>
+        <text>QC Technician</text>
+        <type>Resource Actor Operator</type>
+        <tags></tags>
+        <properties>
+            <property>
+                <key>Qualification</key>
+                <value>Expert in chemical lab experiment procedures.</value>
+            </property>
+            <property>
+                <key>Tags</key>
+                <value></value>
+            </property>
+            <property>
+                <key>Property</key>
+                <value></value>
+            </property>
+        </properties>
+        <metadata>
+            <coordinates>
+                <x>380</x>
+                <y>70</y>
+                <w>100</w>
+                <h>30</h>
+            </coordinates>
+            <panel_attributes>
+                <panel_attribute>
+                    <key>bg</key>
+                    <value>#a4a4f7</value>
+                </panel_attribute>
+            </panel_attributes>
+        </metadata>
+    </node>
+    <node>
+        <name>UMLClass</name>
+        <id>2</id>
+        <text>P0 Preparation</text>
+        <type>Process Phase</type>
+        <tags></tags>
+        <properties>
+            <property>
+                <key>Property</key>
+                <value></value>
+            </property>
+        </properties>
+        <metadata>
+            <coordinates>
+                <x>730</x>
+                <y>480</y>
+                <w>100</w>
+                <h>40</h>
+            </coordinates>
+            <panel_attributes>
+                <panel_attribute>
+                    <key>bg</key>
+                    <value>#ccccff</value>
+                </panel_attribute>
+            </panel_attributes>
+        </metadata>
+    </node>
+    <node>
+        <name>UMLClass</name>
+        <id>4</id>
+
+        <text>Welding robot head</text>
+        <type>Resource Robot</type>
+        <tags>
+            <tag>C10112</tag>
+            <tag>C1112</tag>
+        </tags>
+        <properties>
+            <property>
+                <key>Property</key>
+                <value>temperature</value>
+            </property>
+        </properties>
+        <metadata>
+            <coordinates>
+                <x>730</x>
+                <y>480</y>
+                <w>100</w>
+                <h>40</h>
+            </coordinates>
+        </metadata>
+    </node>
+    <node>
+        <name>UMLClass</name>
+        <id>5</id>
+        <text>Quality Control Camera</text>
+        <type>Resource Component Camera</type>
+        <tags>
+            <tag>C10112</tag>
+            <tag>C1112</tag>
+        </tags>
+        <properties>
+            <property>
+                <key>Property</key>
+                <value>temperature</value>
+            </property>
+        </properties>
+        <metadata>
+            <coordinates>
+                <x>730</x>
+                <y>480</y>
+                <w>100</w>
+                <h>40</h>
+            </coordinates>
+        </metadata>
+    </node>
+    <node>
+        <name>UMLClass</name>
+        <id>6</id>
+
+        <text>P1 Quality control in production</text>
+        <type>Process</type>
+        <tags></tags>
+        <properties>
+            <property>
+                <key>Property</key>
+                <value></value>
+            </property>
+        </properties>
+        <metadata>
+            <coordinates>
+                <x>730</x>
+                <y>480</y>
+                <w>100</w>
+                <h>40</h>
+            </coordinates>
+        </metadata>
+    </node>
+    <node>
+        <name>UMLClass</name>
+        <id>7</id>
+
+        <text>T01 Initialize QC module</text>
+        <type>Process Sub-Process</type>
+        <tags></tags>
+        <properties>
+            <property>
+                <key>Property</key>
+                <value></value>
+            </property>
+        </properties>
+        <metadata>
+            <coordinates>
+                <x>730</x>
+                <y>480</y>
+                <w>100</w>
+                <h>40</h>
+            </coordinates>
+        </metadata>
+    </node>
+    <node>
+        <name>UMLClass</name>
+        <id>9</id>
+        <text>Welded product for QC inspection</text>
+        <type>Product</type>
+        <tags></tags>
+        <properties>
+            <property>
+                <key>Property</key>
+                <value></value>
+            </property>
+        </properties>
+        <metadata>
+            <coordinates>
+                <x>730</x>
+                <y>480</y>
+                <w>100</w>
+                <h>40</h>
+            </coordinates>
+        </metadata>
+    </node>
+
+    <!-- Relations -->
+    <relation>
+        <id>10</id>
+        <text>Resource</text>
+        <source>
+            <id>1</id>
+            <text>QC Technician</text>
+        </source>
+        <target>
+            <id>2</id>
+            <text>P0 Preparation</text>
+        </target>
+        <properties>
+            <property>
+                <key>r1</key>
+                <value>Reactor</value>
+            </property>
+            <property>
+                <key>r2</key>
+                <value>Heating</value>
+            </property>
+        </properties>
+        <metadata>
+            <coordinates>
+                <x>610</x>
+                <y>140</y>
+                <w>140</w>
+                <h>310</h>
+            </coordinates>
+            <panel_attributes>
+                <panel_attribute>
+                    <key>lt</key>
+                    <value>-</value>
+                </panel_attribute>
+                <panel_attribute>
+                    <key>m2</key>
+                    <value></value>
+                </panel_attribute>
+                <panel_attribute>
+                    <key>m1pos</key>
+                    <value>10,0</value>
+                </panel_attribute>
+                <panel_attribute>
+                    <key>r1pos</key>
+                    <value>-3,-34</value>
+                </panel_attribute>
+                <panel_attribute>
+                    <key>r2pos</key>
+                    <value>-63,30</value>
+                </panel_attribute>
+            </panel_attributes>
+            <additional_attributes>
+                <additional_attribute>10;10;120;290</additional_attribute>
+            </additional_attributes>
+        </metadata>
+    </relation>
+    <relation>
+        <id>11</id>
+        <text>Sub-Process</text>
+        <source>
+            <id>2</id>
+            <text>P0 Preparation</text>
+        </source>
+        <target>
+            <id>7</id>
+            <text>T01 Initialize QC module</text>
+        </target>
+        <properties>
+            <property>
+                <key>r1</key>
+                <value>Hydrogen Peroxide</value>
+            </property>
+            <property>
+                <key>r2</key>
+                <value>P1 Initialize Lab</value>
+            </property>
+        </properties>
+        <metadata>
+            <coordinates>
+                <x>730</x>
+                <y>480</y>
+                <w>100</w>
+                <h>40</h>
+            </coordinates>
+        </metadata>
+    </relation>
+    <relation>
+        <id>12</id>
+        <text>Resource</text>
+        <source>
+            <id>7</id>
+            <text>T01 Initialize QC module</text>
+        </source>
+        <target>
+            <id>5</id>
+            <text>Quality Control Camera</text>
+        </target>
+        <properties>
+            <property>
+                <key>r1</key>
+                <value>Reactor</value>
+            </property>
+            <property>
+                <key>r2</key>
+                <value>Heating</value>
+            </property>
+        </properties>
+        <metadata>
+            <coordinates>
+                <x>730</x>
+                <y>480</y>
+                <w>100</w>
+                <h>40</h>
+            </coordinates>
+        </metadata>
+    </relation>
+    <relation>
+        <id>13</id>
+        <text></text>
+        <source>
+            <id>4</id>
+            <text>Welding robot head</text>
+        </source>
+        <target>
+            <id>5</id>
+            <text>Quality Control Camera</text>
+        </target>
+        <metadata>
+            <coordinates>
+                <x>730</x>
+                <y>480</y>
+                <w>100</w>
+                <h>40</h>
+            </coordinates>
+        </metadata>
+    </relation>
+    <relation>
+        <id>15</id>
+        <text>Pre-Process</text>
+        <source>
+            <id>2</id>
+            <text>P0 Preparation</text>
+        </source>
+        <target>
+            <id>6</id>
+            <text>P1 Quality control in production</text>
+        </target>
+        <properties>
+            <property>
+                <key>r1</key>
+                <value>P1 Initialize Lab</value>
+            </property>
+            <property>
+                <key>r2</key>
+                <value>P2 Pulp Wood</value>
+            </property>
+        </properties>
+        <metadata>
+            <coordinates>
+                <x>730</x>
+                <y>480</y>
+                <w>100</w>
+                <h>40</h>
+            </coordinates>
+        </metadata>
+    </relation>
+    <relation>
+        <id>14</id>
+        <text>input</text>
+        <source>
+            <id>6</id>
+            <text>P1 Quality control in production</text>
+        </source>
+        <target>
+            <id>9</id>
+            <text>Welded product for QC inspection</text>
+        </target>
+        <properties>
+            <property>
+                <key>r1</key>
+                <value>Wood Chips</value>
+            </property>
+            <property>
+                <key>r2</key>
+                <value>P1 Initialize Lab</value>
+            </property>
+        </properties>
+        <metadata>
+            <coordinates>
+                <x>730</x>
+                <y>480</y>
+                <w>100</w>
+                <h>40</h>
+            </coordinates>
+        </metadata>
+    </relation>
+</model>

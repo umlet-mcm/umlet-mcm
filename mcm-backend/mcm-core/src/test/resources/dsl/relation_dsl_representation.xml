@@ -1,9 +1,20 @@
 <relation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:noNamespaceSchemaLocation="../../../main/resources/dsl/relation.xsd">
     <id>1</id>
-    <text>Relation</text>
+    <mcm_model>1</mcm_model>
+    <title>Relation</title>
+    <description>Relation description</description>
     <element_type>line</element_type>
-    <mcm_type>Resource</mcm_type>
+    <ppr_type>Resource</ppr_type>
+    <tags>
+        <tag>1</tag>
+    </tags>
+    <properties>
+        <property>
+            <key>key1</key>
+            <value>val1</value>
+        </property>
+    </properties>
     <source>
         <id>2</id>
         <text>source</text>
@@ -12,12 +23,6 @@
         <id>3</id>
         <text>target</text>
     </target>
-    <properties>
-        <property>
-            <key>key1</key>
-            <value>val1</value>
-        </property>
-    </properties>
     <metadata>
         <coordinates>
             <x>1</x>

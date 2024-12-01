@@ -2,22 +2,20 @@ package at.ac.tuwien.model.change.management.core.mapper.dsl;
 
 import at.ac.tuwien.model.change.management.core.model.dsl.PanelAttributeDSL;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = PanelAttributesDSLMapperImpl.class)
-class PanelAttributesDSLMapperImplTest {
+public class PanelAttributesDSLMapperImplTest {
 
     private final PanelAttributesDSLMapperImpl mapper = new PanelAttributesDSLMapperImpl();
 
     @Test
     void testToDSL() {
-        Map<String, String> input = Map.of("key1", "value1", "key2", "value2");
-        List<PanelAttributeDSL> result = mapper.toDSL(input);
+        List<PanelAttributeDSL> result = mapper.toDSL(new LinkedHashMap<>(Map.of("key1", "value1", "key2", "value2")));
 
         assertNotNull(result);
         assertEquals(2, result.size());

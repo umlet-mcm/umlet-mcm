@@ -39,7 +39,7 @@ public class RelationDSLTest {
         assertEquals("val1", relation.getProperties().getFirst().getValue());
 
         assertEquals("1", relation.getId());
-        assertEquals("Relation", relation.getText());
+        assertEquals("Relation", relation.getTitle());
 
         assertNotNull(relation.getSource());
         assertEquals("2", relation.getSource().getId());

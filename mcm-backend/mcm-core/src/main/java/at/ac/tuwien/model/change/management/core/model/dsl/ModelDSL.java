@@ -15,13 +15,20 @@ public class ModelDSL {
     @XmlElement(name = "id")
     private String id;
 
-    @XmlElement(name = "text")
-    private String text;
+    @XmlElement(name = "title")
+    private String title;
 
-    @XmlElement(name = "mcm_type")
-    private String mcmType;
+    @XmlElement(name = "description")
+    private String description;
+
+    @XmlElementWrapper(name = "tags")
+    @XmlElement(name = "tag")
+    private List<String> tags;
 
     @XmlElementWrapper(name = "properties")
     @XmlElement(name = "property")
     private List<PropertyDSL> properties;
+
+    @XmlElement(name = "metadata")
+    private MetadataDSL metadata;
 }

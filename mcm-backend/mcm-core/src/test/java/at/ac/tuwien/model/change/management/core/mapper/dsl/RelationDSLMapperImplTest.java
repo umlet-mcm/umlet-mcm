@@ -1,45 +1,51 @@
 package at.ac.tuwien.model.change.management.core.mapper.dsl;
 
-import at.ac.tuwien.model.change.management.core.exception.DSLException;
-import at.ac.tuwien.model.change.management.core.model.*;
+import at.ac.tuwien.model.change.management.core.model.Node;
+import at.ac.tuwien.model.change.management.core.model.Relation;
+import at.ac.tuwien.model.change.management.core.model.RelativePosition;
+import at.ac.tuwien.model.change.management.core.model.UMLetPosition;
 import at.ac.tuwien.model.change.management.core.model.dsl.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = {
-        RelationEndpointDSLMapperImpl.class,
         RelativePositionDSLMapperImpl.class,
         NodeDSLMapperImpl.class,
         PropertiesDSLMapperImpl.class,
         PanelAttributesDSLMapperImpl.class,
         CoordinatesDSLMapperImpl.class,
         RelationDSLMapperImpl.class,
+        RelationEndpointDSLMapperImpl.class,
 })
-class RelationDSLMapperImplTest {
+public class RelationDSLMapperImplTest {
 
     @Autowired
     private RelationDSLMapperImpl mapper;
 
     @Test
-    void testToDSL() throws DSLException {
+    void testToDSL() {
         Relation relation = new Relation();
         relation.setId("relationId");
         relation.setDescription("Test Relation");
-        relation.setMcmAttributes(Map.of("key1", "value1", "key2", "value2"));
+        relation.setMcmAttributes(new LinkedHashMap<>(Map.of("key1", "value1", "key2", "value2")));
         relation.setRelativeMidPoints(Collections.emptyList());
         relation.setRelativeStartPoint(new RelativePosition(10, 20, 30, 40));
         relation.setRelativeEndPoint(new RelativePosition(10, 20, 30, 40));
         relation.setType("TestType");
-        relation.setUmletPosition(new UMLetPosition());
-        relation.setMcmType("TestMcmType");
+        relation.setUmletPosition(new UMLetPosition(10, 20, 30, 40));
+        relation.setPprType("TestMcmType");
         relation.setType("line");
+        relation.setOriginalText("Original Text");
+        relation.setMcmModel("MCM Model");
+        relation.setUmletAttributes(new LinkedHashMap<>(Map.of("key1", "value1")));
 
         Node source = new Node();
         source.setId("sourceId");
@@ -49,11 +55,12 @@ class RelationDSLMapperImplTest {
 
         assertNotNull(result);
         assertEquals(relation.getId(), result.getId());
-        assertEquals(relation.getDescription(), result.getText());
+        assertEquals(relation.getDescription(), result.getDescription());
         assertNotNull(result.getProperties());
         assertEquals(2, result.getProperties().size());
-        assertEquals(relation.getMcmType(), result.getMcmType());
+        assertEquals(relation.getPprType(), result.getPprType());
         assertEquals(relation.getType(), result.getElementType());
+        assertEquals(relation.getOriginalText(), result.getMetadata().getOriginalText());
 
         assertNotNull(result.getMetadata());
         assertNotNull(result.getMetadata().getCoordinates());
@@ -62,25 +69,30 @@ class RelationDSLMapperImplTest {
         assertNotNull(result.getMetadata().getPositions().getRelativeStartPoint());
         assertNotNull(result.getMetadata().getPositions().getRelativeEndPoint());
         assertNull(result.getMetadata().getAdditionalAttributes());
-
+        assertNotNull(result.getMetadata().getPanelAttributes());
+        assertEquals(1, result.getMetadata().getPanelAttributes().size());
+        assertEquals("key1", result.getMetadata().getPanelAttributes().getFirst().getKey());
     }
 
     @Test
-    void testToDSL_NullInput() throws DSLException {
+    void testToDSL_NullInput() {
         assertNull(mapper.toDSL(null, null));
     }
 
     @Test
-    void testFromDSL() throws DSLException {
+    void testFromDSL() {
         RelationDSL relationDSL = new RelationDSL();
         relationDSL.setId("relationId");
-        relationDSL.setText("Test Relation");
-        relationDSL.setMcmType("TestType");
+        relationDSL.setTitle("Test Relation");
+        relationDSL.setDescription("Description");
+        relationDSL.setTags(List.of("tag1"));
+        relationDSL.setPprType("TestType");
         relationDSL.setElementType("line");
 
         MetadataDSL metadata = new MetadataDSL();
-        CoordinatesDSL coordinates = new CoordinatesDSL(10, 20, 30, 40);
-        metadata.setCoordinates(coordinates);
+        metadata.setCoordinates(new CoordinatesDSL(10, 20, 30, 40));
+        metadata.setPanelAttributes(List.of(new PanelAttributeDSL("key1", "value1")));
+        metadata.setOriginalText("Original Text");
 
         PositionsDSL positions = new PositionsDSL();
         positions.setRelativeStartPoint(new RelativePositionDSL(10, 20, 30, 40));
@@ -103,10 +115,18 @@ class RelationDSLMapperImplTest {
 
         assertNotNull(result);
         assertEquals(relationDSL.getId(), result.getId());
-        assertEquals(relationDSL.getText(), result.getDescription());
+        assertEquals(relationDSL.getTitle(), result.getTitle());
+        assertEquals(relationDSL.getDescription(), result.getDescription());
         assertEquals(target, result.getTarget());
-        assertEquals(relationDSL.getMcmType(), result.getMcmType());
+        assertEquals(relationDSL.getPprType(), result.getPprType());
         assertEquals(relationDSL.getElementType(), result.getType());
+
+        assertNotNull(result.getTags());
+        assertEquals(relationDSL.getTags(), result.getTags());
+
+        assertNotNull(result.getUmletAttributes());
+        assertEquals(metadata.getPanelAttributes().size(), result.getUmletAttributes().size());
+        assertEquals(metadata.getOriginalText(), result.getOriginalText());
 
         assertNotNull(result.getMcmAttributes());
         assertEquals(relationDSL.getProperties().size(), result.getMcmAttributes().size());
@@ -125,21 +145,23 @@ class RelationDSLMapperImplTest {
     }
 
     @Test
-    void testFromDSL_NullInput() throws DSLException {
+    void testFromDSL_NullInput() {
         assertNull(mapper.fromDSL(null, null));
     }
 
     @Test
-    void testFromDSL_WithNullMetadata() throws DSLException {
+    void testFromDSL_WithNullMetadata() {
         RelationDSL relationDSL = new RelationDSL();
         relationDSL.setId("relationId");
-        relationDSL.setText("Test Relation");
+        relationDSL.setTitle("Test Relation");
         relationDSL.setMetadata(new MetadataDSL());
 
         Node target = new Node();
         target.setId("targetId");
         target.setDescription("Target Node");
 
-        assertThrows(DSLException.class, () -> mapper.fromDSL(relationDSL, target));
+        Relation relation = mapper.fromDSL(relationDSL, target);
+
+        assertNotNull(relation);
     }
 }

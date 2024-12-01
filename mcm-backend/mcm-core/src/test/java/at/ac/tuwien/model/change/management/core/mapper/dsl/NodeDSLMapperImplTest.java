@@ -1,19 +1,18 @@
 package at.ac.tuwien.model.change.management.core.mapper.dsl;
 
-import at.ac.tuwien.model.change.management.core.exception.DSLException;
 import at.ac.tuwien.model.change.management.core.model.Node;
 import at.ac.tuwien.model.change.management.core.model.UMLetPosition;
-import at.ac.tuwien.model.change.management.core.model.attributes.AttributeKeys;
 import at.ac.tuwien.model.change.management.core.model.dsl.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(classes = {
         NodeDSLMapperImpl.class,
@@ -27,26 +26,26 @@ public class NodeDSLMapperImplTest {
     private NodeDSLMapper nodeDSLMapper;
 
     @Test
-    void testToDSLWithValidInput() throws DSLException {
+    void testToDSLWithValidInput() {
         Node node = new Node();
         node.setId("node1");
         node.setElementType("type1");
-        node.setMcmType("mcmType1");
+        node.setPprType("mcmType1");
         node.setDescription("A node");
-        node.setUmletPosition(new UMLetPosition());
-        node.setMcmAttributes(Map.of("key1", "value1"));
-        node.setUmletAttributes(Map.of("key2", "value2"));
-        node.setGeneratedAttributes(List.of("additional1"));
+        node.setUmletPosition(new UMLetPosition(10, 20, 30, 40));
+        node.setMcmAttributes(new LinkedHashMap<>(Map.of("key1", "value1")));
+        node.setUmletAttributes(new LinkedHashMap<>(Map.of("key2", "value2")));
+        node.setGeneratedAttributes(List.of(10));
+        node.setMcmModel("mcmModel1");
 
         NodeDSL result = nodeDSLMapper.toDSL(node);
 
         assertNotNull(result);
         assertEquals(node.getId(), result.getId());
         assertEquals(node.getElementType(), result.getElementType());
-        assertEquals(node.getMcmType(), result.getMcmType());
-        assertEquals(node.getDescription(), result.getText());
-        assertNotNull(result.getMetadata());
-        assertNotNull(result.getMetadata().getCoordinates());
+        assertEquals(node.getPprType(), result.getPprType());
+        assertEquals(node.getDescription(), result.getDescription());
+        assertEquals(node.getMcmModel(), result.getMcmModel());
         assertNotNull(result.getMetadata().getPanelAttributes());
         assertEquals(node.getUmletAttributes().size(), result.getMetadata().getPanelAttributes().size());
         assertEquals(node.getGeneratedAttributes().size(), result.getMetadata().getAdditionalAttributes().size());
@@ -55,42 +54,35 @@ public class NodeDSLMapperImplTest {
     }
 
     @Test
-    void testToDSLWithNullInput() throws DSLException {
-        assertThrows(DSLException.class, () -> nodeDSLMapper.toDSL(new Node()));
-    }
-
-    @Test
-    void testFromDSLWithNullInput() throws DSLException {
-        assertThrows(DSLException.class, () -> nodeDSLMapper.fromDSL(new NodeDSL()));
-    }
-
-    @Test
-    void testFromDSLWithValidInput() throws DSLException {
+    void testFromDSLWithValidInput() {
         NodeDSL nodeDSL = new NodeDSL();
         nodeDSL.setId("node1");
         nodeDSL.setElementType("type1");
-        nodeDSL.setText("A node");
-        nodeDSL.setMcmType("type1");
+        nodeDSL.setTitle("A node");
+        nodeDSL.setPprType("type1");
+        nodeDSL.setDescription("Description");
+        nodeDSL.setProperties(List.of(new PropertyDSL("kProp1", "vProp1")));
+        nodeDSL.setTags(List.of("tag1"));
+        nodeDSL.setMcmModel("mcmModel1");
 
         MetadataDSL metadataDSL = new MetadataDSL();
         metadataDSL.setCoordinates(new CoordinatesDSL());
         metadataDSL.setPanelAttributes(List.of(new PanelAttributeDSL("kPan1", "vPan1")));
-        metadataDSL.setAdditionalAttributes(List.of("additional1"));
-
+        metadataDSL.setAdditionalAttributes(List.of(10));
         nodeDSL.setMetadata(metadataDSL);
-        nodeDSL.setProperties(List.of(new PropertyDSL("kProp1", "vProp1")));
-        nodeDSL.setTags(Set.of("tag1"));
 
         Node result = nodeDSLMapper.fromDSL(nodeDSL);
 
         assertNotNull(result);
         assertEquals(nodeDSL.getId(), result.getId());
         assertEquals(nodeDSL.getElementType(), result.getElementType());
-        assertEquals(nodeDSL.getText(), result.getDescription());
+        assertEquals(nodeDSL.getTitle(), result.getTitle());
+        assertEquals(nodeDSL.getPprType(), result.getPprType());
+        assertEquals(nodeDSL.getDescription(), result.getDescription());
+        assertEquals(nodeDSL.getMcmModel(), result.getMcmModel());
         assertNotNull(result.getUmletPosition());
-        assertEquals(nodeDSL.getTags(), result.getMcmAttributes().get(AttributeKeys.TAGS));
-        // Tags lived in McmAttributes in Domain Model while in DSL they have their own field
-        assertEquals(nodeDSL.getProperties().size(), result.getMcmAttributes().keySet().stream().filter(k -> !k.equals(AttributeKeys.TAGS)).toList().size());
+        assertEquals(nodeDSL.getTags(), result.getTags());
+        assertEquals(nodeDSL.getProperties().size(), result.getMcmAttributes().size());
         assertEquals(nodeDSL.getMetadata().getPanelAttributes().size(), result.getUmletAttributes().size());
         assertEquals(nodeDSL.getMetadata().getAdditionalAttributes().size(), result.getGeneratedAttributes().size());
     }

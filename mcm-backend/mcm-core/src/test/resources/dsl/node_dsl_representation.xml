@@ -1,11 +1,13 @@
 <node xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:noNamespaceSchemaLocation="../../../main/resources/dsl/node.xsd">
     <id>2</id>
-    <text>Test</text>
+    <mcm_model>1</mcm_model>
+    <title>Node</title>
+    <description>Node description</description>
     <element_type>UMLClass</element_type>
-    <mcm_type>PPR</mcm_type>
+    <ppr_type>PPR</ppr_type>
     <tags>
-        <tag>test</tag>
+        <tag>1</tag>
     </tags>
     <properties>
         <property>
@@ -14,6 +16,10 @@
         </property>
     </properties>
     <metadata>
+        <original_text>
+            Node
+            Node description
+        </original_text>
         <coordinates>
             <x>1</x>
             <y>2</y>

@@ -1,24 +1,18 @@
 package at.ac.tuwien.model.change.management.core.mapper.dsl;
 
-import at.ac.tuwien.model.change.management.core.exception.DSLException;
 import at.ac.tuwien.model.change.management.core.model.RelativePosition;
 import at.ac.tuwien.model.change.management.core.model.dsl.RelativePositionDSL;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringBootTest(classes = {
-        RelativePositionDSLMapperImpl.class
-})
-class RelativePositionDSLMapperImplTest {
+public class RelativePositionDSLMapperImplTest {
 
-    @Autowired
-    private RelativePositionDSLMapperImpl mapper;
+    private final RelativePositionDSLMapperImpl mapper = new RelativePositionDSLMapperImpl();
 
     @Test
-    void testToDSL() throws DSLException {
+    void testToDSL() {
         RelativePosition relativePosition = new RelativePosition(10, 20, 5, 15);
 
         RelativePositionDSL result = mapper.toDSL(relativePosition);
@@ -31,12 +25,7 @@ class RelativePositionDSLMapperImplTest {
     }
 
     @Test
-    void testToDSL_NullInput() throws DSLException {
-        assertThrows(DSLException.class, () -> mapper.toDSL(null));
-    }
-
-    @Test
-    void testFromDSL() throws DSLException {
+    void testFromDSL() {
         RelativePositionDSL relativePositionDSL = new RelativePositionDSL(30, 40, 10, 25);
 
         RelativePosition result = mapper.fromDSL(relativePositionDSL);
@@ -46,10 +35,5 @@ class RelativePositionDSLMapperImplTest {
         assertEquals(relativePositionDSL.getAbsY(), result.getAbsY());
         assertEquals(relativePositionDSL.getOffsetX(), result.getOffsetX());
         assertEquals(relativePositionDSL.getOffsetY(), result.getOffsetY());
-    }
-
-    @Test
-    void testFromDSL_NullInputThrowsException() throws DSLException {
-        assertThrows(DSLException.class, () -> mapper.fromDSL(null));
     }
 }

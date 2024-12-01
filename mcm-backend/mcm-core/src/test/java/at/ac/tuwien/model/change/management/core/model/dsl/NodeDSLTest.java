@@ -39,11 +39,12 @@ public class NodeDSLTest {
 
         assertEquals("UMLClass", node.getElementType());
         assertEquals("2", node.getId());
-        assertEquals("Test", node.getText());
-        assertEquals("PPR", node.getMcmType());
+        assertEquals("Node", node.getTitle());
+        assertEquals("Node description", node.getDescription());
+        assertEquals("PPR", node.getPprType());
 
         assertNotNull(node.getTags());
         assertEquals(1, node.getTags().size());
-        assertEquals("test", node.getTags().iterator().next());
+        assertEquals("1", node.getTags().getFirst());
     }
 }

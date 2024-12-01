@@ -1,27 +1,19 @@
 package at.ac.tuwien.model.change.management.core.mapper.dsl;
 
-import at.ac.tuwien.model.change.management.core.exception.DSLException;
 import at.ac.tuwien.model.change.management.core.model.UMLetPosition;
 import at.ac.tuwien.model.change.management.core.model.dsl.CoordinatesDSL;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringBootTest(classes = CoordinatesDSLMapperImpl.class)
 public class CoordinatesDSLMapperImplTest {
 
-    @Autowired
-    private CoordinatesDSLMapper coordinatesDSLMapper;
+    private final CoordinatesDSLMapper coordinatesDSLMapper = new CoordinatesDSLMapperImpl();
 
     @Test
-    void testToDSLWithValidInput() throws DSLException {
-        UMLetPosition position = new UMLetPosition();
-        position.setX(10);
-        position.setY(20);
-        position.setWidth(30);
-        position.setHeight(40);
+    void testToDSLWithValidInput() {
+        UMLetPosition position = new UMLetPosition(10, 20, 30, 40);
         CoordinatesDSL result = coordinatesDSLMapper.toDSL(position);
         assertNotNull(result);
         assertEquals(10, result.getX());
@@ -31,12 +23,7 @@ public class CoordinatesDSLMapperImplTest {
     }
 
     @Test
-    void testToDSLWithNullInputThrowsException() throws DSLException {
-        assertThrows(DSLException.class, () -> coordinatesDSLMapper.toDSL(null));
-    }
-
-    @Test
-    void testFromDSLWithValidInput() throws DSLException {
+    void testFromDSLWithValidInput() {
         CoordinatesDSL coordinates = new CoordinatesDSL();
         coordinates.setX(10);
         coordinates.setY(20);

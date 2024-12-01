@@ -30,9 +30,11 @@ public class ModelDSLTest {
         assertNotNull(model);
 
         assertEquals("1", model.getId());
-        assertEquals("Model", model.getText());
-        assertEquals("PPR", model.getMcmType());
+        assertEquals("Model", model.getTitle());
+        assertEquals("Model description", model.getDescription());
+        assertEquals(2, model.getTags().size());
         assertEquals("key1", model.getProperties().getFirst().getKey());
         assertEquals("val1", model.getProperties().getFirst().getValue());
+        assertEquals("ModelModeldescription", model.getMetadata().getOriginalText().replace(" ", "").replace("\n", ""));
     }
 }

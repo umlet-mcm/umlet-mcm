@@ -1,9 +1,12 @@
 package at.ac.tuwien.model.change.management.core.mapper.dsl;
 
 import at.ac.tuwien.model.change.management.core.model.Model;
+import at.ac.tuwien.model.change.management.core.model.dsl.MetadataDSL;
 import at.ac.tuwien.model.change.management.core.model.dsl.ModelDSL;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @Component
 @AllArgsConstructor
@@ -15,9 +18,16 @@ public class ModelDSLMapperImpl implements ModelDSLMapper {
     public ModelDSL toDSL(Model model) {
         ModelDSL modelDSL = new ModelDSL();
         modelDSL.setId(model.getId());
-        modelDSL.setText(model.getDescription());
-        modelDSL.setMcmType(model.getMcmType());
+        modelDSL.setTitle(model.getTitle());
+        modelDSL.setDescription(model.getDescription());
+        modelDSL.setTags(model.getTags());
         modelDSL.setProperties(propertiesDSLMapper.toDSL(model.getMcmAttributes()));
+
+        MetadataDSL metadataDSL = new MetadataDSL();
+        metadataDSL.setOriginalText(model.getOriginalText());
+
+        modelDSL.setMetadata(metadataDSL);
+
         return modelDSL;
     }
 
@@ -25,9 +35,13 @@ public class ModelDSLMapperImpl implements ModelDSLMapper {
     public Model fromDSL(ModelDSL modelDSL) {
         Model model = new Model();
         model.setId(modelDSL.getId());
-        model.setDescription(modelDSL.getText());
-        model.setMcmType(modelDSL.getMcmType());
+        model.setDescription(modelDSL.getDescription());
+        model.setTitle(modelDSL.getTitle());
+        model.setTags(modelDSL.getTags());
         model.setMcmAttributes(propertiesDSLMapper.fromDSL(modelDSL.getProperties()));
+        model.setOriginalText(Optional.ofNullable(modelDSL.getMetadata())
+                .map(MetadataDSL::getOriginalText)
+                .orElse(null));
         return model;
     }
 }

@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
     <xs:include schemaLocation="metadata.xsd"/>
+
     <xs:complexType name="Node">
         <xs:sequence>
             <xs:element name="id" type="xs:integer"/>
-            <xs:element name="text" type="xs:string"/>
+            <xs:element name="mcm_model" type="xs:string"/>
+            <xs:element name="title" type="xs:string"/>
+            <xs:element name="description" type="xs:string"/>
             <xs:element name="element_type" type="xs:string"/>
-            <xs:element name="mcm_type" type="xs:string"/>
+            <xs:element name="ppr_type" type="xs:string"/>
             <xs:element name="tags">
                 <xs:complexType>
                     <xs:sequence>
@@ -28,7 +31,7 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="metadata" type="Metadata"/>
+            <xs:element name="metadata" type="Metadata" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
     <xs:element name="node" type="Node"/>

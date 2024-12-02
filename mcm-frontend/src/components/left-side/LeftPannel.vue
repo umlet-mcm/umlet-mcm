@@ -1,12 +1,14 @@
 <script setup lang="ts">
 
-import { AppConfig } from "@/config.ts";
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { Configuration } from '@/types/Configuration.ts'
+import {AppConfig} from "@/config.ts";
+import {Button} from '@/components/ui/button'
+import {Separator} from '@/components/ui/separator'
+import {Configuration} from '@/types/Configuration.ts'
 import ModelList from "@/components/left-side/ModelList.vue"
-import { FileUp, Save, FileOutput, FileStack, Settings } from 'lucide-vue-next'
+import {FileInput, FileOutput, FileStack, FileUp, Save, Settings} from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
+import { uploadUxf } from "@/api/files.ts";
+import {Input} from "@/components/ui/input";
 
 const version = AppConfig.version
 
@@ -24,7 +26,15 @@ defineProps({
 const emit = defineEmits(["update:selectedModel"]);
 
 const placeholder = () => {
-  console.log('Placeholder')
+  console.log('Placeholder');
+  //todo: replace all usages with functional code
+};
+
+const redirectToInput = async () => {
+  const inputTag = document.getElementById("inputUxfFile");
+  if (inputTag) {
+    inputTag.click();
+  }
 }
 
 </script>
@@ -52,6 +62,11 @@ const placeholder = () => {
           <Button variant="outline" class="w-full justify-start" @click="placeholder">
             <Save class="mr-2" />
             Save configuration
+          </Button>
+          <Input id="inputUxfFile" type="file" @change="uploadUxf" style="display: none"/>
+          <Button variant="outline" class="w-full justify-start" @click="redirectToInput">
+            <FileInput class="mr-2" />
+            Import from UXF
           </Button>
           <Button variant="outline" class="w-full justify-start" @click="placeholder">
             <FileOutput class="mr-2" />

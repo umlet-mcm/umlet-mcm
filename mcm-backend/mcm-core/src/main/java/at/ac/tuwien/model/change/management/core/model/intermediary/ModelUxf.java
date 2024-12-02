@@ -13,13 +13,11 @@ import java.util.Set;
 @Setter
 @XmlRootElement(name = "diagram")
 @XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(propOrder = {"_zoomLevel", "attributes", "elements"})
 public class ModelUxf implements Serializable {
 
-
-    @XmlAttribute(name = "version")
-    public float _version;
-    @XmlAttribute(name = "program")
-    public String _program;
+    @XmlElement(name = "zoom_level")
+    public int _zoomLevel;
 
     @XmlElement(name = "help_text")
     @XmlJavaTypeAdapter(BaseAttributesAdapter.class)

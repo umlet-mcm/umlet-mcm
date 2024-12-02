@@ -30,15 +30,20 @@ public class RelationUtils {
      *
      * @param element  The node to be checked
      * @param endPoint One endpoint of a relation
+     * @param tolerance Consider points within +-x pixels connected
      * @return True if the relation and the node is considered connected, false otherwise
      */
-    public static boolean isConnected(Node element, Point endPoint) {
+    public static boolean isConnected(Node element, Point endPoint, int tolerance) {
         Point tl = new Point(
-                element.getUmletPosition().getX(),
-                element.getUmletPosition().getY());
+                element.getUmletPosition().getX() -tolerance,
+                element.getUmletPosition().getY()-tolerance);
         Point br = new Point(
-                element.getUmletPosition().getX() + element.getUmletPosition().getWidth(),
-                element.getUmletPosition().getY() + element.getUmletPosition().getHeight());
+                element.getUmletPosition().getX() + element.getUmletPosition().getWidth()+tolerance,
+                element.getUmletPosition().getY() + element.getUmletPosition().getHeight()+tolerance);
+
+//        tl=offset(tl);
+//        br=offset(br);
+//        endPoint=offset(endPoint);
 
         boolean b1 = endPoint.x() >= tl.x();
         boolean b2 = endPoint.x() <= br.x();
@@ -47,6 +52,26 @@ public class RelationUtils {
 
         return b1 && b2 && b3 && b4;
     }
+
+//    private static Point offset(Point p){
+//        int zoomlevel = 7;
+//        int ori = 10;
+//
+//        int remX = p.x() % zoomlevel;
+//        int remY = p.y() % zoomlevel;
+//        Point res = new Point(
+//                remX >= zoomlevel / 2 ? p.x() - remX + zoomlevel : p.y() - remX,
+//                remY >= zoomlevel / 2 ? p.y() - remY + zoomlevel : p.y() - remY
+//        );
+//
+//        res = new Point(
+//                p.x()* zoomlevel / ori,
+//                p.y()* zoomlevel / ori
+//        );
+//
+//        return res;
+//
+//    }
 
     /**
      * Create real relations in the model. After the model is parsed relations are stored
@@ -119,12 +144,11 @@ public class RelationUtils {
             // find the end nodes
             Node relSource = null;
             for (Node n : res.getNodes()) {
+                log.debug(n.toString());
                 // find source
-                if (RelationUtils.isConnected(n, newRelation.getStartPoint())) {
+                if (RelationUtils.isConnected(n, newRelation.getStartPoint(),3)) {
                     if (forward) {
                         n.getRelations().add(newRelation);
-                    } else {
-
                     }
 
                     relSource = n;
@@ -139,7 +163,7 @@ public class RelationUtils {
             Node relTarget = null;
             for (Node n : res.getNodes()) {
                 // find target
-                if (RelationUtils.isConnected(n, newRelation.getEndPoint())) {
+                if (RelationUtils.isConnected(n, newRelation.getEndPoint(), 3)) {
                     relTarget = n;
                     break;
                 }

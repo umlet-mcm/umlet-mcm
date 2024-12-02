@@ -1,5 +1,6 @@
 package at.ac.tuwien.model.change.management.core.model.attributes;
 
+import at.ac.tuwien.model.change.management.core.model.utils.ParserUtils;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -37,4 +38,9 @@ public abstract class BaseAttributes {
      * Custom, non-Umlet related and non-reserved attributes defined in the comments.
      */
     protected LinkedHashMap<String, Object> mcmAttributes;
+
+    public void updateDescriptionAndTitle(String descriptionWithTitle) {
+        this.description = ParserUtils.getDescription(descriptionWithTitle);
+        this.title = ParserUtils.getTitle(descriptionWithTitle);
+    }
 }

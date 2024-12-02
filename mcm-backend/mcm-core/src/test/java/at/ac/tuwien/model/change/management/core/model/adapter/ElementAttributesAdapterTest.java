@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class ElementAttributesAdapterTest {
 
@@ -45,7 +46,7 @@ public class ElementAttributesAdapterTest {
                         description
                         """);
 
-        HashMap<String, Object> mcmAttrs = new HashMap<>();
+        LinkedHashMap<String, Object> mcmAttrs = new LinkedHashMap<>();
         mcmAttrs.put("PPR type", "GHG PPR Module Resource Equipment");
         mcmAttrs.put("id", "Resource Equipment ID Default");
         ArrayList<String> tags = new ArrayList<>();

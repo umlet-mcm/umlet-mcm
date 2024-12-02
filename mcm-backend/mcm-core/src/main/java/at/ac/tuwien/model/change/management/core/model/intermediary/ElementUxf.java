@@ -2,10 +2,7 @@ package at.ac.tuwien.model.change.management.core.model.intermediary;
 
 import at.ac.tuwien.model.change.management.core.model.adapter.AdditionalAttributesAdapter;
 import at.ac.tuwien.model.change.management.core.model.adapter.ElementAttributesAdapter;
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.*;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,6 +15,7 @@ import java.util.List;
 @Setter
 @XmlRootElement(name = "element")
 @XmlAccessorType(XmlAccessType.FIELD) // needed because of the Lombok getter and setter
+@XmlType(propOrder = {"elementType", "umletPosition", "attributes", "generatedAttributes"})
 public class ElementUxf implements Serializable {
     @XmlElement(name = "id")
     private String elementType; // e.g. UMLClass, Relation
@@ -40,11 +38,4 @@ public class ElementUxf implements Serializable {
 
     @XmlElement(name = "coordinates")
     private UmletPositionUxf umletPosition;
-
-    /**
-     * This stores the original text from the panel_attributes, in case we have to use it as a reference.
-     */
-    @Deprecated
-    @XmlElement(name = "panel_attributes")
-    private String panelAttributesFullText;
 }

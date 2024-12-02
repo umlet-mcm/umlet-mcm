@@ -6,7 +6,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class BaseAttributesAdapterTest {
 
@@ -42,7 +42,7 @@ public class BaseAttributesAdapterTest {
                 text
                 """);
 
-        HashMap<String, Object> attrs = new HashMap<>();
+        LinkedHashMap<String, Object> attrs = new LinkedHashMap<>();
         attrs.put("type", "PAN");
         attrs.put("id", "1");
         ArrayList<String> tags = new ArrayList<>();

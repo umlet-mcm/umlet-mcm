@@ -1,6 +1,5 @@
 package at.ac.tuwien.model.change.management.core.model.utils;
 
-import at.ac.tuwien.model.change.management.core.model.attributes.McmAttributesException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -31,71 +30,46 @@ public class ParserUtilsTest {
         exp1.put("ck4", "asd");
         exp1.put("ck5", List.of("val", 12, "asd"));
 
-        Assertions.assertDoesNotThrow(() -> ParserUtils.extractAttributesFromComments(in1, true));
-        try {
-            Assertions.assertEquals(exp1, ParserUtils.extractAttributesFromComments(in1, true));
-        } catch (McmAttributesException ignored) {
+        Assertions.assertDoesNotThrow(() -> ParserUtils.extractAttributesFromComments(in1));
 
-        }
+        Assertions.assertEquals(exp1, ParserUtils.extractAttributesFromComments(in1));
+
     }
 
     @Test
     void extractAttributesFromCommentsKeyCheckTest() {
-        // required attribute missing
-        String in1 = """
-                Title
-                // ck1: "val1"
-                // ck2: 123
-                fg=#ffffff
-                """;
-        Assertions.assertThrows(McmAttributesException.class, () -> ParserUtils.extractAttributesFromComments(in1, false));
-
-        // incorrect value type
-        String in2 = """
-                Title
-                // id: 3
-                """;
-        Assertions.assertThrows(McmAttributesException.class, () -> ParserUtils.extractAttributesFromComments(in2, false));
-
         String in3 = """
                 // id: "a2bf3"
                 // tags: "t1", "t2"
                 """;
 
-        HashMap<String, Object> exp3 = new HashMap();
+        HashMap<String, Object> exp3 = new HashMap<>();
         exp3.put("id", "a2bf3");
         ArrayList<String> tags = new ArrayList<>();
         tags.add("t1");
         tags.add("t2");
         exp3.put("tags", tags);
 
-        Assertions.assertDoesNotThrow(() -> ParserUtils.extractAttributesFromComments(in3, false));
-        try {
-            Assertions.assertEquals(exp3, ParserUtils.extractAttributesFromComments(in3, false));
-        } catch (McmAttributesException ignored) {
-
-        }
-
+        Assertions.assertDoesNotThrow(() -> ParserUtils.extractAttributesFromComments(in3));
+        Assertions.assertEquals(exp3, ParserUtils.extractAttributesFromComments(in3));
         String in4 = """
                 // id: "a2bf3"
                 // tags: "t1"
                 """;
-        HashMap<String, Object> exp4 = new HashMap();
+        HashMap<String, Object> exp4 = new HashMap<>();
         exp4.put("id", "a2bf3");
         ArrayList<String> tags2 = new ArrayList<>();
         tags2.add("t1");
         exp4.put("tags", tags2);
 
-        Assertions.assertDoesNotThrow(() -> ParserUtils.extractAttributesFromComments(in4, false));
-        try {
-            Assertions.assertEquals(exp4, ParserUtils.extractAttributesFromComments(in4, false));
-        } catch (McmAttributesException ignored) {
+        Assertions.assertDoesNotThrow(() -> ParserUtils.extractAttributesFromComments(in4));
 
-        }
+        Assertions.assertEquals(exp4, ParserUtils.extractAttributesFromComments(in4));
+
     }
 
     @Test
-    void extractTextTest(){
+    void extractTextTest() {
         String in1 = "";
 
         Assertions.assertEquals(in1, ParserUtils.extractText(in1));
@@ -154,25 +128,17 @@ public class ParserUtilsTest {
         String exp4 = "a \"b\" c";
 
         Object res;
-        res = ParserUtils.tryParseString(in1, false);
+        res = ParserUtils.tryParseString(in1);
         Assertions.assertEquals(res, exp1);
-        res = ParserUtils.tryParseString(in1, true);
-        Assertions.assertEquals(res, new ArrayList<>(List.of(exp1)));
 
-        res = ParserUtils.tryParseString(in2, false);
+        res = ParserUtils.tryParseString(in2);
         Assertions.assertEquals(res, exp2);
-        res = ParserUtils.tryParseString(in2, true);
-        Assertions.assertEquals(res, new ArrayList<>(List.of(exp2)));
 
-        res = ParserUtils.tryParseString(in3, false);
+        res = ParserUtils.tryParseString(in3);
         Assertions.assertEquals(res, exp3);
-        res = ParserUtils.tryParseString(in3, true);
-        Assertions.assertEquals(res, new ArrayList<>(List.of(exp3)));
 
-        res = ParserUtils.tryParseString(in4, false);
+        res = ParserUtils.tryParseString(in4);
         Assertions.assertEquals(res, exp4);
-        res = ParserUtils.tryParseString(in4, true);
-        Assertions.assertEquals(res, new ArrayList<>(List.of(exp4)));
     }
 
     @Test
@@ -183,15 +149,11 @@ public class ParserUtilsTest {
         int exp2 = -4;
 
         Object res;
-        res = ParserUtils.tryParseString(in1, false);
+        res = ParserUtils.tryParseString(in1);
         Assertions.assertEquals(res, exp1);
-        res = ParserUtils.tryParseString(in1, true);
-        Assertions.assertEquals(res, new ArrayList<>(List.of(exp1)));
 
-        res = ParserUtils.tryParseString(in2, false);
+        res = ParserUtils.tryParseString(in2);
         Assertions.assertEquals(res, exp2);
-        res = ParserUtils.tryParseString(in2, true);
-        Assertions.assertEquals(res, new ArrayList<>(List.of(exp2)));
     }
 
     @Test
@@ -204,20 +166,14 @@ public class ParserUtilsTest {
         float exp3 = 0.0f;
 
         Object res;
-        res = ParserUtils.tryParseString(in1, false);
+        res = ParserUtils.tryParseString(in1);
         Assertions.assertEquals(res, exp1);
-        res = ParserUtils.tryParseString(in1, true);
-        Assertions.assertEquals(res, new ArrayList<>(List.of(exp1)));
 
-        res = ParserUtils.tryParseString(in2, false);
+        res = ParserUtils.tryParseString(in2);
         Assertions.assertEquals(res, exp2);
-        res = ParserUtils.tryParseString(in2, true);
-        Assertions.assertEquals(res, new ArrayList<>(List.of(exp2)));
 
-        res = ParserUtils.tryParseString(in3, false);
+        res = ParserUtils.tryParseString(in3);
         Assertions.assertEquals(res, exp3);
-        res = ParserUtils.tryParseString(in3, true);
-        Assertions.assertEquals(res, new ArrayList<>(List.of(exp3)));
     }
 
     @Test
@@ -227,19 +183,13 @@ public class ParserUtilsTest {
         String in3 = "string12";
 
         Object res;
-        res = ParserUtils.tryParseString(in1, false);
+        res = ParserUtils.tryParseString(in1);
         Assertions.assertEquals(res, in1);
-        res = ParserUtils.tryParseString(in1, true);
-        Assertions.assertEquals(res, new ArrayList<>(List.of(in1)));
 
-        res = ParserUtils.tryParseString(in2, false);
+        res = ParserUtils.tryParseString(in2);
         Assertions.assertEquals(res, in2);
-        res = ParserUtils.tryParseString(in2, true);
-        Assertions.assertEquals(res, new ArrayList<>(List.of(in2)));
 
-        res = ParserUtils.tryParseString(in3, false);
+        res = ParserUtils.tryParseString(in3);
         Assertions.assertEquals(res, in3);
-        res = ParserUtils.tryParseString(in3, true);
-        Assertions.assertEquals(res, new ArrayList<>(List.of(in3)));
     }
 }

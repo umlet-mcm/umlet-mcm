@@ -11,8 +11,23 @@ import java.util.Map;
  */
 @Getter
 @Setter
+
 public class ElementAttributesUxf extends BaseAttributesUxf {
     @Nullable
     private Map<String, String> umletAttributes;
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(super.toString());
+
+        if (umletAttributes != null) {
+            for (var kv : umletAttributes.entrySet()) {
+                sb.append(kv.getKey() + "=" + kv.getValue() + "\n");
+
+            }
+        }
+        return sb.toString();
+    }
 }
 

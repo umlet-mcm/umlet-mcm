@@ -7,6 +7,8 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Objects;
+
 @Getter
 @Setter
 
@@ -31,4 +33,10 @@ public class UmletPositionUxf {
         UmletPositionUxf pos = (UmletPositionUxf) obj;
         return pos.x == this.x && pos.y == this.y && pos.height == this.height && pos.width == this.width;
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y, height, width);
+    }
+
 }

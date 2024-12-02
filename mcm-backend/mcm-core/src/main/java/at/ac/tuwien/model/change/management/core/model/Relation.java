@@ -67,6 +67,12 @@ public class Relation extends ElementAttributes {
         r.setUmletPosition(source.getUmletPosition());
         r.setUmletAttributes(source.getUmletAttributes());
         r.setOriginalText(source.getOriginalText());
+        r.setId(source.getId());
+        r.setTags(source.getTags());
+        r.setMcmModel(source.getMcmModel());
+        r.setMcmAttributes(source.getMcmAttributes());
+        r.setTitle(source.getTitle());
+        r.setDescription(source.getDescription());
 
         // The points of the relation are stored in the additional_attributes
         // Each valid relation contains at least 2 points so 4 values

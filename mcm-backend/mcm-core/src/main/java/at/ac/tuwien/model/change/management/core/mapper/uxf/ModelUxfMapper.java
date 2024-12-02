@@ -14,18 +14,20 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 
 @Mapper(componentModel = "spring", uses = {ElementUxfMapper.class})
 public interface ModelUxfMapper {
     @Mapping(source = "attributes.description", target = "description")
-    @Mapping(source = "attributes.mcmAttributes", target = "mcmAttributes")
+    @Mapping(source = "_zoomLevel", target = "zoomLevel")
     @Mapping(source = "elements", target = "nodes")
     Model toModel(ModelUxf modelUxf);
 
     @Mapping(source = "description", target = "attributes.description")
     @Mapping(source = "mcmAttributes", target = "attributes.mcmAttributes")
     @Mapping(source = "nodes", target = "elements")
+    @Mapping(source = "zoomLevel", target = "_zoomLevel")
     ModelUxf fromModel(Model model);
 
     /**
@@ -52,7 +54,7 @@ public interface ModelUxfMapper {
             ElementAttributesUxf elAttrs = new ElementAttributesUxf();
             elAttrs.setUmletAttributes(r.getUmletAttributes());
             elAttrs.setOriginalText(r.getOriginalText());
-            elAttrs.setDescription(r.getDescription());
+            elAttrs.setDescription(r.getTitle() + r.getDescription());
             elAttrs.setMcmAttributes(r.getMcmAttributes());
             relationElement.setAttributes(elAttrs);
 
@@ -64,10 +66,16 @@ public interface ModelUxfMapper {
             relationElement.setUmletPosition(positionUxf);
             relationElement.setGeneratedAttributes(r.getGeneratedAttributes());
 
+            LinkedHashMap<String, Object> mcmAttrs = McmAttributesMapper.mergeAttributes(r);
+            if (relationElement.getAttributes().getMcmAttributes() == null) {
+                relationElement.getAttributes().setMcmAttributes(new LinkedHashMap<>());
+            }
+            relationElement.getAttributes().getMcmAttributes().putAll(mcmAttrs);
+
             convertedRelations.add(relationElement);
         }
 
-        // merge relations is their umletPosition is the same
+        // merge relations if their umletPosition is the same
         ArrayList<ElementUxf> mergedList = new ArrayList<>();
         for (ElementUxf r : convertedRelations) {
             ElementUxf mergeWith = mergedList.stream()
@@ -84,6 +92,21 @@ public interface ModelUxfMapper {
         }
 
         modelUxf.getElements().addAll(mergedList);
+
+        LinkedHashMap<String, Object> mergedAttrs = McmAttributesMapper.mergeAttributes(m);
+        if (modelUxf.getAttributes().getMcmAttributes() == null) {
+            modelUxf.getAttributes().setMcmAttributes(new LinkedHashMap<>());
+        }
+        modelUxf.getAttributes().getMcmAttributes().putAll(mergedAttrs);
+
         return modelUxf;
+    }
+
+    @AfterMapping
+    default Model populateMcmFields(ModelUxf modelUxf, @MappingTarget Model model) {
+        if (modelUxf.getAttributes() == null || modelUxf.getAttributes().getMcmAttributes() == null) {
+            return model;
+        }
+        return McmAttributesMapper.populateFields(modelUxf.getAttributes().getMcmAttributes(), model);
     }
 }

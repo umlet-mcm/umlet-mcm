@@ -48,18 +48,24 @@ public class UxfServiceImpl implements UxfService {
         }
 
         try {
-            ModelUxf res = (ModelUxf) unmarshaller.unmarshal(input);
-            Model m = modelUxfMapper.toModel(res);
-            Model wr = RelationUtils.processRelations(m);
+            // the uxf is first unmarshalled into the intermediary classes
+            ModelUxf modelUxf = (ModelUxf) unmarshaller.unmarshal(input);
+            // map the intermediary to the actual model
+            Model model = modelUxfMapper.toModel(modelUxf);
+            Model wr = RelationUtils.processRelations(model);
 
-            ModelUxf b = modelUxfMapper.fromModel(wr);
+            // map the model back to the intermediary representation
+            ModelUxf resUxf = modelUxfMapper.fromModel(wr);
 
             Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE); // do not generate <xml> header
             File out = new File( "export.xml" );
-            marshaller.marshal(b, out);
 
-            log.debug(b.toString());
-            log.debug(res.toString());
+            // marshal it to a file
+            marshaller.marshal(resUxf, out);
+
+            log.debug(resUxf.toString());
+            log.debug(modelUxf.toString());
         } catch (JAXBException e) {
             return null;
         }

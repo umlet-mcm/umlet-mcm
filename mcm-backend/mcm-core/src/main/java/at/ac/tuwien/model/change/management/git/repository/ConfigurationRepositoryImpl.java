@@ -55,14 +55,15 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
                 var headCommitVersion = RepositoryUtils.headCommitHash(git.getRepository());
 
                 if (updatedConfigurationVersion.equals(headCommitVersion)) {
-                    // TODO: write configuration to repo worktree
                     var commitMessage = "Update for models: " + configuration.getModels().stream().map(Model::getId).collect(Collectors.joining(", "));
+                    var updatedRepositoryContents = repositoryManager.updateRepositoryWorkTree(configuration, git.getRepository());
+                    repositoryManager.addRepositoryContents(git.getRepository(), updatedRepositoryContents);
                     git.commit().setMessage(commitMessage).call();
+                    return repositoryManager.readConfigurationFromRepository(git.getRepository());
                 } else {
                     // TODO: more sophisticated handling of this case
                     throw new ConfigurationUpdateException("Could not update configuration '" + configuration.getName() + "', because it is not at the latest version");
                 }
-                return configuration;
             } catch (GitAPIException e) {
                 throw new ConfigurationUpdateException("Failed to update configuration '" + configuration.getName() + "'", e);
             }
@@ -71,7 +72,7 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 
     @Override
     public void delete(String name) {
-        // TODO: maybe use withGit? would allow caching. However, delete operations are supposed to be idempotent
+        // using withRepository instead of withGit, because deletions are usually supposed to be idempotent
         repositoryManager.withRepository(name, false, repository -> {
             try {
                 if (!FileSystemUtils.deleteRecursively(repository.getWorkTree().toPath())) {

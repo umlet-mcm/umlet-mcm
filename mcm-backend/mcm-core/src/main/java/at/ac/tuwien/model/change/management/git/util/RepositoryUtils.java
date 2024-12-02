@@ -9,6 +9,7 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.springframework.util.FileSystemUtils;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -81,6 +82,17 @@ public class RepositoryUtils {
     public static boolean repositoryExists(Repository repository) {
         return repository.getObjectDatabase() != null && repository.getObjectDatabase().exists();
     }
+
+    public static void clearRepositoryWorkTree(Repository repository) {
+        try {
+            FileSystemUtils.deleteRecursively(repository.getWorkTree().toPath().resolve(DIRECTORY_MODELS));
+            FileSystemUtils.deleteRecursively(repository.getWorkTree().toPath().resolve(DIRECTORY_NODES));
+            FileSystemUtils.deleteRecursively(repository.getWorkTree().toPath().resolve(DIRECTORY_RELATIONS));
+        } catch (IOException e) {
+            throw new ConfigurationWriteException("Failed to clear work tree of repository", e);
+        }
+    }
+
 
     public static String headCommitHash(Repository repository) {
         try {

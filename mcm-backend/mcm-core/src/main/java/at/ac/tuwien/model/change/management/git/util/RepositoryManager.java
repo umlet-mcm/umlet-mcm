@@ -11,7 +11,9 @@ import at.ac.tuwien.model.change.management.git.exception.ConfigurationReadExcep
 import at.ac.tuwien.model.change.management.git.exception.ConfigurationWriteException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
@@ -23,6 +25,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Component
@@ -110,6 +113,11 @@ public class RepositoryManager {
         return repositoryContents;
     }
 
+    public RepositoryContents<Path> updateRepositoryWorkTree(Configuration configuration, Repository repository) {
+        RepositoryUtils.clearRepositoryWorkTree(repository);
+        return writeConfigurationToRepository(configuration, repository);
+    }
+
     public Configuration readConfigurationFromRepository(String configurationName) {
         return readConfigurationFromRepository(configurationName, Constants.HEAD);
     }
@@ -119,9 +127,19 @@ public class RepositoryManager {
     }
 
     public Configuration readConfigurationFromRepository(String configurationName, String commitHash) {
-        return withGit(configurationName, git ->  {
+        return withGit(configurationName, git -> {
             return readConfigurationFromRepository(git.getRepository(), commitHash);
         });
+    }
+
+    public AddCommand addRepositoryContents(Repository repository, RepositoryContents<Path> repositoryContents) throws GitAPIException {
+            var gitAdd = new AddCommand(repository);
+            var repositoryWorkDir = repository.getWorkTree().toPath();
+            Stream.of(repositoryContents.models(), repositoryContents.nodes(), repositoryContents.relations())
+                    .flatMap(Set::stream)
+                    .forEach(path -> gitAdd.addFilepattern(path.relativize(repositoryWorkDir).toString()));
+            gitAdd.call();
+            return gitAdd;
     }
 
     public Configuration readConfigurationFromRepository(Repository repository, String commitHash) {

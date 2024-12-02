@@ -1,10 +1,15 @@
 package at.ac.tuwien.model.change.management.graphdb.config;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.neo4j.configuration.GraphDatabaseSettings;
 import org.neo4j.configuration.connectors.BoltConnector;
 import org.neo4j.dbms.api.DatabaseManagementServiceBuilder;
+import org.neo4j.driver.AuthTokens;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.GraphDatabase;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.neo4j.dbms.api.DatabaseManagementService;
@@ -43,5 +48,10 @@ public class Neo4JConfig {
         if (managementService != null) {
             managementService.shutdown();
         }
+    }
+
+    @Bean
+    public Driver neo4jDriver(Neo4JProperties properties) {
+        return GraphDatabase.driver(properties.getUri(), properties.getAuthToken());
     }
 }

@@ -28,6 +28,8 @@ dependencies {
     annotationProcessor(libs.mapstruct.processor)
     implementation(libs.spring.boot.starter.data.neo4j)
     testImplementation(libs.spring.boot.starter.test)
+
+    implementation("com.google.code.gson:gson:2.11.0")
 }
 
 tasks.test {

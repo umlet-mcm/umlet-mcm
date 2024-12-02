@@ -12,6 +12,7 @@ dependencies {
     implementation(libs.spring.boot.starter.web)
     implementation(libs.spring.boot.starter.validation)
     testImplementation(libs.spring.boot.starter.test)
+    implementation("com.google.code.gson:gson:2.11.0")
 }
 
 tasks.test {

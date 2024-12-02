@@ -1,9 +1,11 @@
 package at.ac.tuwien.model.change.management.graphdb.dao;
 
+import at.ac.tuwien.model.change.management.graphdb.exceptions.InvalidQueryException;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Record;
+import org.neo4j.driver.exceptions.ClientException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +36,8 @@ public class RawNeo4jService {
                 rawData.add(record.asMap());
             }
             return rawData;
+        } catch (ClientException e) {
+            throw new InvalidQueryException("Invalid query: " + e.getMessage());
         }
     }
 }

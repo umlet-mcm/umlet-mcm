@@ -21,5 +21,5 @@ public interface GraphDBService {
      * @param query The query to execute
      * @return The result of the query
      */
-    List<Map<String,String>> executeQuery(String query);
+    List<Map<String,Object>> executeQuery(String query);
 }

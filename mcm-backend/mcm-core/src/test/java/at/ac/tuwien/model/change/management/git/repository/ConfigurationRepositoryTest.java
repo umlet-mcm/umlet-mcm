@@ -27,7 +27,7 @@ public class ConfigurationRepositoryTest {
     public void setUp() {
         var gitProperties = mock(GitProperties.class);
         when(gitProperties.getRepositoryPath()).thenReturn(tempDir);
-        repositoryManager = new RepositoryManager(gitProperties);
+//        repositoryManager = new RepositoryManager(gitProperties);
         configurationRepository = new ConfigurationRepositoryImpl(repositoryManager);
     }
 

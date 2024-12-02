@@ -9,5 +9,4 @@ public class AttributeKeys {
     public static final String LINE_WIDTH = "lw";
     public static final String BACKGROUND = "bg";
     public static final String FOREGROUND = "fg";
-    public static final String TAGS = "tags";
 }

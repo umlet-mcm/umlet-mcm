@@ -36,9 +36,9 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 
             try {
                 repository.create();
-                // TODO: write configuration to repo worktree
+                repositoryManager.writeConfigurationToRepository(configuration, repository);
                 log.info("Created configuration '{}'", configuration.getName());
-                return configuration;
+                return repositoryManager.readConfigurationFromRepository(repository);
             } catch (IOException e) {
                 throw new ConfigurationCreateException("Failed to create configuration '" + configuration.getName() + "'", e);
             }
@@ -63,8 +63,6 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
                     throw new ConfigurationUpdateException("Could not update configuration '" + configuration.getName() + "', because it is not at the latest version");
                 }
                 return configuration;
-            } catch (IOException e) {
-                throw new ConfigurationReadException("Could not update configuration '" + configuration.getName() + "' due to failure to read its current repository state", e);
             } catch (GitAPIException e) {
                 throw new ConfigurationUpdateException("Failed to update configuration '" + configuration.getName() + "'", e);
             }
@@ -87,9 +85,7 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 
     @Override
     public Configuration findConfigurationByName(String name) {
-        return repositoryManager.withGit(name, git -> {
-            return RepositoryUtils.readConfigurationFromRepository(git.getRepository());
-        });
+        return repositoryManager.readConfigurationFromRepository(name);
     }
 
     @Override
@@ -99,7 +95,7 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
                     .map(Path::toString)
                     .map(repositoryName -> repositoryManager.withRepository(repositoryName, false, repository -> {
                         if (RepositoryUtils.repositoryExists(repository)) {
-                            return RepositoryUtils.readConfigurationFromRepository(repository);
+                            return repositoryManager.readConfigurationFromRepository(repositoryName);
                         }
                         return null;
                     }))

@@ -7,10 +7,12 @@ import { Configuration } from '@/types/Configuration.ts'
 import ModelList from "@/components/left-side/ModelList.vue"
 import { FileUp, Save, FileOutput, FileStack, Settings } from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
+import DialogMerge from "@/components/left-side/DialogMerge.vue";
+import {ref} from "vue";
 
 const version = AppConfig.version
 
-defineProps({
+const props = defineProps({
   selectedModel: {
     type: Object as () => Model,
     required: false
@@ -22,6 +24,12 @@ defineProps({
 });
 
 const emit = defineEmits(["update:selectedModel"]);
+const isMergeDialogOpen = ref(false)
+
+const handleMerge = (mergedModel: Model) => {
+  props.selectedConfiguration.models.push(mergedModel)
+  emit('update:selectedModel', mergedModel)
+}
 
 const placeholder = () => {
   console.log('Placeholder')
@@ -70,7 +78,7 @@ const placeholder = () => {
             <FileUp class="mr-2" />
             Add Model in project
           </Button>
-          <Button variant="outline" class="w-full justify-start" @click="placeholder">
+          <Button variant="outline" class="w-full justify-start" @click="isMergeDialogOpen = true">
             <FileStack class="mr-2" />
             Merge Models
           </Button>
@@ -90,4 +98,11 @@ const placeholder = () => {
           @update:selectedModel="emit('update:selectedModel', $event)"/>
     </div>
   </div>
+
+  <!-- dialogs -->
+  <DialogMerge
+      v-model:isOpen="isMergeDialogOpen"
+      :models="selectedConfiguration.models"
+      @merge="handleMerge"
+  />
 </template>

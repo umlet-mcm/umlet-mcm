@@ -24,13 +24,13 @@ defineProps({
 </script>
 
 <template>
-  <div class="w-96 bg-card border-l border-border p-4 flex flex-col gap-4 h-full">
+  <div class="w-96 bg-card border-l border-border p-3 flex flex-col gap-4 h-full">
     <div class="flex-1 overflow-hidden">
       <QueryResult :queryResponse="queryResponse"/>
     </div>
     <Separator />
     <div class="flex-1 overflow-auto">
-    <NodeViewer :selectedModel="selectedModel" :selectedNode="selectedNode" />
+      <NodeViewer :selectedNode="selectedNode" />
     </div>
   </div>
 </template>

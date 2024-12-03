@@ -9,6 +9,12 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Model } from '@/types/Model'
 import {mergeModels} from "@/api/model.ts";
 
+// variables
+const selectedModelsId = ref<string[]>([])
+const newModelName = ref('')
+const errorMessage = ref<string | undefined>(undefined)
+
+// props related
 const props = defineProps({
   isOpen: {
     type: Boolean,
@@ -19,24 +25,24 @@ const props = defineProps({
     required: true
   }
 });
-
 const emit = defineEmits<{
   'update:isOpen': [value: boolean],
   merge: [mergedModel: Model]
 }>()
 
-const selectedModelsId = ref<string[]>([])
-const newModelName = ref('')
-
+/* functions */
 const canMerge = computed(() => {
   return selectedModelsId.value.length >= 2 && newModelName.value.trim().length > 0
 })
 
 const toggleModel = (modelId: string) => {
+  // find the index of the model in the selectedModelsId array
   const index = selectedModelsId.value.indexOf(modelId)
   if (index === -1) {
+    // if the model is not in the array, add it
     selectedModelsId.value.push(modelId)
-  } else if (index !== -1) {
+  } else {
+    // if the model is in the array, remove it
     selectedModelsId.value.splice(index, 1)
   }
 }
@@ -44,14 +50,14 @@ const toggleModel = (modelId: string) => {
 const handleMerge = async () => {
   if (canMerge.value) {
     try {
-      const selectedModel: Model[] = selectedModelsId.value.map(id => props.models.find(m => m.id === id) as Model)
-      const newModel = await mergeModels(selectedModel, newModelName.value)
-      selectedModelsId.value = []
-      newModelName.value = ''
+      // get the selected models
+      const selectedModels: Model[] = selectedModelsId.value.map(id => props.models.find(m => m.id === id) as Model)
+      // merge the models together
+      const newModel = await mergeModels(selectedModels, newModelName.value)
       emit('merge', newModel)
-      emit('update:isOpen', false)
+      closeDialog()
     } catch (error) {
-      console.error('Error merging models:', error)
+      errorMessage.value = 'An error occurred while merging the models : ' + error
     }
   }
 }
@@ -124,6 +130,7 @@ const closeDialog = () => {
           </CardContent>
         </Card>
       </div>
+      <label v-if="errorMessage !== undefined" class="text-sm font-medium text-red-500">{{errorMessage}}</label>
 
       <DialogFooter>
         <Button variant="outline" @click="closeDialog">Cancel</Button>

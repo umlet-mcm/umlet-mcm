@@ -65,6 +65,7 @@ const handleMerge = async () => {
 const closeDialog = () => {
   selectedModelsId.value = []
   newModelName.value = ''
+  errorMessage.value = undefined
   emit('update:isOpen', false)
 }
 </script>

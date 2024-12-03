@@ -1,66 +1,101 @@
-// todo check if this is the correct type
-export type Neo4jResponse = {
-    results: {
-        columns: string[]
-        data: {
-            row: any[]
-            meta: any[]
-        }[]
-    }[]
-};
-
 export const response =
-    {
-        "results": [ {
-            "columns": [ "person", "test2" ],
-            "data": [ {
-                "row": [ {
-                    "name": "Phil",
-                    "age": 32,
-                    "height": 1.80,
-                    "birthday": "1983-12-25",
-                    "isMarried": true,
-                    "hasChildren": false,
-                    "numberOfChildren": 0,
-                    "hasPets": true,
-                    "petNames": [ "Fluffy", "Spot" ],
-                    "livesIn": {
-                        "city": "Springfield",
-                        "country": "USA"
+    [
+        {
+            "a": {
+                "labels": [
+                    "Actor"
+                ],
+                "id": 2,
+                "elementId": "4:1f6600c2-f663-4d26-9ca7-c9f755dfeddddddddddddddddddddddddddddddddd1a0a5:2",
+                "properties": {
+                    "name": {
+                        "val": "Leonardo DiCaprio"
                     },
-                    "hasCar": {
-                        "make": "Toyota",
-                        "model": "Corolla",
-                        "year": 2018
-                    },
-                    "hasHouse": {
-                        "address": "742 Evergreen Terrace",
-                        "city": "Springfield",
-                        "country": "USA"
-                    },
-                    "hasParents": [ "Homer", "Marge" ],
-                    "hasSiblings": [ "Lisa", "Maggie" ],
-                    "hasFriends": [ "Carl", "Lenny" ],
-                    "hasColleagues": [ "Barney", "Moe" ],
-                    "hasAcquaintances": [ "Ned", "Maude" ],
-                    "hasEnemies": [ "Sideshow Bob", "Mr. Burns" ],
-                    "hasRivals": [ "Frank Grimes", "Hank Scorpio" ],
-                    "hasIdols": [ "McBain", "Duffman" ],
-                    "hasEnemiesOfTheState": [ "Kang", "Kodos" ],
-                } ],
-                "meta": [ {
-                    "id": 11,
-                    "elementId": "4:b7c0e943-1e73-474b-8ddc-e8ff3ae74cdd:11",
-                    "type": "node",
-                    "deleted": false
-                } ]
+                    "birth_year": {
+                        "val": 1974
+                    }
+                }
             },
-            {
-                row: [ {
-                    "test2": "test2"
-                }],
-                meta: [{}]
-            }]
-        } ],
-        // other transactional data
-    }
+            "r": {
+                "start": 2,
+                "startElementId": "4:1f6600c2-f663-4d26-9ca7-c9f755d1a0a5:2",
+                "end": 0,
+                "endElementId": "4:1f6600c2-f663-4d26-9ca7-c9f755d1a0a5:0",
+                "type": "ACTED_IN",
+                "id": 0,
+                "elementId": "5:1f6600c2-f663-4d26-9ca7-c9f755d1a0a5:0",
+                "properties": {
+                    "role": {
+                        "val": "Dom Cobb"
+                    }
+                }
+            },
+            "f": {
+                "labels": [
+                    "Film"
+                ],
+                "id": 0,
+                "elementId": "4:1f6600c2-f663-4d26-9ca7-c9f755d1a0a5:0",
+                "properties": {
+                    "genre": {
+                        "val": "Sci-Fi"
+                    },
+                    "title": {
+                        "val": "Inception"
+                    },
+                    "year": {
+                        "val": 2010
+                    }
+                }
+            }
+        },
+        {
+            "a": {
+                "labels": [
+                    "Actor"
+                ],
+                "id": 5,
+                "elementId": "4:1f6600c2-f663-4d26-9ca7-c9f755d1a0a5:5",
+                "properties": {
+                    "name": {
+                        "val": "Joseph Gordon-Levitt"
+                    },
+                    "birth_year": {
+                        "val": 1981
+                    }
+                }
+            },
+            "r": {
+                "start": 5,
+                "startElementId": "4:1f6600c2-f663-4d26-9ca7-c9f755d1a0a5:5",
+                "end": 0,
+                "endElementId": "4:1f6600c2-f663-4d26-9ca7-c9f755d1a0a5:0",
+                "type": "ACTED_IN",
+                "id": 1,
+                "elementId": "5:1f6600c2-f663-4d26-9ca7-c9f755d1a0a5:1",
+                "properties": {
+                    "role": {
+                        "val": "Arthur"
+                    }
+                }
+            },
+            "f": {
+                "labels": [
+                    "Film"
+                ],
+                "id": 0,
+                "elementId": "4:1f6600c2-f663-4d26-9ca7-c9f755d1a0a5:0",
+                "properties": {
+                    "genre": {
+                        "val": "Sci-Fi"
+                    },
+                    "title": {
+                        "val": "Inception"
+                    },
+                    "year": {
+                        "val": 2010
+                    }
+                }
+            }
+        }
+    ]

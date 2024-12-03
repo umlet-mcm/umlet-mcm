@@ -1,8 +1,10 @@
 <script setup lang="ts">
 
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
-import {onMounted, ref, watch} from "vue";
-import {Neo4jResponse} from "@/types/Neo4jResponse.ts";
+import {onMounted, PropType, ref, watch} from "vue";
+import {ScrollArea} from "@/components/ui/scroll-area";
+import VueJsonPretty from 'vue-json-pretty';
+import 'vue-json-pretty/lib/styles.css';
 
 //variables
 const keys = ref<string[]>([]);
@@ -10,49 +12,50 @@ const keys = ref<string[]>([]);
 //props
 const props = defineProps({
   queryResponse: {
-    type: Object as () => Neo4jResponse,
+    type: Array as PropType<Record<string, any>[]>,
     required: false
   }
 });
 
-function formatValue(value: any): string {
-  return JSON.stringify(value, null, 2)
-}
-
 watch(() => props.queryResponse, (newValue, oldValue) => {
   console.log('Query response changed', newValue, oldValue);
   if (newValue !== oldValue && newValue !== undefined) {
-    const response = newValue as Neo4jResponse;
     //todo should react to a request
-    keys.value = Object.values(response.results[0].columns);
+    keys.value = Object.keys(props.queryResponse![0]);
   }
 });
 
 onMounted(() => {
   //todo to remove, should be handled by watch
-  keys.value = Object.values(props.queryResponse!.results[0].columns)
+  keys.value = Object.keys(props.queryResponse![0])
 });
-
 </script>
 
 <template>
-  <h2 class="text-lg font-semibold mb-4">Query Results</h2>
-  <div v-if="queryResponse === undefined" class="flex h-full items-center justify-center">
-    <p class="text-muted-foreground">
-      No results to display
-    </p>
-  </div>
-  <div v-else class="h-full flex flex-col">
-    <Tabs :default-value="keys[0]" class="w-full flex-1 overflow-auto">
-      <TabsList>
-        <TabsTrigger v-for="key in keys" :key="key" :value="key">{{key}}</TabsTrigger>
-      </TabsList>
-      <TabsContent class="" v-for="key in keys" :key="key" :value="key">
-<!--        todo : to update in case of multiple response ? -->
-        <pre class="bg-gray-100 rounded-md max-h-full">
-          {{formatValue(queryResponse.results[0].data.map((d: any) => d.row[keys.indexOf(key)]))}}
-        </pre>
-      </TabsContent>
-    </Tabs>
+  <div class="flex flex-col h-full">
+    <h2 class="text-lg font-semibold mb-4">Query Results</h2>
+    <div v-if="queryResponse === undefined" class="flex-1 flex items-center justify-center">
+      <p class="text-muted-foreground">
+        No results to display
+      </p>
+    </div>
+    <div v-else class="flex-1 min-h-0">
+      <Tabs :default-value="keys[0]" class="flex flex-col h-full">
+        <TabsList>
+          <TabsTrigger v-for="key in keys" :key="key" :value="key">{{key}}</TabsTrigger>
+        </TabsList>
+        <div class="flex-1 min-h-0">
+          <TabsContent v-for="key in keys" :key="key" :value="key" class="h-full mt-0 data-[state=active]:h-full">
+            <ScrollArea class="h-full rounded-md">
+              <div class="p-2">
+                <div v-for="(obj, index) in queryResponse" :key="index">
+                  <vue-json-pretty class="bg-muted rounded-md p-2 mb-2 overflow-x-auto" :data="obj[key]"/>
+                </div>
+              </div>
+            </ScrollArea>
+          </TabsContent>
+        </div>
+      </Tabs>
+    </div>
   </div>
 </template>

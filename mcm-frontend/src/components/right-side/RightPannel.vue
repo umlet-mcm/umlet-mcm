@@ -4,7 +4,7 @@ import {Model} from "@/types/Model.ts";
 import {Node} from "@/types/Node.ts";
 import QueryResult from "@/components/right-side/QueryResult.vue";
 import NodeViewer from "@/components/right-side/NodeViewer.vue";
-import {Neo4jResponse} from "@/types/Neo4jResponse.ts";
+import {PropType} from "vue";
 
 defineProps({
   selectedModel: {
@@ -16,7 +16,7 @@ defineProps({
     required: false
   },
   queryResponse: {
-    type: Object as () => Neo4jResponse,
+    type: Array as PropType<Record<string, any>[]>,
     required: false
   }
 });

@@ -10,6 +10,8 @@ import at.ac.tuwien.model.change.management.graphdb.dao.ConfigurationEntityDAO;
 import at.ac.tuwien.model.change.management.graphdb.dao.ModelEntityDAO;
 import at.ac.tuwien.model.change.management.graphdb.dao.NodeEntityDAO;
 import at.ac.tuwien.model.change.management.graphdb.dao.RawNeo4jService;
+import at.ac.tuwien.model.change.management.graphdb.entities.NodeEntity;
+import at.ac.tuwien.model.change.management.graphdb.entities.RelationEntity;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -35,8 +37,28 @@ public class GraphDBServiceImpl implements GraphDBService {
 
     @Override
     public Node loadNode(@NonNull Node node) {
-        var nodeEntity = nodeEntityDAO.save(nodeEntityMapper.toEntity(node));
-        return nodeEntityMapper.fromEntity(nodeEntity);
+//        var nodeEntity = nodeEntityDAO.save(nodeEntityMapper.toEntity(node));
+//        return nodeEntityMapper.fromEntity(nodeEntity);
+        val nodeEntityA = new NodeEntity();
+        nodeEntityA.setGeneratedID(UUID.randomUUID().toString());
+        nodeEntityA.setName("A");
+        nodeEntityA.setProperties(Map.of("a", 1.0));
+        val nodeEntityB = new NodeEntity();
+        nodeEntityB.setGeneratedID(UUID.randomUUID().toString());
+        nodeEntityB.setName("B");
+        nodeEntityB.setProperties(Map.of("a", 2.0));
+        val nodeEntityC = new NodeEntity();
+        nodeEntityC.setGeneratedID(UUID.randomUUID().toString());
+        nodeEntityC.setName("C");
+        nodeEntityC.setProperties(Map.of("a", -1));
+        val relationAB = new RelationEntity();
+        relationAB.setTarget(nodeEntityB);
+        nodeEntityA.setRelations(Set.of(relationAB));
+        val relationBC = new RelationEntity();
+        relationBC.setTarget(nodeEntityC);
+        nodeEntityB.setRelations(Set.of(relationBC));
+        nodeEntityDAO.saveAll(List.of(nodeEntityA, nodeEntityB, nodeEntityC));
+        return null;
     }
 
     @Override
@@ -53,6 +75,40 @@ public class GraphDBServiceImpl implements GraphDBService {
     @Override
     public void deleteNode(@NonNull String id) {
         nodeEntityDAO.deleteById(id);
+    }
+
+    @Override
+    public List<Node> getPredecessors(String nodeID) {
+        return nodeEntityDAO.getPredecessors(nodeID).stream().map(nodeEntityMapper::fromEntity).toList();
+    }
+
+    @Override
+    public Node sumUpAttribute(String nodeID, String attributeName) {
+        // Get the predecessors
+        val predecessors = nodeEntityDAO.getPredecessors(nodeID);
+
+        // Get the node
+        val node = nodeEntityDAO.findById(nodeID).orElse(null);
+
+        // If the node does not exist, return null
+        if(node == null) {
+            return null;
+        }
+
+        // Sum up the attribute
+        var sumUp = 0.0;
+        for(NodeEntity predecessor : predecessors) {
+            if(predecessor.getProperties().containsKey(attributeName)) {
+                val property = predecessor.getProperties().get(attributeName);
+                sumUp += Double.parseDouble(property.toString());
+            }
+        }
+
+        // Set the attribute
+        node.getProperties().put(attributeName, sumUp);
+
+        // Save the node
+        return nodeEntityMapper.fromEntity(nodeEntityDAO.save(node));
     }
 
     @Override

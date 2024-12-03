@@ -40,6 +40,19 @@ public interface GraphDBService {
      */
     void deleteNode(String id);
 
+    /**
+     * Retrieves all predecessor nodes from the graph database
+     * @param nodeID The node ID of whose predecessors to retrieve
+     * @return The list of all nodes with outgoing relations
+     */
+    List<Node> getPredecessors(String nodeID);
+
+    /**
+     * Finds all predecessors of a given node that contain a specific attribute
+     * @return The node containing the sum of the attribute
+     */
+    Node sumUpAttribute(String nodeID, String attributeName);
+
 
     /********** CONFIGURATION PART ********/
 

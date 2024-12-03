@@ -9,7 +9,7 @@ import org.mapstruct.MappingTarget;
 
 import java.util.LinkedHashMap;
 
-@Mapper(componentModel = "spring", uses = {UmletPositionUxfMapper.class})
+@Mapper(uses = {UmletPositionUxfMapper.class})
 public interface ElementUxfMapper {
 
     // no explicit mapping for mcmAttributes, they will be populated in the custom function below

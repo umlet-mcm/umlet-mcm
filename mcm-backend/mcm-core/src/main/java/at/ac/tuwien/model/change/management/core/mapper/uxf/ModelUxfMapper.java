@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 
-@Mapper(componentModel = "spring", uses = {ElementUxfMapper.class})
+@Mapper(uses = {ElementUxfMapper.class})
 public interface ModelUxfMapper {
     @Mapping(source = "attributes.description", target = "description")
     @Mapping(source = "_zoomLevel", target = "zoomLevel")

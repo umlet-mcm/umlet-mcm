@@ -9,12 +9,12 @@ import {Node} from "@/types/Node.ts";
 import {onMounted, ref} from "vue";
 import {Configuration} from "@/types/Configuration.ts";
 import {getConfigurationById} from "@/api/configuration.ts";
-import {response} from "@/types/Neo4jResponse.ts";
 const route = useRoute()
 
 const selectedConfiguration = ref<Configuration>();
 const selectedModel = ref<Model | undefined>()
 const selectedNode = ref<Node | undefined>()
+const queryResponse = ref<Record<string, any>[]>()
 
 const getSelectedConfiguration = async () => {
   try {
@@ -27,15 +27,14 @@ const getSelectedConfiguration = async () => {
 onMounted(() => {
   getSelectedConfiguration();
 });
-
 </script>
 
 <template>
   <div v-if="selectedConfiguration">
     <div class="flex h-screen">
       <LeftPannel v-model:selectedModel="selectedModel" :selectedConfiguration="selectedConfiguration"/>
-      <MainContent :selectedModel="selectedModel" v-model:selectedNode="selectedNode"/>
-      <RightPannel :selectedModel="selectedModel" :selectedNode="selectedNode" :queryResponse="response"/>
+      <MainContent :selectedModel="selectedModel" v-model:selectedNode="selectedNode" v-model:response="queryResponse"/>
+      <RightPannel :selectedModel="selectedModel" :selectedNode="selectedNode" :queryResponse="queryResponse"/>
     </div>
   </div>
 </template>

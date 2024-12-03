@@ -2,13 +2,17 @@
 import { Button } from '@/components/ui/button'
 import QueryEditor from "@/components/main-content/QueryEditor.vue"
 import GraphVisualisation from "@/components/main-content/GraphVisualisation.vue"
-import { ref } from "vue"
+import {PropType, ref} from "vue"
 import { Play } from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
 import {Node} from "@/types/Node.ts";
+import {sendRequest} from "@/api/graphDB.ts";
 
+// variables
 const query = ref('')
+const errorMessage = ref<string | undefined>(undefined)
 
+// props related
 defineProps({
   selectedModel: {
     type: Object as () => Model,
@@ -17,13 +21,24 @@ defineProps({
   selectedNode: {
     type: Object as () => Node,
     required: false
+  },
+  response: {
+    type: Array as PropType<Record<string, any>[]>,
+    required: false
   }
 });
+const emit = defineEmits(["update:selectedNode", "update:response"]);
 
-const emit = defineEmits(["update:selectedNode"]);
-
-const executeQuery = () => {
-  console.log('Executing query:', query.value)
+// functions
+const executeQuery = async () => {
+  if(!query.value) return
+  try {
+    const response = await sendRequest(query.value)
+    emit('update:response', response)
+    errorMessage.value = undefined
+  } catch (error: any) {
+    errorMessage.value = error.response.data.Message
+  }
 }
 </script>
 
@@ -37,6 +52,7 @@ const executeQuery = () => {
           <Play class="mr-2 h-4 w-4" />
           Execute Query
         </Button>
+        <label v-if="errorMessage" class="text-red-500 text-sm content-center">{{ errorMessage }}</label>
       </div>
     </div>
     <div class="flex items-center justify-between">

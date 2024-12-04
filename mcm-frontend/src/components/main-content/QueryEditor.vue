@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { Codemirror } from 'vue-codemirror'
 import { oneDark } from '@codemirror/theme-one-dark'
+import { cypher } from '@codemirror/legacy-modes/mode/cypher'
+import {StreamLanguage} from "@codemirror/language"
 
-const props = defineProps<{
+defineProps<{
   modelValue: string
 }>()
 
@@ -10,7 +12,7 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
 }>()
 
-const extensions = [oneDark]
+const extensions = [StreamLanguage.define(cypher), oneDark]
 
 const onChange = (value: string) => {
   emit('update:modelValue', value)

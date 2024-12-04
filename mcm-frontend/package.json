@@ -9,7 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@codemirror/legacy-modes": "^6.4.2",
     "@codemirror/theme-one-dark": "^6.1.2",
+    "@neo4j-cypher/codemirror": "^1.0.3",
     "@vee-validate/zod": "^4.14.7",
     "@vueuse/core": "^11.3.0",
     "axios": "^1.7.7",

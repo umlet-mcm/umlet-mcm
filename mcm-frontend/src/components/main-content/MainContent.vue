@@ -37,7 +37,7 @@ const executeQuery = async () => {
     emit('update:response', response)
     errorMessage.value = undefined
   } catch (error: any) {
-    errorMessage.value = error.response.data.Message
+    errorMessage.value = error.response.data.Message ? error.response.data.Message : error.message
   }
 }
 </script>

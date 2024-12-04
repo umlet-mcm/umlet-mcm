@@ -131,7 +131,7 @@ const closeDialog = () => {
           </CardContent>
         </Card>
       </div>
-      <label v-if="errorMessage !== undefined" class="text-sm font-medium text-red-500">{{errorMessage}}</label>
+      <label v-if="errorMessage" class="text-sm font-medium text-red-500">{{errorMessage}}</label>
 
       <DialogFooter>
         <Button variant="outline" @click="closeDialog">Cancel</Button>

@@ -1,6 +1,7 @@
-package at.ac.tuwien.model.change.management.testutils;
+package at.ac.tuwien.model.change.management.testutils.model;
 
 import at.ac.tuwien.model.change.management.core.model.*;
+import lombok.NonNull;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import java.util.HashSet;
@@ -31,15 +32,62 @@ public class DomainModelGen {
         RELATION
     }
 
-
-    public static Model generateFullyRandomizedModel(int numberNodes, int numberRelationsPerNode) {
-        return generateFullyRandomizedModel(numberNodes, numberRelationsPerNode, numberNodes, numberRelationsPerNode);
+    public static Configuration generateRandomizedConfiguration(
+            @NonNull String name,
+            int numberModels,
+            int numberNodesPerModel,
+            int numberRelationsPerNode) {
+        return generateRandomizedConfiguration(
+                name,
+                numberModels,
+                numberModels,
+                numberNodesPerModel,
+                numberNodesPerModel,
+                numberRelationsPerNode,
+                numberRelationsPerNode
+        );
     }
 
-    public static Model generateFullyRandomizedModel(
-            int minNumberNodes,
+    public static Configuration generateRandomizedConfiguration(
+            @NonNull String name,
+            int minNumberModels,
+            int maxNumberModels,
+            int minNumberNodesPerModel,
+            int maxNumberNodesPerModel,
             int minNumberRelationsPerNode,
+            int maxNumberRelationsPerNode) {
+        if (minNumberModels < 0) {
+            throw new IllegalArgumentException("Number of models must be non-negative.");
+        }
+        if (minNumberModels > maxNumberModels) {
+            throw new IllegalArgumentException("Minimum number of models must be less than or equal to maximum number.");
+        }
+        var configuration = new Configuration();
+        configuration.setName(name);
+        configuration.setModels(new HashSet<>());
+        var upperBoundModels = maxNumberModels - minNumberModels + 1;
+        var numModels = getRandomInt(upperBoundModels) + minNumberModels;
+
+        for (int i = 0; i < numModels; i++) {
+            configuration.getModels()
+                    .add(generateRandomizedModel(
+                            minNumberNodesPerModel,
+                            maxNumberNodesPerModel,
+                            minNumberRelationsPerNode,
+                            maxNumberRelationsPerNode
+                    ));
+        }
+        return configuration;
+    }
+
+    public static Model generateRandomizedModel(int numberNodes, int numberRelationsPerNode) {
+        return generateRandomizedModel(numberNodes, numberRelationsPerNode, numberNodes, numberRelationsPerNode);
+    }
+
+    public static Model generateRandomizedModel(
+            int minNumberNodes,
             int maxNumberNodes,
+            int minNumberRelationsPerNode,
             int maxNumberRelationsPerNode) {
 
         if (minNumberNodes < 0 || minNumberRelationsPerNode < 0) {

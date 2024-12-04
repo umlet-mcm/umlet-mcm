@@ -1,114 +1,111 @@
 package at.ac.tuwien.model.change.management.git.repository;
 
 import at.ac.tuwien.model.change.management.core.model.Configuration;
-import at.ac.tuwien.model.change.management.core.model.Model;
 import at.ac.tuwien.model.change.management.git.annotation.GitComponent;
 import at.ac.tuwien.model.change.management.git.exception.*;
-import at.ac.tuwien.model.change.management.git.util.RepositoryManager;
+import at.ac.tuwien.model.change.management.git.operation.ConfigurationIOManager;
+import at.ac.tuwien.model.change.management.git.operation.RepositoryManager;
+import at.ac.tuwien.model.change.management.git.util.RepositoryContents;
 import at.ac.tuwien.model.change.management.git.util.RepositoryUtils;
+import at.ac.tuwien.model.change.management.git.util.VersionControlUtils;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.jgit.api.errors.*;
-import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.Repository;
 import org.springframework.util.FileSystemUtils;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-@Slf4j
 @GitComponent
+@Slf4j
 @RequiredArgsConstructor
 public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 
+    private final ConfigurationIOManager configurationIoManager;
     private final RepositoryManager repositoryManager;
 
     @Override
-    public Configuration create(Configuration configuration) {
-        return repositoryManager.withRepository(configuration.getName(), false, repository -> {
+    public void createConfiguration(@NonNull String name) throws RepositoryAlreadyExistsException {
+        log.debug("Creating repository for configuration '{}'.", name);
+        try (var repository = repositoryManager.accessRepository(name)) {
             if (RepositoryUtils.repositoryExists(repository)) {
-                throw new ConfigurationAlreadyExistsException("Could not create configuration '" + configuration.getName() + "', because it already exists");
+                throw new RepositoryAlreadyExistsException("Repository for configuration '" + name + "' already exists.");
             }
-
-            try {
-                repository.create();
-                repositoryManager.writeConfigurationToRepository(configuration, repository);
-                log.info("Created configuration '{}'", configuration.getName());
-                return repositoryManager.readConfigurationFromRepository(repository);
-            } catch (IOException e) {
-                throw new ConfigurationCreateException("Failed to create configuration '" + configuration.getName() + "'", e);
-            }
-        });
-    }
-
-
-    @Override
-    public Configuration update(Configuration configuration) {
-        return repositoryManager.withGit(configuration.getName(), git -> {
-            try {
-                var updatedConfigurationVersion = Optional.ofNullable(configuration.getVersion())
-                        .orElseThrow(() -> new ConfigurationUpdateException("Could not update configuration '" + configuration.getName() + "', because it has no version"));
-                var headCommitVersion = RepositoryUtils.headCommitHash(git.getRepository());
-
-                if (updatedConfigurationVersion.equals(headCommitVersion)) {
-                    var commitMessage = "Update for models: " + configuration.getModels().stream().map(Model::getId).collect(Collectors.joining(", "));
-                    var updatedRepositoryContents = repositoryManager.updateRepositoryWorkTree(configuration, git.getRepository());
-                    repositoryManager.addRepositoryContents(git.getRepository(), updatedRepositoryContents);
-                    git.commit().setMessage(commitMessage).call();
-                    return repositoryManager.readConfigurationFromRepository(git.getRepository());
-                } else {
-                    // TODO: more sophisticated handling of this case
-                    throw new ConfigurationUpdateException("Could not update configuration '" + configuration.getName() + "', because it is not at the latest version");
-                }
-            } catch (GitAPIException e) {
-                throw new ConfigurationUpdateException("Failed to update configuration '" + configuration.getName() + "'", e);
-            }
-        });
-    }
-
-    @Override
-    public void delete(String name) {
-        // using withRepository instead of withGit, because deletions are usually supposed to be idempotent
-        repositoryManager.withRepository(name, false, repository -> {
-            try {
-                if (!FileSystemUtils.deleteRecursively(repository.getWorkTree().toPath())) {
-                    throw new ConfigurationDeleteException("Failed to delete configuration '" + name + "'");
-                }
-            } catch (IOException e) {
-                throw new ConfigurationDeleteException("Failed to delete configuration '" + name + "'", e);
-            }
-        });
-    }
-
-    @Override
-    public Configuration findConfigurationByName(String name) {
-        return repositoryManager.readConfigurationFromRepository(name);
-    }
-
-    @Override
-    public List<Configuration> findAll() {
-        try (var files = Files.list(repositoryManager.gitRepositoriesPath())) {
-            return files.map(Path::getFileName)
-                    .map(Path::toString)
-                    .map(repositoryName -> repositoryManager.withRepository(repositoryName, false, repository -> {
-                        if (RepositoryUtils.repositoryExists(repository)) {
-                            return repositoryManager.readConfigurationFromRepository(repositoryName);
-                        }
-                        return null;
-                    }))
-                    .filter(Objects::nonNull)
-                    .toList();
-        } catch (IOException e) {
-            throw new ConfigurationReadException("Failed to list all configurations", e);
+            VersionControlUtils.initRepository(repository);
+            log.info("Created repository for configuration '{}'.", name);
+        } catch (GitAPIException e) {
+            throw new RepositoryCreateException("Could not initialize repository for configuration '" + name + "'.", e);
         }
     }
 
     @Override
-    public List<DiffEntry> diff(Configuration configuration, String oldCommitHash, String newCommitHash) {
-        return List.of();
+    public Optional<Configuration> findConfigurationByName(@NonNull String name) {
+        log.debug("Finding configuration '{}'.", name);
+        try (var repository = repositoryManager.accessRepository(name)) {
+            if (!RepositoryUtils.repositoryExists(repository)) {
+                log.warn("Repository for configuration '{}' could not be found.", name);
+                return Optional.empty();
+            }
+            log.info("Found repository for configuration '{}'.", name);
+            return Optional.of(configurationIoManager.readConfigurationFromRepository(repository, Constants.HEAD));
+        }
+    }
+
+    @Override
+    public List<Configuration> findAllConfigurations() {
+        log.debug("Finding all configurations.");
+        var repositories = repositoryManager.listRepositories();
+
+        try {
+            var configurations = repositories.stream()
+                    .map(repository -> configurationIoManager.readConfigurationFromRepository(repository, Constants.HEAD))
+                    .toList();
+            log.info("Found {} configurations.", configurations.size());
+            return configurations;
+        } finally {
+            repositories.forEach(Repository::close);
+        }
+    }
+
+    @Override
+    public Configuration saveConfiguration(@NonNull Configuration configuration) throws RepositoryDoesNotExistException {
+        log.debug("Saving configuration '{}'.", configuration.getName());
+        try (var repository = repositoryManager.accessRepository(configuration.getName())) {
+            if (!RepositoryUtils.repositoryExists(repository)) {
+                throw new RepositoryDoesNotExistException("Repository for configuration '" + configuration.getName() + "' does not exist.");
+            }
+            configurationIoManager.clearConfigurationRepository(repository);
+            var repositoryContents = configurationIoManager.writeConfigurationToRepository(repository, configuration);
+            VersionControlUtils.stageRepositoryContents(repository, repositoryContents);
+            VersionControlUtils.commitRepository(repository, generateCommitMessage(configuration.getName(), repositoryContents));
+            log.info("Saved configuration '{}' to repository.", configuration.getName());
+            return configurationIoManager.readConfigurationFromRepository(repository, Constants.HEAD);
+        } catch (GitAPIException e) {
+            throw new RepositorySaveException("Failed to save configuration '" + configuration.getName() + "'.", e);
+        }
+    }
+
+    @Override
+    public void deleteConfiguration(@NonNull String name) {
+        log.debug("Deleting repository for configuration '{}'.", name);
+        try (var repository = repositoryManager.accessRepository(name)) {
+            var pathToWorkDir = repository.getWorkTree().toPath();
+            if (FileSystemUtils.deleteRecursively(pathToWorkDir)) {
+                log.info("Deleted repository for configuration '{}'", name);
+            } else {
+                log.warn("Could not delete repository for configuration '{}', because it does not exist", name);
+            }
+        } catch (IOException e) {
+            throw new RepositoryDeleteException("Failed to delete repository for configuration '" + name + "'.", e);
+        }
+    }
+
+    private String generateCommitMessage(String name, RepositoryContents<?> repositoryContents) {
+        return String.format("Update '%s' with %d models, %d nodes and %d relations",
+                name, repositoryContents.models().size(), repositoryContents.nodes().size(), repositoryContents.relations().size());
     }
 }

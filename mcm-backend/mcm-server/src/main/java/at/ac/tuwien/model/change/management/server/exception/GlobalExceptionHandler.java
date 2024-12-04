@@ -1,7 +1,5 @@
 package at.ac.tuwien.model.change.management.server.exception;
 
-import at.ac.tuwien.model.change.management.git.exception.ConfigurationPersistenceException;
-import at.ac.tuwien.model.change.management.git.exception.ConfigurationAlreadyExistsException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

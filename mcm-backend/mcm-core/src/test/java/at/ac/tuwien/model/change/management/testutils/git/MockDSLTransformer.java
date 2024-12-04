@@ -1,4 +1,4 @@
-package at.ac.tuwien.model.change.management.testutils;
+package at.ac.tuwien.model.change.management.testutils.git;
 
 import at.ac.tuwien.model.change.management.core.model.Model;
 import at.ac.tuwien.model.change.management.core.model.Node;

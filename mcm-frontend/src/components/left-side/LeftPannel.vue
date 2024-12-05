@@ -91,7 +91,7 @@ const placeholder = () => {
       </div>
     </div>
     <Separator />
-    <div>
+    <div class="flex-1 overflow-auto">
       <h2 class="text-sm font-semibold mb-2">Model to display</h2>
       <ModelList
           :selected-model="selectedModel"

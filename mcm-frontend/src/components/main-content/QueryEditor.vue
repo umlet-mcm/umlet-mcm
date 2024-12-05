@@ -22,9 +22,8 @@ const onChange = (value: string) => {
 <template>
   <div class="border border-border rounded-md overflow-hidden">
     <Codemirror
-        :value="modelValue"
         :extensions="extensions"
-        @change="onChange"
+        @update:modelValue="onChange"
         placeholder="Enter your Neo4j query here..."
         :indent-with-tab="true"
         :tab-size="2"

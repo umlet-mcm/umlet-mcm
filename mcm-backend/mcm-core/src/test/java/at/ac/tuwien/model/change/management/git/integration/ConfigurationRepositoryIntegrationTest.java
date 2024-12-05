@@ -20,7 +20,7 @@ import java.util.Objects;
 
 @SpringBootTest
 @ContextConfiguration(classes = GitTestConfig.class)
-public class GitRepositoryIntegrationTest {
+public class ConfigurationRepositoryIntegrationTest {
 
     @Autowired
     private ConfigurationRepository configurationRepository;

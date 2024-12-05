@@ -9,6 +9,7 @@ import at.ac.tuwien.model.change.management.git.util.VersionControlUtils;
 import at.ac.tuwien.model.change.management.git.operation.MockConfigurationIOManager;
 import at.ac.tuwien.model.change.management.git.operation.MockRepositoryManager;
 import at.ac.tuwien.model.change.management.testutil.DomainModelGen;
+import at.ac.tuwien.model.change.management.testutil.TestUtils;
 import org.assertj.core.api.Assertions;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.BeforeEach;
@@ -65,8 +66,7 @@ public class ConfigurationRepositoryTest {
         var readConfiguration = configurationRepository.findConfigurationByName(configurationName);
         Assertions.assertThat(readConfiguration)
                 .get()
-                .usingRecursiveComparison()
-                .ignoringFields("version")
+                .usingRecursiveComparison(TestUtils.recursiveConfigurationComparison())
                 .isEqualTo(configuration);
     }
 
@@ -85,8 +85,7 @@ public class ConfigurationRepositoryTest {
         var configurations = configurationRepository.findAllConfigurations();
         Assertions.assertThat(configurations).hasSize(1)
                 .first()
-                .usingRecursiveComparison()
-                .ignoringFields("version")
+                .usingRecursiveComparison(TestUtils.recursiveConfigurationComparison())
                 .isEqualTo(configuration);
     }
 
@@ -101,7 +100,7 @@ public class ConfigurationRepositoryTest {
         var configurations = configurationRepository.findAllConfigurations();
         Assertions.assertThat(configurations)
                 .hasSize(3)
-                .usingRecursiveFieldByFieldElementComparatorIgnoringFields("version")
+                .usingRecursiveFieldByFieldElementComparator(TestUtils.recursiveConfigurationComparison())
                 .containsExactlyInAnyOrder(configurationOne, configurationTwo, configurationThree);
     }
 
@@ -115,8 +114,7 @@ public class ConfigurationRepositoryTest {
         var readConfiguration = configurationRepository.findConfigurationByName(updatedConfiguration.getName());
         Assertions.assertThat(readConfiguration)
                 .get()
-                .usingRecursiveComparison()
-                .ignoringFields("version")
+                .usingRecursiveComparison(TestUtils.recursiveConfigurationComparison())
                 .isEqualTo(updatedConfiguration);
     }
 

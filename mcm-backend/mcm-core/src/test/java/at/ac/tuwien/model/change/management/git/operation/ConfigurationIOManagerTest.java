@@ -5,6 +5,7 @@ import at.ac.tuwien.model.change.management.git.util.RepositoryUtils;
 import at.ac.tuwien.model.change.management.git.util.VersionControlUtils;
 import at.ac.tuwien.model.change.management.testutil.DomainModelGen;
 import at.ac.tuwien.model.change.management.core.transformer.MockDSLTransformer;
+import at.ac.tuwien.model.change.management.testutil.TestUtils;
 import org.assertj.core.api.Assertions;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
@@ -72,8 +73,7 @@ public class ConfigurationIOManagerTest {
             var readConfiguration = configurationIOManager.readConfigurationFromRepository(repository, Constants.HEAD);
             Assertions.assertThat(readConfiguration.getVersion()).isNotNull();
             Assertions.assertThat(readConfiguration)
-                    .usingRecursiveComparison()
-                    .ignoringFields("version")
+                    .usingRecursiveComparison(TestUtils.recursiveConfigurationComparison())
                     .isEqualTo(configuration);
         }
     }
@@ -88,8 +88,7 @@ public class ConfigurationIOManagerTest {
             var readConfiguration = configurationIOManager.readConfigurationFromRepository(repository, Constants.HEAD);
             Assertions.assertThat(readConfiguration.getVersion()).isNotNull();
             Assertions.assertThat(readConfiguration)
-                    .usingRecursiveComparison()
-                    .ignoringFields("version")
+                    .usingRecursiveComparison(TestUtils.recursiveConfigurationComparison())
                     .isEqualTo(configuration);
         }
     }
@@ -104,8 +103,7 @@ public class ConfigurationIOManagerTest {
             var readConfiguration = configurationIOManager.readConfigurationFromRepository(repository, Constants.HEAD);
             Assertions.assertThat(readConfiguration.getVersion()).isNotNull();
             Assertions.assertThat(readConfiguration)
-                    .usingRecursiveComparison()
-                    .ignoringFields("version")
+                    .usingRecursiveComparison(TestUtils.recursiveConfigurationComparison())
                     .isEqualTo(configuration);
         }
     }
@@ -120,8 +118,7 @@ public class ConfigurationIOManagerTest {
             var readConfiguration = configurationIOManager.readConfigurationFromRepository(repository, Constants.HEAD);
             Assertions.assertThat(readConfiguration.getVersion()).isNotNull();
             Assertions.assertThat(readConfiguration)
-                    .usingRecursiveComparison()
-                    .ignoringFields("version")
+                    .usingRecursiveComparison(TestUtils.recursiveConfigurationComparison())
                     .isEqualTo(configuration);
         }
     }
@@ -136,8 +133,7 @@ public class ConfigurationIOManagerTest {
             var readConfiguration = configurationIOManager.readConfigurationFromRepository(repository, Constants.HEAD);
             Assertions.assertThat(readConfiguration.getVersion()).isNotNull();
             Assertions.assertThat(readConfiguration)
-                    .usingRecursiveComparison()
-                    .ignoringFields("version")
+                    .usingRecursiveComparison(TestUtils.recursiveConfigurationComparison())
                     .isEqualTo(configuration);
         }
     }

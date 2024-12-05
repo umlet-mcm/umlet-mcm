@@ -175,6 +175,30 @@ public class ConfigurationRepositoryIntegrationTest {
                 .isEqualTo(updatedConfiguration);
     }
 
+    @Test
+    public void testSaveConfiguration_updateByAddingToReadConfiguration_shouldSucceed()
+            throws RepositoryAlreadyExistsException, RepositoryDoesNotExistException {
+        // store original configuration on which to operate
+        var originalConfiguration = saveNewConfiguration(
+                DomainModelGen.generateRandomizedConfiguration("test", 2, 2, 1)
+        );
+
+        // create new model that will be added
+        var newModel = DomainModelGen.generateRandomizedModel(2, 1);
+
+        // add new model
+        var foundConfiguration = configurationRepository.findConfigurationByName(originalConfiguration.getName())
+                .orElseThrow(() -> new AssertionError("Configuration not found"));
+        foundConfiguration.getModels().add(newModel);
+        var finalConfiguration = configurationRepository.saveConfiguration(foundConfiguration);
+
+        // check whether updated configuration equals original configuration + new model
+        originalConfiguration.getModels().add(newModel);
+        Assertions.assertThat(finalConfiguration)
+                .usingRecursiveComparison(TestUtils.recursiveConfigurationComparison())
+                .isEqualTo(originalConfiguration);
+    }
+
 
     @Test
     public void testDeleteConfiguration_existingConfiguration_shouldSucceed()
@@ -196,9 +220,9 @@ public class ConfigurationRepositoryIntegrationTest {
     }
 
 
-    private void saveNewConfiguration(Configuration configuration) throws RepositoryAlreadyExistsException, RepositoryDoesNotExistException {
+    private Configuration saveNewConfiguration(Configuration configuration) throws RepositoryAlreadyExistsException, RepositoryDoesNotExistException {
         configurationRepository.createConfiguration(configuration.getName());
-        configurationRepository.saveConfiguration(configuration);
+        return configurationRepository.saveConfiguration(configuration);
     }
 
 }

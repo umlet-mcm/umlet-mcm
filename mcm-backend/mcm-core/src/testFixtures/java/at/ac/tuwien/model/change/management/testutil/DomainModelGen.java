@@ -80,7 +80,7 @@ public class DomainModelGen {
     }
 
     public static Model generateRandomizedModel(int numberNodes, int numberRelationsPerNode) {
-        return generateRandomizedModel(numberNodes, numberRelationsPerNode, numberNodes, numberRelationsPerNode);
+        return generateRandomizedModel(numberNodes,numberNodes, numberRelationsPerNode, numberRelationsPerNode);
     }
 
     public static Model generateRandomizedModel(

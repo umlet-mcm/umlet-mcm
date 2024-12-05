@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,11 +50,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             log.debug("Updating configuration '{}'.", configuration.getName());
             validateExistingConfiguration(configuration);
             configuration.setName(ConfigurationUtils.sanitizeConfigurationName(configuration.getName()));
+            var currentVersion = versionControlRepository.getCurrentVersion(configuration.getName());
             var updateVersion = Optional.ofNullable(configuration.getVersion()).orElseThrow(() ->
                     new ConfigurationValidationException("Configuration '" + configuration.getName() +
                             "' cannot be updated, because its version is not specified."));
-
-            var currentVersion = versionControlRepository.getCurrentVersion(configuration.getName());
             if (! updateVersion.equals(currentVersion)) {
                 throw new ConfigurationUpdateException("Version of configuration '" + configuration.getName() +
                         "' does not match the current version. Merging of divergent versions is not yet supported.");
@@ -106,15 +107,15 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     private void validateNewConfiguration(Configuration configuration) {
-        for (var model : configuration.getModels()) {
+        for (var model : tryAccessCollection(configuration.getModels())) {
             if (model.getId() != null) {
                 throw new ConfigurationValidationException("Model cannot have an id when creating a new configuration.");
             }
-            for (var node : model.getNodes()) {
+            for (var node : tryAccessCollection(model.getNodes())) {
                 if (node.getId() != null) {
                     throw new ConfigurationValidationException("Node cannot have an id when creating a new configuration.");
                 }
-                for (var relation : node.getRelations()) {
+                for (var relation : tryAccessCollection(node.getRelations())) {
                     if (relation.getId() != null) {
                         throw new ConfigurationValidationException("Relation cannot have an id when creating a new configuration.");
                     }
@@ -124,13 +125,17 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     private void validateExistingConfiguration(Configuration configuration) {
-        for (var model : configuration.getModels()) {
-            for (var node : model.getNodes()) {
+        for (var model : tryAccessCollection(configuration.getModels())) {
+            for (var node : tryAccessCollection(model.getNodes())) {
                 if (node.getMcmModel() == null) node.setMcmModel(model.getId());
                 else if (! node.getMcmModel().equals(model.getId())) {
                     throw new ConfigurationValidationException("Node does not belong to the model it is assigned to.");
                 }
             }
         }
+    }
+
+    private <T> Collection<T> tryAccessCollection(Collection<T> collection) {
+        return Optional.ofNullable(collection).orElseGet(Collections::emptyList);
     }
 }

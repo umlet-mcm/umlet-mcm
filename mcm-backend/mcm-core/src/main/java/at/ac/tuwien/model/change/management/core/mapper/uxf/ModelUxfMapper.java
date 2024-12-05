@@ -8,10 +8,8 @@ import at.ac.tuwien.model.change.management.core.model.intermediary.ElementUxf;
 import at.ac.tuwien.model.change.management.core.model.intermediary.ModelUxf;
 import at.ac.tuwien.model.change.management.core.model.intermediary.UmletPositionUxf;
 import at.ac.tuwien.model.change.management.core.model.utils.RelationUtils;
-import org.mapstruct.AfterMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
+import org.mapstruct.factory.Mappers;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -22,13 +20,23 @@ public interface ModelUxfMapper {
     @Mapping(source = "attributes.description", target = "description")
     @Mapping(source = "_zoomLevel", target = "zoomLevel")
     @Mapping(source = "elements", target = "nodes")
-    Model toModel(ModelUxf modelUxf);
+    Model _toModel(ModelUxf modelUxf, @Context int zoomLevel);
+
+    // Proxy, needed because of the context
+    default Model toModel(ModelUxf modelUxf) {
+        return _toModel(modelUxf, modelUxf._zoomLevel);
+    }
 
     @Mapping(source = "description", target = "attributes.description")
     @Mapping(source = "mcmAttributes", target = "attributes.mcmAttributes")
     @Mapping(source = "nodes", target = "elements")
     @Mapping(source = "zoomLevel", target = "_zoomLevel")
-    ModelUxf fromModel(Model model);
+    ModelUxf _fromModel(Model model, @Context int zoomLevel);
+
+    // Proxy, needed because of the context
+    default ModelUxf fromModel(Model model) {
+        return _fromModel(model, model.getZoomLevel());
+    }
 
     /**
      * The relations stored in the nodes must be converted back to elements. Bidirectional
@@ -46,9 +54,8 @@ public interface ModelUxfMapper {
 
         ArrayList<ElementUxf> convertedRelations = new ArrayList<>();
         // convert relations to elements
+        UmletPositionUxfMapper umletPositionUxfMapper = Mappers.getMapper(UmletPositionUxfMapper.class);
         for (Relation r : relations) {
-            // getting an instance of the mappers here does not seem doable,
-            // do the mapping by hand
             ElementUxf relationElement = new ElementUxf();
             relationElement.setElementType("Relation");
             ElementAttributesUxf elAttrs = new ElementAttributesUxf();
@@ -58,11 +65,7 @@ public interface ModelUxfMapper {
             elAttrs.setMcmAttributes(r.getMcmAttributes());
             relationElement.setAttributes(elAttrs);
 
-            UmletPositionUxf positionUxf = new UmletPositionUxf();
-            positionUxf.setX(r.getUmletPosition().getX());
-            positionUxf.setY(r.getUmletPosition().getY());
-            positionUxf.setWidth(r.getUmletPosition().getWidth());
-            positionUxf.setHeight(r.getUmletPosition().getHeight());
+            UmletPositionUxf positionUxf = umletPositionUxfMapper.fromUmletPosition(r.getUmletPosition(), m.getZoomLevel());
             relationElement.setUmletPosition(positionUxf);
             relationElement.setGeneratedAttributes(r.getGeneratedAttributes());
 

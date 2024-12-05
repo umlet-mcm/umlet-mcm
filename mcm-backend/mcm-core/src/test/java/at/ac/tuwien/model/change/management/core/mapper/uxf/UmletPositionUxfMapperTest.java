@@ -18,7 +18,7 @@ public class UmletPositionUxfMapperTest {
     public void testFromUmletPosition() {
         UMLetPosition umletPosition = new UMLetPosition(1, 2, 3, 4);
 
-        UmletPositionUxf umletPositionUxf = umletPositionUxfMapper.fromUmletPosition(umletPosition);
+        UmletPositionUxf umletPositionUxf = umletPositionUxfMapper.fromUmletPosition(umletPosition, 10);
 
         assertEquals(umletPosition.getX(), umletPositionUxf.getX());
         assertEquals(umletPosition.getY(), umletPositionUxf.getY());
@@ -34,7 +34,7 @@ public class UmletPositionUxfMapperTest {
         umletPositionUxf.setWidth(3);
         umletPositionUxf.setHeight(4);
 
-        UMLetPosition umletPosition = umletPositionUxfMapper.toUmletPosition(umletPositionUxf);
+        UMLetPosition umletPosition = umletPositionUxfMapper.toUmletPosition(umletPositionUxf, 10);
 
         assertEquals(umletPosition.getX(), umletPositionUxf.getX());
         assertEquals(umletPosition.getY(), umletPositionUxf.getY());

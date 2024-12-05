@@ -50,7 +50,7 @@ public class ElementUxfMapperTest {
         position.setWidth(4);
         element.setUmletPosition(position);
 
-        Node node = mapper.toNode(element);
+        Node node = mapper.toNode(element,10);
 
         assertEquals(element.getElementType(), node.getElementType());
         assertEquals(1, node.getMcmAttributes().size());
@@ -83,7 +83,7 @@ public class ElementUxfMapperTest {
         node.setGeneratedAttributes(List.of(1, 2, 3));
         node.setUmletPosition(new UMLetPosition(1, 2, 3, 4));
 
-        ElementUxf element = mapper.fromNode(node);
+        ElementUxf element = mapper.fromNode(node, 10);
 
         assertEquals(node.getElementType(), element.getElementType());
 

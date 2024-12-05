@@ -85,8 +85,13 @@ public class RelationUtils {
     public static Model processRelations(Model original) {
         // copy attributes
         Model res = new Model();
-        res.setMcmAttributes(original.getMcmAttributes());
+        res.setId(original.getId());
+        res.setTags(original.getTags());
+        res.setOriginalText(original.getOriginalText());
+        res.setTitle(original.getTitle());
         res.setDescription(original.getDescription());
+        res.setMcmAttributes(original.getMcmAttributes());
+        res.setZoomLevel(original.getZoomLevel());
         res.setNodes(new HashSet<>());
 
         // extract relations to a separate list, add nodes to the new model otherwise

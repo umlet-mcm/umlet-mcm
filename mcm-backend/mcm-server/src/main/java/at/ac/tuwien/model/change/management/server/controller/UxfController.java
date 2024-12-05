@@ -1,5 +1,7 @@
 package at.ac.tuwien.model.change.management.server.controller;
 
+import at.ac.tuwien.model.change.management.core.exception.UxfException;
+import at.ac.tuwien.model.change.management.core.model.Configuration;
 import at.ac.tuwien.model.change.management.core.service.UxfService;
 import at.ac.tuwien.model.change.management.server.dto.ConfigurationDTO;
 import at.ac.tuwien.model.change.management.server.mapper.ConfigurationDtoMapper;
@@ -21,7 +23,12 @@ public class UxfController {
 
     @PostMapping
     public ResponseEntity<ConfigurationDTO> uploadUxfFile(@RequestParam("file") MultipartFile file) {
-        var configuration = uxfService.createConfigurationFromUxf(file);
+        Configuration configuration = null;
+        try {
+            configuration = uxfService.createConfigurationFromUxf(file);
+        } catch (UxfException e) {
+            throw new RuntimeException(e);
+        }
         var configurationDto = configurationDtoMapper.toDto(configuration);
         return ResponseEntity.ok(configurationDto);
     }

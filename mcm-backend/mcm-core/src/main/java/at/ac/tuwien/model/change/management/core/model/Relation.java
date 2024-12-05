@@ -90,16 +90,16 @@ public class Relation extends ElementAttributes {
         r.setRelativeStartPoint(new RelativePosition(
                 source.getGeneratedAttributes().get(0),
                 source.getGeneratedAttributes().get(1),
-                r.getUmletPosition().x,
-                r.getUmletPosition().y
+                r.getUmletPosition().getX(),
+                r.getUmletPosition().getY()
         ));
 
         // The last 2 values are the end point of the line relative to the umletPosition
         r.setRelativeEndPoint(new RelativePosition(
                 source.getGeneratedAttributes().get(pointCount - 2),
                 source.getGeneratedAttributes().get(pointCount - 1),
-                r.getUmletPosition().x,
-                r.getUmletPosition().y
+                r.getUmletPosition().getX(),
+                r.getUmletPosition().getY()
         ));
 
         // Parse any additional midpoints if the line isn't straight
@@ -110,8 +110,8 @@ public class Relation extends ElementAttributes {
                 r.getRelativeMidPoints().add(new RelativePosition(
                         source.getGeneratedAttributes().get(i),
                         source.getGeneratedAttributes().get(i + 1),
-                        r.getUmletPosition().x,
-                        r.getUmletPosition().y
+                        r.getUmletPosition().getX(),
+                        r.getUmletPosition().getY()
                 ));
             }
         }

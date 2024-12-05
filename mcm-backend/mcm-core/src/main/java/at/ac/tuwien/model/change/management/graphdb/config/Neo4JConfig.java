@@ -16,9 +16,11 @@ import org.neo4j.dbms.api.DatabaseManagementService;
 import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
 
 import javax.annotation.PreDestroy;
+import java.nio.file.Path;
 import java.time.Duration;
 
 import static org.neo4j.configuration.GraphDatabaseSettings.DEFAULT_DATABASE_NAME;
+import static org.neo4j.configuration.GraphDatabaseSettings.procedure_unrestricted;
 
 @Slf4j
 @Configuration
@@ -32,6 +34,7 @@ public class Neo4JConfig {
         managementService = new DatabaseManagementServiceBuilder(properties.getDatabasePath())
                 .setConfig(GraphDatabaseSettings.transaction_timeout, Duration.ofSeconds(60))
                 .setConfig(BoltConnector.enabled, true)
+                .loadPropertiesFromFile(properties.getConfigurationPath())
                 .build();
         return managementService;
     }

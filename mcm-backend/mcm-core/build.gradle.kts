@@ -29,7 +29,8 @@ dependencies {
     implementation(libs.spring.boot.starter.data.neo4j)
     testImplementation(libs.spring.boot.starter.test)
 
-    implementation("com.google.code.gson:gson:2.11.0")
+    // This library needs to be copied to the graphdb plugins directory
+    runtimeOnly(files("tmp\\mcm\\graphdb\\plugins\\neo4j-graph-data-science-2.12.0.jar"))
 }
 
 tasks.test {

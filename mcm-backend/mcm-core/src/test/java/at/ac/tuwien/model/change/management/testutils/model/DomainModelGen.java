@@ -4,8 +4,7 @@ import at.ac.tuwien.model.change.management.core.model.*;
 import lombok.NonNull;
 import org.apache.commons.lang3.RandomStringUtils;
 
-import java.util.HashSet;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -98,21 +97,32 @@ public class DomainModelGen {
             throw new IllegalArgumentException("Minimum number of nodes and relations must be less than or equal to maximum number.");
         }
 
+        if (maxNumberRelationsPerNode >= minNumberNodes) {
+            throw new IllegalArgumentException("Maximum number of relations per node must be less than the minimum number of nodes.");
+        }
+
         int upperBoundNodes = maxNumberNodes - minNumberNodes + 1;
         int upperBoundRelations = maxNumberRelationsPerNode - minNumberRelationsPerNode + 1;
-
         var model = generateRandomizedModel();
-        model.setNodes(new HashSet<>());
         int numNodes = getRandomInt(upperBoundNodes) + minNumberNodes;
+
         for (int i = 0; i < numNodes; i++) {
             var node = generateRandomizedNode();
-            node.setRelations(new HashSet<>());
-            var numRelations = getRandomInt(upperBoundRelations) + minNumberRelationsPerNode;
-            for (int j = 0; j < numRelations; j++) {
-                node.getRelations().add(generateRandomizedRelation());
-            }
+            if (model.getNodes() == null) model.setNodes(new HashSet<>());
             model.getNodes().add(node);
         }
+
+        for (var node : model.getNodes()) {
+            int numRelations = getRandomInt(upperBoundRelations) + minNumberRelationsPerNode;
+            for (int i = 0; i < numRelations; i++) {
+                var relation = generateRandomizedRelation(
+                        model.getNodes().stream().filter(n -> !Objects.equals(node, n)).toList()
+                );
+                if (node.getRelations() == null) node.setRelations(new HashSet<>());
+                node.getRelations().add(relation);
+            }
+        }
+
         return model;
     }
 
@@ -145,8 +155,10 @@ public class DomainModelGen {
         return node;
     }
 
-    public static Relation generateRandomizedRelation() {
+    public static Relation generateRandomizedRelation(List<Node> availableTargets) {
         var relation = new Relation();
+        var randomTargetIndex = getRandomInt(availableTargets.size());
+        relation.setTarget(availableTargets.get(randomTargetIndex));
         relation.setType(ElementType.RELATION.toString());
         relation.setUmletPosition(generateRandomizedUMLetPosition());
         relation.setRelativeStartPoint(generateRandomizedRelativePosition());

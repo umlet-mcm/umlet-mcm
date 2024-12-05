@@ -60,18 +60,8 @@ public class ConfigurationIOManagerImpl implements ConfigurationIOManager {
     ) {
         try {
             log.debug("Writing configuration to repository '{}'.", RepositoryUtils.getRepositoryName(repository));
-            var repositoryContents = new RepositoryContents<Path>();
-            for (var model : Optional.ofNullable(configuration.getModels()).orElse(Collections.emptySet())) {
-                repositoryContents.models().add(writeModelToFile(model, repository));
-                for (var node : Optional.ofNullable(model.getNodes()).orElse(Collections.emptySet())) {
-                    // ensure model is set
-                    node.setMcmModel(Optional.ofNullable(node.getMcmModel()).orElse(model.getId()));
-                    repositoryContents.nodes().add(writeNodeToFile(node, repository));
-                    for (var relation : Optional.ofNullable(node.getRelations()).orElse(Collections.emptySet())) {
-                        repositoryContents.relations().add(writeRelationToFile(relation, node, repository));
-                    }
-                }
-            }
+            assignMissingIDs(repository, configuration);
+            var repositoryContents = writeToRepository(repository, configuration);
             log.info("Successfully wrote configuration to repository '{}', including {} models, {} nodes and {} relations.",
                     RepositoryUtils.getRepositoryName(repository),
                     repositoryContents.models().size(),
@@ -119,12 +109,43 @@ public class ConfigurationIOManagerImpl implements ConfigurationIOManager {
             configuration.setVersion(commit.getName());
             // just to be consistent with written domain model whose models parameter may also be null
             // TODO: we probably want to initialize these parameters to empty sets by default
-            if (! models.isEmpty()) configuration.setModels(models);
+            if (!models.isEmpty()) configuration.setModels(models);
             log.info("Successfully read configuration from repository '{}'.", repositoryName);
             return configuration;
         } catch (IOException e) {
             throw new RepositoryReadException("Failed to read repository '" + repositoryName + "'", e);
         }
+    }
+
+    private void assignMissingIDs(Repository repository, Configuration configuration) {
+        for (var model : tryAccessCollection(configuration.getModels())) {
+            if (model.getId() == null) model.setId(generateIdUniqueToRepository(repository));
+            for (var node : tryAccessCollection(model.getNodes())) {
+                if (node.getId() == null) node.setId(generateIdUniqueToRepository(repository));
+                if (node.getMcmModel() == null) node.setMcmModel(model.getId());
+                for (var relation : tryAccessCollection(node.getRelations())) {
+                    if (relation.getId() == null) relation.setId(generateIdUniqueToRepository(repository));
+                }
+            }
+        }
+    }
+
+    private RepositoryContents<Path> writeToRepository(Repository repository, Configuration configuration) throws IOException {
+        var repositoryContents = new RepositoryContents<Path>();
+        for (var model : tryAccessCollection(configuration.getModels())) {
+            repositoryContents.models().add(writeModelToFile(model, repository));
+            for (var node : tryAccessCollection(model.getNodes())) {
+                repositoryContents.nodes().add(writeNodeToFile(node, repository));
+                for (var relation : tryAccessCollection(node.getRelations())) {
+                    repositoryContents.relations().add(writeRelationToFile(relation, node, repository));
+                }
+            }
+        }
+        return repositoryContents;
+    }
+
+    private <T> Collection<T> tryAccessCollection(Collection<T> collection) {
+        return Optional.ofNullable(collection).orElse(Collections.emptyList());
     }
 
     private Path writeNodeToFile(Node node, Repository repository) throws IOException {

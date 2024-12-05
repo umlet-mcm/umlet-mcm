@@ -129,6 +129,16 @@ public class ConfigurationServiceTest {
     }
 
     @Test
+    public void testGetConfigurationByName_existingLargeConfiguration_shouldSucceed() {
+        var configuration = DomainModelGen.generateRandomizedConfiguration("test", 5, 100, 20);
+        configurationService.createConfiguration(configuration);
+        var result = configurationService.getConfigurationByName(configuration.getName());
+        Assertions.assertThat(result)
+                .usingRecursiveComparison(TestUtils.recursiveConfigurationComparison())
+                .isEqualTo(configuration);
+    }
+
+    @Test
     public void testGetConfigurationByName_nonExistingConfiguration_shouldThrowConfigurationNotFoundException() {
         Assertions.assertThatThrownBy(() -> configurationService.getConfigurationByName("test"))
                 .isInstanceOf(ConfigurationNotFoundException.class);

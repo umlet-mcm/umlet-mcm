@@ -86,11 +86,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         var sanitizedName = ConfigurationUtils.sanitizeConfigurationName(name);
         try {
             var foundConfiguration = configurationRepository.findConfigurationByName(sanitizedName)
-                    .orElseThrow(() -> new ConfigurationDoesNotExistException("Configuration '" + sanitizedName + "' does not exist."));
+                    .orElseThrow(() -> new ConfigurationNotFoundException("Configuration '" + sanitizedName + "' does not exist."));
             log.info("Found configuration '{}'.", sanitizedName);
             return foundConfiguration;
         } catch (RepositoryAccessException e) {
-            throw new ConfigurationFindException("Failed to access configuration '" + sanitizedName + "'.", e);
+            throw new ConfigurationGetException("Failed to access configuration '" + sanitizedName + "'.", e);
         }
     }
 
@@ -102,7 +102,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             log.info("Found {} configurations.", configurations.size());
             return configurations;
         } catch (RepositoryAccessException e) {
-            throw new ConfigurationFindException("Failed to list all stored configurations.", e);
+            throw new ConfigurationGetException("Failed to list all stored configurations.", e);
         }
     }
 

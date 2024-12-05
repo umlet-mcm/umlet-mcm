@@ -1,8 +1,8 @@
 package at.ac.tuwien.model.change.management.git.repository;
 
-import java.util.Optional;
+import at.ac.tuwien.model.change.management.git.exception.RepositoryDoesNotExistException;
 
 public interface VersionControlRepository {
 
-    Optional<String> getCurrentVersion(String repositoryName);
+    String getCurrentVersion(String repositoryName) throws RepositoryDoesNotExistException;
 }

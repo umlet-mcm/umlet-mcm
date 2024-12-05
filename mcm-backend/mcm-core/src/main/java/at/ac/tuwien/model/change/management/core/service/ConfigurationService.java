@@ -10,7 +10,7 @@ public interface ConfigurationService {
 
     Configuration updateConfiguration(Configuration configuration);
 
-    void deleteConfiguration(Configuration configuration);
+    void deleteConfiguration(String configuration);
 
     Configuration getConfigurationByName(String name);
 

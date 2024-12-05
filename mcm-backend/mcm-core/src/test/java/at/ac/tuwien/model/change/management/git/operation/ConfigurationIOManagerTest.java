@@ -54,7 +54,7 @@ public class ConfigurationIOManagerTest {
     @Test
     public void testWrite_fullConfiguration_shouldSucceed() throws GitAPIException, IOException {
         var configurationName = "test";
-        var configuration = DomainModelGen.generateRandomizedConfiguration(configurationName, 5, 5, 5);
+        var configuration = DomainModelGen.generateRandomizedConfiguration(configurationName, 5, 5, 4);
         configuration.setName(configurationName);
         try (var repository = createRepository(configurationName)) {
             Assertions.assertThatCode(() -> configurationIOManager.writeConfigurationToRepository(repository, configuration))
@@ -112,7 +112,7 @@ public class ConfigurationIOManagerTest {
     public void testReadWrite_fullConfiguration_writtenAndReadConfigurationsShouldBeEqual()
             throws GitAPIException, IOException {
         var configurationName = "test";
-        var configuration = DomainModelGen.generateRandomizedConfiguration(configurationName, 1, 1, 1);
+        var configuration = DomainModelGen.generateRandomizedConfiguration(configurationName, 2, 2, 1);
         try (var repository = createRepository(configurationName)) {
             saveConfigurationToRepository(repository, configuration);
             var readConfiguration = configurationIOManager.readConfigurationFromRepository(repository, Constants.HEAD);
@@ -127,7 +127,7 @@ public class ConfigurationIOManagerTest {
     public void testReadWrite_largeConfiguration_writtenAndReadConfigurationsShouldBeEqual()
             throws GitAPIException, IOException {
         var configurationName = "test";
-        var configuration = DomainModelGen.generateRandomizedConfiguration(configurationName, 5, 5, 5);
+        var configuration = DomainModelGen.generateRandomizedConfiguration(configurationName, 5, 5, 4);
         try (var repository = createRepository(configurationName)) {
             saveConfigurationToRepository(repository, configuration);
             var readConfiguration = configurationIOManager.readConfigurationFromRepository(repository, Constants.HEAD);
@@ -150,7 +150,7 @@ public class ConfigurationIOManagerTest {
     @Test
     public void testClear_nonEmptyRepository_shouldSucceed() throws GitAPIException, IOException {
         var configurationName = "test";
-        var configuration = DomainModelGen.generateRandomizedConfiguration(configurationName, 1, 1, 1);
+        var configuration = DomainModelGen.generateRandomizedConfiguration(configurationName, 2, 2, 1);
         try (var repository = createRepository(configurationName)) {
             saveConfigurationToRepository(repository, configuration);
             Assertions.assertThatCode(() -> configurationIOManager.clearConfigurationRepository(repository))
@@ -161,7 +161,7 @@ public class ConfigurationIOManagerTest {
     @Test
     public void testClear_fullRepository_shouldClearRepository() throws GitAPIException, IOException {
         var configurationName = "test";
-        var configuration = DomainModelGen.generateRandomizedConfiguration(configurationName, 5, 5, 5);
+        var configuration = DomainModelGen.generateRandomizedConfiguration(configurationName, 5, 5, 4);
         try (var repository = createRepository(configurationName)) {
             saveConfigurationToRepository(repository, configuration);
             configurationIOManager.clearConfigurationRepository(repository);

@@ -4,10 +4,7 @@ import at.ac.tuwien.model.change.management.core.model.*;
 import lombok.NonNull;
 import org.apache.commons.lang3.RandomStringUtils;
 
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -100,7 +97,7 @@ public class DomainModelGen {
             throw new IllegalArgumentException("Minimum number of nodes and relations must be less than or equal to maximum number.");
         }
 
-        if (maxNumberRelationsPerNode >= minNumberNodes) {
+        if (maxNumberRelationsPerNode >= minNumberNodes && minNumberNodes > 0) {
             throw new IllegalArgumentException("Maximum number of relations per node must be less than the minimum number of nodes.");
         }
 
@@ -115,7 +112,7 @@ public class DomainModelGen {
             model.getNodes().add(node);
         }
 
-        for (var node : model.getNodes()) {
+        for (var node : Optional.ofNullable(model.getNodes()).orElseGet(Collections::emptySet)) {
             int numRelations = getRandomInt(upperBoundRelations) + minNumberRelationsPerNode;
             for (int i = 0; i < numRelations; i++) {
                 var relation = generateRandomizedRelation(

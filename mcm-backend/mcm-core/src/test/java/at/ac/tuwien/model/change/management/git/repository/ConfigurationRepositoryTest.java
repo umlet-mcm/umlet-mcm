@@ -91,9 +91,9 @@ public class ConfigurationRepositoryTest {
 
     @Test
     public void testFindAllConfigurations_threeConfigurations_shouldReturnListWithThreeConfigurations() throws GitAPIException {
-        var configurationOne = DomainModelGen.generateRandomizedConfiguration("test1", 1, 1, 1);
-        var configurationTwo = DomainModelGen.generateRandomizedConfiguration("test2", 2, 2, 2);
-        var configurationThree = DomainModelGen.generateRandomizedConfiguration("test3", 3, 3, 3);
+        var configurationOne = DomainModelGen.generateRandomizedConfiguration("test1", 2, 2, 1);
+        var configurationTwo = DomainModelGen.generateRandomizedConfiguration("test2", 3, 3, 2);
+        var configurationThree = DomainModelGen.generateRandomizedConfiguration("test3", 4, 4, 3);
         saveNewConfiguration(configurationOne);
         saveNewConfiguration(configurationTwo);
         saveNewConfiguration(configurationThree);
@@ -107,9 +107,9 @@ public class ConfigurationRepositoryTest {
 
     @Test
     public void testSaveConfiguration_existingConfiguration_shouldUpdateConfiguration() throws GitAPIException, RepositoryDoesNotExistException {
-        var configuration = DomainModelGen.generateRandomizedConfiguration("test", 1, 1, 1);
+        var configuration = DomainModelGen.generateRandomizedConfiguration("test", 2, 2, 1);
         saveNewConfiguration(configuration);
-        var updatedConfiguration = DomainModelGen.generateRandomizedConfiguration("test", 2, 2, 2);
+        var updatedConfiguration = DomainModelGen.generateRandomizedConfiguration("test", 3, 3, 2);
         configurationRepository.saveConfiguration(updatedConfiguration);
         var readConfiguration = configurationRepository.findConfigurationByName(updatedConfiguration.getName());
         Assertions.assertThat(readConfiguration)
@@ -120,14 +120,14 @@ public class ConfigurationRepositoryTest {
 
     @Test
     public void testSaveConfiguration_nonExistingConfiguration_shouldThrowRepositoryDoesNotExistException() {
-        var configuration = DomainModelGen.generateRandomizedConfiguration("test", 1, 1, 1);
+        var configuration = DomainModelGen.generateRandomizedConfiguration("test", 2, 2, 1);
         Assertions.assertThatCode(() -> configurationRepository.saveConfiguration(configuration))
                 .isInstanceOf(RepositoryDoesNotExistException.class);
     }
 
     @Test
     public void testDeleteConfiguration_existingConfiguration_shouldDeleteConfiguration() throws GitAPIException {
-        var configuration = DomainModelGen.generateRandomizedConfiguration("test", 1, 1, 1);
+        var configuration = DomainModelGen.generateRandomizedConfiguration("test", 2, 2, 1);
         saveNewConfiguration(configuration);
         configurationRepository.deleteConfiguration(configuration.getName());
         var readConfiguration = configurationRepository.findConfigurationByName(configuration.getName());

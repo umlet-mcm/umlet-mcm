@@ -129,9 +129,9 @@ public class ConfigurationServiceTest {
     }
 
     @Test
-    public void testGetConfigurationByName_nonExistingConfiguration_shouldThrowConfigurationDoesNotExistException() {
+    public void testGetConfigurationByName_nonExistingConfiguration_shouldThrowConfigurationNotFoundException() {
         Assertions.assertThatThrownBy(() -> configurationService.getConfigurationByName("test"))
-                .isInstanceOf(ConfigurationDoesNotExistException.class);
+                .isInstanceOf(ConfigurationNotFoundException.class);
     }
 
     @Test

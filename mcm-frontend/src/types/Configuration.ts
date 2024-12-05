@@ -47,6 +47,68 @@ export const configurations_data = [
             },
             {
                 id: 'Model2',
+                nodes: [
+                    {
+                        id: 'Node4',
+                        text: 'Node 1',
+                        type: 'type1',
+                        properties: [['key1','val1'],['key2','val2']] as [string, string][],
+                        labels: ['label1'],
+                        relations: [
+                            {
+                                type: 'relation1',
+                                text: 'relation1',
+                                source: 'Node4',
+                                target: 'Node4'
+                            }
+                        ]
+                    },
+                    {
+                        id: 'Node5',
+                        text: 'Node 2',
+                        type: 'type2',
+                        properties: [['key1','val1']] as [string, string][],
+                        labels: ['label2'],
+                        relations: [
+                            {
+                                type: 'relation1',
+                                text: 'relation1',
+                                source: 'Node5',
+                                target: 'Node4'
+                            }
+                        ]
+                    },
+                    {
+                        id: 'Node6',
+                        text: 'Node 3',
+                        type: 'type3',
+                        properties: [['key1','val1']] as [string, string][],
+                        labels: ['label3'],
+                        relations: [
+                            {
+                                type: 'relation1',
+                                source: 'Node6',
+                                target: 'Node5'
+                            },
+                            {
+                                type: 'relation1',
+                                source: 'Node5',
+                                target: 'Node4'
+                            },
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'Model3',
+                nodes: []
+            },
+            {
+                id: 'Model4',
+                nodes: []
+            },
+            {
+                id: 'Model5',
                 nodes: []
             }
         ],

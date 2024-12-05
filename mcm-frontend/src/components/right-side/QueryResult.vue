@@ -8,6 +8,7 @@ import 'vue-json-pretty/lib/styles.css';
 
 //variables
 const keys = ref<string[] | undefined>(undefined);
+const message = ref<string | undefined>("No result to display");
 
 //props
 const props = defineProps({
@@ -21,7 +22,12 @@ const props = defineProps({
 watch(() => props.queryResponse, (newValue, oldValue) => {
   // update keys when queryResponse changes
   if (newValue !== oldValue && newValue !== undefined) {
-    keys.value = Object.keys(props.queryResponse![0]);
+    if(props.queryResponse!.length === 0 || Object.keys(props.queryResponse![0]).length === 0) {
+      keys.value = undefined
+      message.value = "Query result is empty"
+    } else {
+      keys.value = Object.keys(props.queryResponse![0]);
+    }
   }
 });
 </script>
@@ -49,7 +55,7 @@ watch(() => props.queryResponse, (newValue, oldValue) => {
     </div>
     <div v-else class="flex-1 flex items-center justify-center">
       <p class="text-muted-foreground">
-        No results to display
+        {{ message }}
       </p>
     </div>
   </div>

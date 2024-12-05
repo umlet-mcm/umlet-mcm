@@ -11,6 +11,8 @@ import {sendRequest} from "@/api/graphDB.ts";
 // variables
 const query = ref('')
 const errorMessage = ref<string | undefined>(undefined)
+const queryMessage = ref<string | undefined>(undefined)
+const queryNum = ref(0)
 
 // props related
 defineProps({
@@ -32,12 +34,17 @@ const emit = defineEmits(["update:selectedNode", "update:response"]);
 // functions
 const executeQuery = async () => {
   if(!query.value) return
+  queryNum.value += 1
   try {
+    const startTime = performance.now();
     const response = await sendRequest(query.value)
+    const endTime = performance.now();
     emit('update:response', response)
     errorMessage.value = undefined
+    queryMessage.value = `Query executed successfully in ${(endTime - startTime)} ms`
   } catch (error: any) {
     errorMessage.value = error.response.data.Message ? error.response.data.Message : error.message
+    queryMessage.value = undefined
   }
 }
 </script>
@@ -52,7 +59,8 @@ const executeQuery = async () => {
           <Play class="mr-2 h-4 w-4" />
           Execute Query
         </Button>
-        <label v-if="errorMessage" class="text-red-500 text-sm content-center">{{ errorMessage }}</label>
+        <label v-if="errorMessage" class="text-sm text-red-500 content-center">{{ "["+queryNum+"] " + errorMessage }}</label>
+        <label v-if="queryMessage" class="text-sm text-green-500 content-center">{{ "["+queryNum+"] " + queryMessage }}</label>
       </div>
     </div>
     <div class="flex items-center justify-between">

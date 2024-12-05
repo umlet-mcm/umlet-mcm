@@ -92,7 +92,7 @@ const placeholder = () => {
     </div>
     <Separator />
     <div>
-      <h2 class="text-sm font-semibold mb-2">Models within configuration</h2>
+      <h2 class="text-sm font-semibold mb-2">Model to display</h2>
       <ModelList
           :selected-model="selectedModel"
           :items="selectedConfiguration.models"

@@ -116,8 +116,8 @@ onMounted(() => {
 <template>
   <Tabs default-value="full" v-model:model-value="active">
     <TabsList class="h-[5%]">
-      <TabsTrigger value="full">Full Graph</TabsTrigger>
-      <TabsTrigger value="request">Request Graph</TabsTrigger>
+      <TabsTrigger value="full">Full Model</TabsTrigger>
+      <TabsTrigger value="request">Request Model</TabsTrigger>
     </TabsList>
     <div ref="container" class="h-[95%] border border-border rounded-md bg-background"/>
   </Tabs>

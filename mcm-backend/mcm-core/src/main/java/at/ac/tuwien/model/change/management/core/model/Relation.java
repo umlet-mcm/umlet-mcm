@@ -1,17 +1,21 @@
 package at.ac.tuwien.model.change.management.core.model;
 
-import at.ac.tuwien.model.change.management.core.model.attributes.AttributeKeys;
+import lombok.AllArgsConstructor;
 import at.ac.tuwien.model.change.management.core.model.attributes.ElementAttributes;
+import at.ac.tuwien.model.change.management.core.model.attributes.AttributeKeys;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Slf4j
 public class Relation extends ElementAttributes {
     private String type; // line type e.g. "<<-"
@@ -86,16 +90,16 @@ public class Relation extends ElementAttributes {
         r.setRelativeStartPoint(new RelativePosition(
                 source.getGeneratedAttributes().get(0),
                 source.getGeneratedAttributes().get(1),
-                r.getUmletPosition().getX(),
-                r.getUmletPosition().getY()
+                r.getUmletPosition().x,
+                r.getUmletPosition().y
         ));
 
         // The last 2 values are the end point of the line relative to the umletPosition
         r.setRelativeEndPoint(new RelativePosition(
                 source.getGeneratedAttributes().get(pointCount - 2),
                 source.getGeneratedAttributes().get(pointCount - 1),
-                r.getUmletPosition().getX(),
-                r.getUmletPosition().getY()
+                r.getUmletPosition().x,
+                r.getUmletPosition().y
         ));
 
         // Parse any additional midpoints if the line isn't straight
@@ -106,8 +110,8 @@ public class Relation extends ElementAttributes {
                 r.getRelativeMidPoints().add(new RelativePosition(
                         source.getGeneratedAttributes().get(i),
                         source.getGeneratedAttributes().get(i + 1),
-                        r.getUmletPosition().getX(),
-                        r.getUmletPosition().getY()
+                        r.getUmletPosition().x,
+                        r.getUmletPosition().y
                 ));
             }
         }

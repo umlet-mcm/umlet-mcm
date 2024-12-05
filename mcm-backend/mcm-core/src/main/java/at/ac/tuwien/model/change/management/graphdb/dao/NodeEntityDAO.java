@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 
 
 @Repository
-public interface NodeEntityDAO extends Neo4jRepository<NodeEntity, Long> {
+public interface NodeEntityDAO extends Neo4jRepository<NodeEntity, String> {
 
 }

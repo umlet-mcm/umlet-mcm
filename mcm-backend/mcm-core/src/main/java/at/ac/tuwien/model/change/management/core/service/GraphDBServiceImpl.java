@@ -1,6 +1,6 @@
 package at.ac.tuwien.model.change.management.core.service;
 
-import at.ac.tuwien.model.change.management.core.mapper.NodeEntityMapper;
+import at.ac.tuwien.model.change.management.core.mapper.neo4j.NodeEntityMapper;
 import at.ac.tuwien.model.change.management.core.model.Node;
 import at.ac.tuwien.model.change.management.graphdb.dao.NodeEntityDAO;
 import lombok.NonNull;

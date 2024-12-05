@@ -1,38 +1,38 @@
 {
-  "name": "mcm-frontend",
-  "version": "0.0.0",
-  "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
-  },
+  "name": "my-vue-app",
   "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview"
+  },
   "dependencies": {
-    "@angular/animations": "^18.2.0",
-    "@angular/common": "^18.2.0",
-    "@angular/compiler": "^18.2.0",
-    "@angular/core": "^18.2.0",
-    "@angular/forms": "^18.2.0",
-    "@angular/platform-browser": "^18.2.0",
-    "@angular/platform-browser-dynamic": "^18.2.0",
-    "@angular/router": "^18.2.0",
-    "rxjs": "~7.8.0",
-    "tslib": "^2.3.0",
-    "zone.js": "~0.14.10"
+    "@codemirror/theme-one-dark": "^6.1.2",
+    "@vee-validate/zod": "^4.14.7",
+    "@vueuse/core": "^11.3.0",
+    "axios": "^1.7.7",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "lucide-vue-next": "^0.460.0",
+    "radix-vue": "^1.9.10",
+    "tailwind-merge": "^2.5.4",
+    "tailwindcss-animate": "^1.0.7",
+    "vee-validate": "^4.14.7",
+    "vis-network": "^9.1.9",
+    "vue": "^3.5.12",
+    "vue-codemirror": "^6.1.1",
+    "vue-router": "^4.4.5",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^18.2.11",
-    "@angular/cli": "^18.2.11",
-    "@angular/compiler-cli": "^18.2.0",
-    "@types/jasmine": "~5.1.0",
-    "jasmine-core": "~5.2.0",
-    "karma": "~6.4.0",
-    "karma-chrome-launcher": "~3.2.0",
-    "karma-coverage": "~2.2.0",
-    "karma-jasmine": "~5.1.0",
-    "karma-jasmine-html-reporter": "~2.1.0",
-    "typescript": "~5.5.2"
+    "@types/node": "^22.9.1",
+    "@vitejs/plugin-vue": "^5.1.4",
+    "autoprefixer": "^10.4.20",
+    "tailwindcss": "^3.4.15",
+    "typescript": "~5.6.2",
+    "vite": "^5.4.10",
+    "vue-tsc": "^2.1.8"
   }
 }

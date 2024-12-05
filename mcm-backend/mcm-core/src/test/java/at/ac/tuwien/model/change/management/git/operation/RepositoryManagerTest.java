@@ -20,7 +20,8 @@ public class RepositoryManagerTest {
 
     @BeforeEach
     public void setUp() {
-        var gitProperties = new GitProperties(testDirectory);
+        var gitProperties = new GitProperties();
+        gitProperties.setRepositories(testDirectory);
         repositoryManager = new RepositoryManagerImpl(gitProperties);
     }
 

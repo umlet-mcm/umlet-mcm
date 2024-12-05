@@ -21,7 +21,7 @@ public class RepositoryManagerImpl implements RepositoryManager{
     private final Path repositoryPath;
 
     public RepositoryManagerImpl(GitProperties gitProperties) {
-        this.repositoryPath = Optional.ofNullable(gitProperties.getRepositoryPath())
+        this.repositoryPath = Optional.ofNullable(gitProperties.getRepositories())
                 .orElseThrow(() -> new IllegalArgumentException("Repository path is not configured"));
     }
 

@@ -5,5 +5,5 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableConfigurationProperties(GitProperties.class)
-public class GitConfiguration {
+public class GitConfig {
 }

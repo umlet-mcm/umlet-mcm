@@ -5,6 +5,7 @@ import at.ac.tuwien.model.change.management.git.config.GitProperties;
 import at.ac.tuwien.model.change.management.git.exception.RepositoryAccessException;
 import at.ac.tuwien.model.change.management.git.util.RepositoryUtils;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.lib.Repository;
 
@@ -16,14 +17,10 @@ import java.util.Optional;
 
 @GitComponent
 @Slf4j
+@RequiredArgsConstructor
 public class RepositoryManagerImpl implements RepositoryManager{
 
-    private final Path repositoryPath;
-
-    public RepositoryManagerImpl(GitProperties gitProperties) {
-        this.repositoryPath = Optional.ofNullable(gitProperties.getRepositories())
-                .orElseThrow(() -> new IllegalArgumentException("Repository path is not configured"));
-    }
+    private final GitProperties gitProperties;
 
     @Override
     public Repository accessRepository(@NonNull String repositoryName) {
@@ -32,8 +29,8 @@ public class RepositoryManagerImpl implements RepositoryManager{
 
     @Override
     public List<Repository> listRepositories() {
-        try (var fileStream = Files.list(repositoryPath)) {
-            log.debug("Listing repositories in '{}'.", repositoryPath);
+        try (var fileStream = Files.list(repositoriesPath())) {
+            log.debug("Listing repositories in '{}'.", repositoriesPath());
             return fileStream
                     .map(Path::getFileName)
                     .map(Path::toString)
@@ -41,17 +38,22 @@ public class RepositoryManagerImpl implements RepositoryManager{
                     .filter(RepositoryUtils::repositoryExists)
                     .toList();
         } catch (IOException e) {
-            throw new RepositoryAccessException("Could not list directories in '" + repositoryPath + "'");
+            throw new RepositoryAccessException("Could not list directories in '" + repositoriesPath() + "'");
         }
     }
 
     private Repository getRepositoryByName(String repositoryName) {
         try {
             log.debug("Accessing repository '{}'.", repositoryName);
-            var repositoryDir = repositoryPath.resolve(repositoryName);
+            var repositoryDir = repositoriesPath().resolve(repositoryName);
             return RepositoryUtils.getRepositoryAtPath(repositoryDir);
         } catch (IOException e) {
             throw new RepositoryAccessException("Could not access repository '" + repositoryName + "'");
         }
+    }
+
+    private Path repositoriesPath() {
+        return Optional.ofNullable(gitProperties.getRepositories())
+                .orElseThrow(() -> new RepositoryAccessException("Repository path is not configured."));
     }
 }

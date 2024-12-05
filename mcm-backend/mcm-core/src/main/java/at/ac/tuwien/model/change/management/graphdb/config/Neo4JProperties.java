@@ -7,6 +7,7 @@ import org.neo4j.driver.AuthTokens;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.nio.file.Path;
 
 @Component
@@ -16,7 +17,8 @@ import java.nio.file.Path;
 public class Neo4JProperties {
 
     private Path databasePath = Path.of("/tmp/mcm/graphdb");
-    private Path configurationPath = Path.of(".\\mcm-core\\src\\main\\java\\at\\ac\\tuwien\\model\\change\\management\\graphdb\\config\\neo4j.conf");
+    private File pluginPath = new File("/tmp/mcm/graphdb/plugins");
+    private File configsPath = new File("/tmp/mcm/graphdb/conf");
     private String uri = "bolt://localhost:7687";
     private String username = "neo4j";
     private String password = "password";

@@ -1,10 +1,13 @@
-package at.ac.tuwien.model.change.management.testutils.model;
+package at.ac.tuwien.model.change.management.testutil;
 
 import at.ac.tuwien.model.change.management.core.model.*;
 import lombok.NonNull;
 import org.apache.commons.lang3.RandomStringUtils;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -198,3 +201,4 @@ public class DomainModelGen {
         return upperBound == 0 ? 0 : ThreadLocalRandom.current().nextInt(upperBound);
     }
 }
+

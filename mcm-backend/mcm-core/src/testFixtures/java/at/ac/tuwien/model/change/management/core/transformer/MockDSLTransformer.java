@@ -1,10 +1,9 @@
-package at.ac.tuwien.model.change.management.testutils.git;
+package at.ac.tuwien.model.change.management.core.transformer;
 
 import at.ac.tuwien.model.change.management.core.model.Model;
 import at.ac.tuwien.model.change.management.core.model.Node;
 import at.ac.tuwien.model.change.management.core.model.Relation;
 import at.ac.tuwien.model.change.management.core.model.attributes.BaseAttributes;
-import at.ac.tuwien.model.change.management.core.transformer.DSLTransformer;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -55,3 +54,4 @@ public class MockDSLTransformer implements DSLTransformer {
                 .orElseThrow();
     }
 }
+

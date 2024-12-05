@@ -1,7 +1,6 @@
-package at.ac.tuwien.model.change.management.testutils.git;
+package at.ac.tuwien.model.change.management.git.operation;
 
 import at.ac.tuwien.model.change.management.git.exception.RepositoryAccessException;
-import at.ac.tuwien.model.change.management.git.operation.RepositoryManager;
 import at.ac.tuwien.model.change.management.git.util.RepositoryUtils;
 import org.eclipse.jgit.lib.Repository;
 
@@ -43,3 +42,4 @@ public class MockRepositoryManager implements RepositoryManager {
         }
     }
 }
+

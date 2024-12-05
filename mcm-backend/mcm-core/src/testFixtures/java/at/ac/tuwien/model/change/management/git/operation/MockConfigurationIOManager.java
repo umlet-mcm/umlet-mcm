@@ -1,14 +1,14 @@
-package at.ac.tuwien.model.change.management.testutils.git;
+package at.ac.tuwien.model.change.management.git.operation;
 
 import at.ac.tuwien.model.change.management.core.model.Configuration;
-import at.ac.tuwien.model.change.management.git.operation.ConfigurationIOManager;
 import at.ac.tuwien.model.change.management.git.util.RepositoryContents;
 import at.ac.tuwien.model.change.management.git.util.RepositoryUtils;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.eclipse.jgit.lib.Repository;
 
 import java.nio.file.Path;
 import java.util.HashMap;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.eclipse.jgit.lib.Repository;
 
 public class MockConfigurationIOManager implements ConfigurationIOManager {
 

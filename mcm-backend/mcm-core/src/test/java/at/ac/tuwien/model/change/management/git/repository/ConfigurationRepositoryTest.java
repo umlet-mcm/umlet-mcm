@@ -6,9 +6,9 @@ import at.ac.tuwien.model.change.management.git.exception.RepositoryDoesNotExist
 import at.ac.tuwien.model.change.management.git.operation.ConfigurationIOManager;
 import at.ac.tuwien.model.change.management.git.operation.RepositoryManager;
 import at.ac.tuwien.model.change.management.git.util.VersionControlUtils;
-import at.ac.tuwien.model.change.management.testutils.git.MockConfigurationIOManager;
-import at.ac.tuwien.model.change.management.testutils.git.MockRepositoryManager;
-import at.ac.tuwien.model.change.management.testutils.model.DomainModelGen;
+import at.ac.tuwien.model.change.management.git.operation.MockConfigurationIOManager;
+import at.ac.tuwien.model.change.management.git.operation.MockRepositoryManager;
+import at.ac.tuwien.model.change.management.testutil.DomainModelGen;
 import org.assertj.core.api.Assertions;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,7 +57,7 @@ public class ConfigurationRepositoryTest {
     }
 
     @Test
-    public void testFindConfigurationByName_existingConfiguration_shouldReturnConfiguration() throws RepositoryAlreadyExistsException, GitAPIException {
+    public void testFindConfigurationByName_existingConfiguration_shouldReturnConfiguration() throws GitAPIException {
         var configurationName = "test";
         var configuration = new Configuration();
         configuration.setName(configurationName);
@@ -77,7 +77,7 @@ public class ConfigurationRepositoryTest {
     }
 
     @Test
-    public void testFindAllConfigurations_oneConfiguration_shouldReturnListWithOneConfiguration() throws RepositoryAlreadyExistsException, GitAPIException {
+    public void testFindAllConfigurations_oneConfiguration_shouldReturnListWithOneConfiguration() throws GitAPIException {
         var configurationName = "test";
         var configuration = new Configuration();
         configuration.setName(configurationName);
@@ -91,7 +91,7 @@ public class ConfigurationRepositoryTest {
     }
 
     @Test
-    public void testFindAllConfigurations_threeConfigurations_shouldReturnListWithThreeConfigurations() throws RepositoryAlreadyExistsException, GitAPIException {
+    public void testFindAllConfigurations_threeConfigurations_shouldReturnListWithThreeConfigurations() throws GitAPIException {
         var configurationOne = DomainModelGen.generateRandomizedConfiguration("test1", 1, 1, 1);
         var configurationTwo = DomainModelGen.generateRandomizedConfiguration("test2", 2, 2, 2);
         var configurationThree = DomainModelGen.generateRandomizedConfiguration("test3", 3, 3, 3);
@@ -128,7 +128,7 @@ public class ConfigurationRepositoryTest {
     }
 
     @Test
-    public void testDeleteConfiguration_existingConfiguration_shouldDeleteConfiguration() throws GitAPIException, RepositoryDoesNotExistException {
+    public void testDeleteConfiguration_existingConfiguration_shouldDeleteConfiguration() throws GitAPIException {
         var configuration = DomainModelGen.generateRandomizedConfiguration("test", 1, 1, 1);
         saveNewConfiguration(configuration);
         configurationRepository.deleteConfiguration(configuration.getName());

@@ -107,6 +107,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     private void validateNewConfiguration(Configuration configuration) {
+        if (configuration.getVersion() != null) {
+            throw new ConfigurationValidationException("New configuration cannot have a version.");
+        }
+
         for (var model : tryAccessCollection(configuration.getModels())) {
             if (model.getId() != null) {
                 throw new ConfigurationValidationException("Model cannot have an id when creating a new configuration.");

@@ -55,10 +55,14 @@ public class ConfigurationServiceTest {
 
     @Test
     public void testCreateConfiguration_existingConfiguration_shouldThrowConfigurationAlreadyExistsException() {
+        var configurationName = "test";
         var configuration = new Configuration();
-        configuration.setName("test");
+        configuration.setName(configurationName);
         configurationService.createConfiguration(configuration);
-        Assertions.assertThatThrownBy(() -> configurationService.createConfiguration(configuration))
+
+        var configurationWithExistingName = new Configuration();
+        configurationWithExistingName.setName(configurationName);
+        Assertions.assertThatThrownBy(() -> configurationService.createConfiguration(configurationWithExistingName))
                 .isInstanceOf(ConfigurationAlreadyExistsException.class);
     }
 

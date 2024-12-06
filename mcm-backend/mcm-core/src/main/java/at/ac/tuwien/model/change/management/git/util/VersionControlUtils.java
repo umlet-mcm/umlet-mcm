@@ -1,5 +1,6 @@
 package at.ac.tuwien.model.change.management.git.util;
 
+import at.ac.tuwien.model.change.management.core.utils.PathUtils;
 import lombok.NonNull;
 import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.Git;
@@ -11,8 +12,6 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
-
-import static at.ac.tuwien.model.change.management.core.utils.PathUtils.normalizePath;
 
 public final class VersionControlUtils {
 
@@ -49,7 +48,7 @@ public final class VersionControlUtils {
         stage(repository, addCommand -> {
             var workDir = repository.getWorkTree().toPath();
             paths.forEach(path -> addCommand.addFilepattern(
-                    normalizePath(workDir.relativize(path).toString())
+                    PathUtils.normalizePath(workDir.relativize(path).toString())
             ));
         });
     }

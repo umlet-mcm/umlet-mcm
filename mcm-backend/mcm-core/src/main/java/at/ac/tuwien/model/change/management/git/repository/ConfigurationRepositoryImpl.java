@@ -30,15 +30,17 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
     @Override
     public void createConfiguration(@NonNull String name) throws RepositoryAlreadyExistsException {
         log.debug("Creating repository for configuration '{}'.", name);
-        try (var repository = repositoryManager.accessRepository(name)) {
-            if (RepositoryUtils.repositoryExists(repository)) {
-                throw new RepositoryAlreadyExistsException("Repository for configuration '" + name + "' already exists.");
+        repositoryManager.consumeRepository(name, repository -> {
+            try {
+                if (RepositoryUtils.repositoryExists(repository)) {
+                    throw new RepositoryAlreadyExistsException("Repository for configuration '" + name + "' already exists.");
+                }
+                VersionControlUtils.initRepository(repository);
+                log.info("Created repository for configuration '{}'.", name);
+            } catch (GitAPIException e) {
+                throw new RepositoryCreateException("Could not initialize repository for configuration '" + name + "'.", e);
             }
-            VersionControlUtils.initRepository(repository);
-            log.info("Created repository for configuration '{}'.", name);
-        } catch (GitAPIException e) {
-            throw new RepositoryCreateException("Could not initialize repository for configuration '" + name + "'.", e);
-        }
+        });
     }
 
     @Override
@@ -69,19 +71,21 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
     @Override
     public Configuration saveConfiguration(@NonNull Configuration configuration) throws RepositoryDoesNotExistException {
         log.debug("Saving configuration '{}'.", configuration.getName());
-        try (var repository = repositoryManager.accessRepository(configuration.getName())) {
-            if (!RepositoryUtils.repositoryExists(repository)) {
-                throw new RepositoryDoesNotExistException("Repository for configuration '" + configuration.getName() + "' does not exist.");
+        return repositoryManager.withRepository(configuration.getName(), repository -> {
+            try {
+                if (!RepositoryUtils.repositoryExists(repository)) {
+                    throw new RepositoryDoesNotExistException("Repository for configuration '" + configuration.getName() + "' does not exist.");
+                }
+                configurationIoManager.clearConfigurationRepository(repository);
+                var repositoryContents = configurationIoManager.writeConfigurationToRepository(repository, configuration);
+                VersionControlUtils.stageRepositoryContents(repository, repositoryContents);
+                VersionControlUtils.commitRepository(repository, generateCommitMessage(configuration.getName(), repositoryContents));
+                log.info("Saved configuration '{}' to repository.", configuration.getName());
+                return configurationIoManager.readConfigurationFromRepository(repository, Constants.HEAD);
+            } catch (GitAPIException e) {
+                throw new RepositorySaveException("Failed to save configuration '" + configuration.getName() + "'.", e);
             }
-            configurationIoManager.clearConfigurationRepository(repository);
-            var repositoryContents = configurationIoManager.writeConfigurationToRepository(repository, configuration);
-            VersionControlUtils.stageRepositoryContents(repository, repositoryContents);
-            VersionControlUtils.commitRepository(repository, generateCommitMessage(configuration.getName(), repositoryContents));
-            log.info("Saved configuration '{}' to repository.", configuration.getName());
-            return configurationIoManager.readConfigurationFromRepository(repository, Constants.HEAD);
-        } catch (GitAPIException e) {
-            throw new RepositorySaveException("Failed to save configuration '" + configuration.getName() + "'.", e);
-        }
+        });
     }
 
     @Override

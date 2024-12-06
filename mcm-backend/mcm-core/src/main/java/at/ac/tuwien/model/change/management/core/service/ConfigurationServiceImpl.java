@@ -38,7 +38,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             return savedConfiguration;
         } catch (RepositoryAlreadyExistsException e) {
             throw new ConfigurationAlreadyExistsException("Configuration with name '" + configuration.getName() + "' already exists.", e);
-        } catch (RepositoryDoesNotExistException | RepositoryAccessException e) {
+        } catch (RepositoryAccessException e) {
             // repository really should exist at this point
             throw new ConfigurationCreateException("Failed to create configuration with name '" + configuration.getName() + "'.", e);
         }

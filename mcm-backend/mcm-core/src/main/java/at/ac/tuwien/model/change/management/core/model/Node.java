@@ -23,6 +23,11 @@ public class Node extends ElementAttributes {
      */
     private List<Integer> generatedAttributes;
 
+    /**
+     * The UUID of the model to which the node belongs
+     */
+    protected String mcmModelId;
+
     private UMLetPosition umletPosition;
 
     private Set<Relation> relations = new HashSet<>();

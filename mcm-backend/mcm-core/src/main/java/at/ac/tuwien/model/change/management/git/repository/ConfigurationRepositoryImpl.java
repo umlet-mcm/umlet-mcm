@@ -19,8 +19,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-import static at.ac.tuwien.model.change.management.git.util.RepositoryManagerUtils.withRepositories;
-
 @GitComponent
 @Slf4j
 @RequiredArgsConstructor
@@ -46,20 +44,20 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
     @Override
     public Optional<Configuration> findConfigurationByName(@NonNull String name) {
         log.debug("Finding configuration '{}'.", name);
-        try (var repository = repositoryManager.accessRepository(name)) {
+        return repositoryManager.withRepository(name, repository -> {
             if (!RepositoryUtils.repositoryExists(repository)) {
                 log.warn("Repository for configuration '{}' could not be found.", name);
                 return Optional.empty();
             }
             log.debug("Found repository for configuration '{}'.", name);
             return Optional.of(configurationIoManager.readConfigurationFromRepository(repository, Constants.HEAD));
-        }
+        });
     }
 
     @Override
     public List<Configuration> findAllConfigurations() {
         log.debug("Searching all repositories for configurations.");
-        return withRepositories(repositoryManager.listRepositories(), repositories -> {
+        return repositoryManager.withAllRepositories(repositories -> {
             var configurations = repositories.stream()
                     .map(repository -> configurationIoManager.readConfigurationFromRepository(repository, Constants.HEAD))
                     .toList();
@@ -89,16 +87,18 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
     @Override
     public void deleteConfiguration(@NonNull String name) {
         log.debug("Deleting repository for configuration '{}'.", name);
-        try (var repository = repositoryManager.accessRepository(name)) {
-            var pathToWorkDir = repository.getWorkTree().toPath();
-            if (FileSystemUtils.deleteRecursively(pathToWorkDir)) {
-                log.info("Deleted repository for configuration '{}'", name);
-            } else {
-                log.warn("Could not delete repository for configuration '{}', because it does not exist", name);
+        repositoryManager.consumeRepository(name, repository -> {
+            try {
+                var pathToWorkDir = repository.getWorkTree().toPath();
+                if (FileSystemUtils.deleteRecursively(pathToWorkDir)) {
+                    log.info("Deleted repository for configuration '{}'", name);
+                } else {
+                    log.warn("Could not delete repository for configuration '{}', because it does not exist", name);
+                }
+            } catch (IOException e) {
+                throw new RepositoryDeleteException("Failed to delete repository for configuration '" + name + "'.", e);
             }
-        } catch (IOException e) {
-            throw new RepositoryDeleteException("Failed to delete repository for configuration '" + name + "'.", e);
-        }
+        });
     }
 
     private String generateCommitMessage(String name, RepositoryContents<?> repositoryContents) {

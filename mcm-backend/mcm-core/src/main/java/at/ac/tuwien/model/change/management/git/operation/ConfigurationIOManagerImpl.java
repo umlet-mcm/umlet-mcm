@@ -5,7 +5,7 @@ import at.ac.tuwien.model.change.management.core.model.Model;
 import at.ac.tuwien.model.change.management.core.model.Node;
 import at.ac.tuwien.model.change.management.core.model.Relation;
 import at.ac.tuwien.model.change.management.core.transformer.DSLTransformer;
-import at.ac.tuwien.model.change.management.core.utils.PathUtils;
+import at.ac.tuwien.model.change.management.git.util.PathUtils;
 import at.ac.tuwien.model.change.management.git.annotation.GitComponent;
 import at.ac.tuwien.model.change.management.git.exception.RepositoryReadException;
 import at.ac.tuwien.model.change.management.git.exception.RepositoryWriteException;

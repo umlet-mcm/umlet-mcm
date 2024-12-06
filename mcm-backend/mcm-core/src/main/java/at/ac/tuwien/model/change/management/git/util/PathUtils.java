@@ -1,4 +1,4 @@
-package at.ac.tuwien.model.change.management.core.utils;
+package at.ac.tuwien.model.change.management.git.util;
 
 import lombok.NonNull;
 

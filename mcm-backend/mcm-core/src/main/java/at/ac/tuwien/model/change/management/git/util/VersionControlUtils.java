@@ -1,6 +1,5 @@
 package at.ac.tuwien.model.change.management.git.util;
 
-import at.ac.tuwien.model.change.management.core.utils.PathUtils;
 import lombok.NonNull;
 import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.Git;

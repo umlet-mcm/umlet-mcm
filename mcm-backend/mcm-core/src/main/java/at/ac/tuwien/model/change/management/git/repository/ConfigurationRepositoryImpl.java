@@ -1,7 +1,7 @@
 package at.ac.tuwien.model.change.management.git.repository;
 
 import at.ac.tuwien.model.change.management.core.model.Configuration;
-import at.ac.tuwien.model.change.management.core.utils.PathUtils;
+import at.ac.tuwien.model.change.management.git.util.PathUtils;
 import at.ac.tuwien.model.change.management.git.annotation.GitComponent;
 import at.ac.tuwien.model.change.management.git.exception.*;
 import at.ac.tuwien.model.change.management.git.operation.ConfigurationIOManager;

@@ -13,6 +13,7 @@ public record ModelDTO(
         String originalText,
         String title,
         String description,
-        LinkedHashMap<String, Object> mcmAttributes
+        LinkedHashMap<String, Object> mcmAttributes,
+        int zoomLevel
 ) {
 }

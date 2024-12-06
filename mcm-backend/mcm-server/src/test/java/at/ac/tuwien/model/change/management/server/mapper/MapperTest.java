@@ -64,7 +64,8 @@ public abstract class MapperTest {
                 "original text",
                 "title",
                 "description",
-                new LinkedHashMap<>(Map.of("key1", "value1", "key2", "value2"))
+                new LinkedHashMap<>(Map.of("key1", "value1", "key2", "value2")),
+                20
         );
     }
 

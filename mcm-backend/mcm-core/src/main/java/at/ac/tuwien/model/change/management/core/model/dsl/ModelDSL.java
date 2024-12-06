@@ -31,4 +31,7 @@ public class ModelDSL {
 
     @XmlElement(name = "metadata")
     private MetadataDSL metadata;
+
+    @XmlElement(name = "zoom_level")
+    private int zoomLevel;
 }

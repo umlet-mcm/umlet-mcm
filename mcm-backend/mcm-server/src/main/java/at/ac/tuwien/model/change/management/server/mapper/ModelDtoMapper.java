@@ -6,6 +6,8 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface ModelDtoMapper {
+    
     ModelDTO toDto(Model model);
+
     Model fromDto(ModelDTO dto);
 }

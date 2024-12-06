@@ -19,6 +19,11 @@ public abstract class ElementAttributes extends BaseAttributes {
     protected String mcmModel;
 
     /**
+     * The UUID of the model to which the node belongs
+     */
+    private String mcmModelId;
+
+    /**
      * key=value attributes extracted from panel_attributes. E.g. background color
      */
     protected LinkedHashMap<String, String> umletAttributes;

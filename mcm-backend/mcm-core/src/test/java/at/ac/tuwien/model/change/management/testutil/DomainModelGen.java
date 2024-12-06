@@ -9,7 +9,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class DomainModelGen {
+public final class DomainModelGen {
 
     private static final int MAX_TITLE_LENGTH = 10;
     private static final int MAX_DESCRIPTION_LENGTH = 20;
@@ -25,6 +25,9 @@ public class DomainModelGen {
     private static final int MAX_RELATIVE_POSITION = 100;
     private static final int MAX_POINT = 1000;
     private static final int MAX_DIMENSION = 100;
+
+    private DomainModelGen() {
+    }
 
     private enum ElementType {
         NODE,

@@ -30,7 +30,7 @@ public abstract class MapperTest {
         );
     }
 
-    protected RelationDTO getRelationDTO(NodeDTO targetDTO, String id) {
+    protected RelationDTO getRelationDTO(NodeDTO targetDTO, String id, String modelId) {
         return new RelationDTO(
                 "RelationType1",
                 targetDTO,
@@ -50,6 +50,7 @@ public abstract class MapperTest {
                 "Relation Description",
                 new LinkedHashMap<>(),
                 "MCM_Model_Relation_1",
+                modelId,
                 new LinkedHashMap<>(),
                 "PPRTypeRelation1"
         );
@@ -87,7 +88,7 @@ public abstract class MapperTest {
         return node;
     }
 
-    protected Relation getRelation(Node target, String id) {
+    protected Relation getRelation(Node target, String id, String modelId) {
         Relation relation = new Relation();
         relation.setId(id);
         relation.setTarget(target);
@@ -95,6 +96,7 @@ public abstract class MapperTest {
         relation.setTags(List.of("tag1", "tag2"));
         relation.setTitle("Relation Title");
         relation.setMcmModel("model-123");
+        relation.setMcmModelId(modelId);
         relation.setUmletAttributes(new LinkedHashMap<>(Map.of("key1", "value1", "key2", "value2")));
         relation.setOriginalText("Original text of the relation");
         relation.setPprType("ppr-type");

@@ -24,7 +24,7 @@ public class RelationDtoMapperTest extends MapperTest {
 
     @Test
     void testToDto() {
-        Relation relation = getRelation(new Node(), "relation-123");
+        Relation relation = getRelation(new Node(), "relation-123", "6c1d704c-7535-4020-a8a4-8ef39b9cd22e");
 
         CycleAvoidingMappingContext context = new CycleAvoidingMappingContext();
         RelationDTO dto = mapper.toDto(relation, context);
@@ -35,6 +35,7 @@ public class RelationDtoMapperTest extends MapperTest {
         assertEquals(relation.getTags(), dto.tags());
         assertEquals(relation.getTitle(), dto.title());
         assertEquals(relation.getMcmModel(), dto.mcmModel());
+        assertEquals(relation.getMcmModelId(), dto.mcmModelId());
         assertEquals(relation.getUmletAttributes(), dto.umletAttributes());
         assertEquals(relation.getOriginalText(), dto.originalText());
         assertEquals(relation.getPprType(), dto.pprType());
@@ -49,7 +50,7 @@ public class RelationDtoMapperTest extends MapperTest {
     @Test
     void testFromDTO() {
         NodeDTO tgtDTO = getNodeDTO(new HashSet<>(), "node-123", "c4144490-b60b-4283-b8a1-51cc631c3874");
-        RelationDTO relationDTO = getRelationDTO(tgtDTO, "relation-123");
+        RelationDTO relationDTO = getRelationDTO(tgtDTO, "relation-123", "6c1d704c-7535-4020-a8a4-8ef39b9cd22e");
         tgtDTO.relations().add(relationDTO);
 
         CycleAvoidingMappingContext context = new CycleAvoidingMappingContext();
@@ -61,6 +62,7 @@ public class RelationDtoMapperTest extends MapperTest {
         assertEquals(relationDTO.tags(), relation.getTags());
         assertEquals(relationDTO.title(), relation.getTitle());
         assertEquals(relationDTO.mcmModel(), relation.getMcmModel());
+        assertEquals(relationDTO.mcmModelId(), relation.getMcmModelId());
         assertEquals(relationDTO.mcmAttributes(), relation.getUmletAttributes());
         assertEquals(relationDTO.originalText(), relation.getOriginalText());
         assertEquals(relationDTO.pprType(), relation.getPprType());

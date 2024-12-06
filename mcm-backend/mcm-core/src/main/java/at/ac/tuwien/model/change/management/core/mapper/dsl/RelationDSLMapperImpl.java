@@ -35,6 +35,7 @@ public class RelationDSLMapperImpl implements RelationDSLMapper {
         RelationDSL relationDSL = new RelationDSL();
         relationDSL.setId(relation.getId());
         relationDSL.setMcmModel(relation.getMcmModel());
+        relationDSL.setMcmModelId(relation.getMcmModelId());
         relationDSL.setTitle(relation.getTitle());
         relationDSL.setDescription(relation.getDescription());
         relationDSL.setElementType(relation.getType());
@@ -74,6 +75,7 @@ public class RelationDSLMapperImpl implements RelationDSLMapper {
 
         relation.setId(relationDSL.getId());
         relation.setMcmModel(relationDSL.getMcmModel());
+        relation.setMcmModelId(relationDSL.getMcmModelId());
         relation.setTitle(relationDSL.getTitle());
         relation.setDescription(relationDSL.getDescription());
         relation.setTarget(target);

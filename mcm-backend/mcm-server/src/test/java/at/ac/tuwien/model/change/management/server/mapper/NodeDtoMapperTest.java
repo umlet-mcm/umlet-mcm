@@ -46,8 +46,9 @@ public class NodeDtoMapperTest extends MapperTest {
 
     @Test
     void testFromDto() {
-        NodeDTO nodeDTO = getNodeDTO(new HashSet<>(), "src-123", "c4144490-b60b-4283-b8a1-51cc631c3874");
-        RelationDTO relationDTO = getRelationDTO(getNodeDTO(Set.of(), "tgt-123", nodeDTO.mcmModelId()), "relation");
+        var modelId = "c4144490-b60b-4283-b8a1-51cc631c3874";
+        NodeDTO nodeDTO = getNodeDTO(new HashSet<>(), "src-123", modelId);
+        RelationDTO relationDTO = getRelationDTO(getNodeDTO(Set.of(), "tgt-123", nodeDTO.mcmModelId()), "relation", modelId);
         nodeDTO.relations().add(relationDTO);
 
         CycleAvoidingMappingContext context = new CycleAvoidingMappingContext();
@@ -73,11 +74,12 @@ public class NodeDtoMapperTest extends MapperTest {
 
     @Test
     void testFromDTOToDTO_withCycle() {
-        Relation srcToTgt = getRelation(null, "relation-123");
-        Relation tgtToSrc = getRelation(null, "relation-456");
+        var modelId = "c4144490-b60b-4283-b8a1-51cc631c3874";
+        Relation srcToTgt = getRelation(null, "relation-123", modelId);
+        Relation tgtToSrc = getRelation(null, "relation-456", modelId);
 
-        Node src = getNode(Set.of(), "src-123", "c4144490-b60b-4283-b8a1-51cc631c3874");
-        Node tgt = getNode(Set.of(), "tgt-123", "c4144490-b60b-4283-b8a1-51cc631c3874");
+        Node src = getNode(Set.of(), "src-123", modelId);
+        Node tgt = getNode(Set.of(), "tgt-123", modelId);
 
         srcToTgt.setTarget(tgt);
         src.setRelations(Set.of(srcToTgt));

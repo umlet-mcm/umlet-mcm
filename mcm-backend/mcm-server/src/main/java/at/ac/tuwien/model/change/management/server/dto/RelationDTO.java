@@ -19,6 +19,7 @@ public record RelationDTO(
         String description,
         LinkedHashMap<String, Object> mcmAttributes,
         String mcmModel,
+        String mcmModelId,
         LinkedHashMap<String, String> umletAttributes,
         String pprType
 ) {

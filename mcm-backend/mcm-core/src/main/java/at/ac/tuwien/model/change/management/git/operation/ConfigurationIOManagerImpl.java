@@ -94,10 +94,10 @@ public class ConfigurationIOManagerImpl implements ConfigurationIOManager {
 
             for (var node : nodes) {
                 var refModel = models.stream()
-                        .filter(model -> Objects.equals(model.getId(), node.getMcmModel()))
+                        .filter(model -> Objects.equals(model.getId(), node.getMcmModelId()))
                         .findFirst()
                         .orElseThrow(() -> new RepositoryReadException(
-                                "Could not find a model with ID: '" + node.getMcmModel() + "' referenced by node '" + node.getId() + "'"
+                                "Could not find a model with ID: '" + node.getMcmModelId() + "' referenced by node '" + node.getId() + "'"
                         ));
                 refModel.setNodes(Optional.ofNullable(refModel.getNodes()).orElse(new HashSet<>()));
                 refModel.getNodes().add(node);
@@ -122,7 +122,7 @@ public class ConfigurationIOManagerImpl implements ConfigurationIOManager {
             if (model.getId() == null) model.setId(generateIdUniqueToRepository(repository));
             for (var node : tryAccessCollection(model.getNodes())) {
                 if (node.getId() == null) node.setId(generateIdUniqueToRepository(repository));
-                if (node.getMcmModel() == null) node.setMcmModel(model.getId());
+                if (node.getMcmModelId() == null) node.setMcmModelId(model.getId());
                 for (var relation : tryAccessCollection(node.getRelations())) {
                     if (relation.getId() == null) relation.setId(generateIdUniqueToRepository(repository));
                 }

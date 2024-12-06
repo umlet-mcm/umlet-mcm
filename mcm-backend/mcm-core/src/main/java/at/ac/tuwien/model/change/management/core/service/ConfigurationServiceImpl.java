@@ -127,8 +127,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     private void validateExistingConfiguration(Configuration configuration) {
         for (var model : tryAccessCollection(configuration.getModels())) {
             for (var node : tryAccessCollection(model.getNodes())) {
-                if (node.getMcmModel() == null) node.setMcmModel(model.getId());
-                else if (! node.getMcmModel().equals(model.getId())) {
+                if (node.getMcmModelId() == null) node.setMcmModelId(model.getId());
+                else if (! node.getMcmModelId().equals(model.getId())) {
                     throw new ConfigurationValidationException("Node does not belong to the model it is assigned to.");
                 }
             }

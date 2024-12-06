@@ -37,6 +37,7 @@ public class NodeDSLMapperImplTest {
         node.setUmletAttributes(new LinkedHashMap<>(Map.of("key2", "value2")));
         node.setGeneratedAttributes(List.of(10));
         node.setMcmModel("mcmModel1");
+        node.setMcmModelId("c4144490-b60b-4283-b8a1-51cc631c3874");
 
         NodeDSL result = nodeDSLMapper.toDSL(node);
 
@@ -46,6 +47,7 @@ public class NodeDSLMapperImplTest {
         assertEquals(node.getPprType(), result.getPprType());
         assertEquals(node.getDescription(), result.getDescription());
         assertEquals(node.getMcmModel(), result.getMcmModel());
+        assertEquals(node.getMcmModelId(), result.getMcmModelId());
         assertNotNull(result.getMetadata().getPanelAttributes());
         assertEquals(node.getUmletAttributes().size(), result.getMetadata().getPanelAttributes().size());
         assertEquals(node.getGeneratedAttributes().size(), result.getMetadata().getAdditionalAttributes().size());
@@ -64,6 +66,7 @@ public class NodeDSLMapperImplTest {
         nodeDSL.setProperties(List.of(new PropertyDSL("kProp1", "vProp1")));
         nodeDSL.setTags(List.of("tag1"));
         nodeDSL.setMcmModel("mcmModel1");
+        nodeDSL.setMcmModelId("c4144490-b60b-4283-b8a1-51cc631c3874");
 
         MetadataDSL metadataDSL = new MetadataDSL();
         metadataDSL.setCoordinates(new CoordinatesDSL());
@@ -80,6 +83,7 @@ public class NodeDSLMapperImplTest {
         assertEquals(nodeDSL.getPprType(), result.getPprType());
         assertEquals(nodeDSL.getDescription(), result.getDescription());
         assertEquals(nodeDSL.getMcmModel(), result.getMcmModel());
+        assertEquals(nodeDSL.getMcmModelId(), result.getMcmModelId());
         assertNotNull(result.getUmletPosition());
         assertEquals(nodeDSL.getTags(), result.getTags());
         assertEquals(nodeDSL.getProperties().size(), result.getMcmAttributes().size());

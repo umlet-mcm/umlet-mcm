@@ -1,6 +1,7 @@
 package at.ac.tuwien.model.change.management.git.repository;
 
 import at.ac.tuwien.model.change.management.core.model.Configuration;
+import at.ac.tuwien.model.change.management.core.utils.PathUtils;
 import at.ac.tuwien.model.change.management.git.annotation.GitComponent;
 import at.ac.tuwien.model.change.management.git.exception.*;
 import at.ac.tuwien.model.change.management.git.operation.ConfigurationIOManager;
@@ -13,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
-import org.springframework.util.FileSystemUtils;
 
 import java.io.IOException;
 import java.util.List;
@@ -96,7 +96,7 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
         repositoryManager.consumeRepository(name, repository -> {
             try {
                 var pathToWorkDir = repository.getWorkTree().toPath();
-                if (FileSystemUtils.deleteRecursively(pathToWorkDir)) {
+                if (PathUtils.deleteFilesRecursively(pathToWorkDir)) {
                     log.info("Deleted repository for configuration '{}'", name);
                 } else {
                     log.warn("Could not delete repository for configuration '{}', because it does not exist", name);

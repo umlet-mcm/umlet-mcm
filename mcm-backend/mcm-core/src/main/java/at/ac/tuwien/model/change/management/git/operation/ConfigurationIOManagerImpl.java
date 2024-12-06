@@ -5,6 +5,7 @@ import at.ac.tuwien.model.change.management.core.model.Model;
 import at.ac.tuwien.model.change.management.core.model.Node;
 import at.ac.tuwien.model.change.management.core.model.Relation;
 import at.ac.tuwien.model.change.management.core.transformer.DSLTransformer;
+import at.ac.tuwien.model.change.management.core.utils.PathUtils;
 import at.ac.tuwien.model.change.management.git.annotation.GitComponent;
 import at.ac.tuwien.model.change.management.git.exception.RepositoryReadException;
 import at.ac.tuwien.model.change.management.git.exception.RepositoryWriteException;
@@ -16,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.treewalk.TreeWalk;
-import org.springframework.util.FileSystemUtils;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -45,9 +45,9 @@ public class ConfigurationIOManagerImpl implements ConfigurationIOManager {
         try {
             log.debug("Clearing repository '{}'.", RepositoryUtils.getRepositoryName(repository));
             var repositoryPath = repository.getWorkTree().toPath();
-            FileSystemUtils.deleteRecursively(repositoryPath.resolve(NODES_DIRECTORY));
-            FileSystemUtils.deleteRecursively(repositoryPath.resolve(RELATIONS_DIRECTORY));
-            FileSystemUtils.deleteRecursively(repositoryPath.resolve(MODELS_DIRECTORY));
+            PathUtils.deleteFilesRecursively(repositoryPath.resolve(NODES_DIRECTORY));
+            PathUtils.deleteFilesRecursively(repositoryPath.resolve(RELATIONS_DIRECTORY));
+            PathUtils.deleteFilesRecursively(repositoryPath.resolve(MODELS_DIRECTORY));
         } catch (IOException e) {
             throw new RepositoryWriteException("Could not clear repository '" + RepositoryUtils.getRepositoryName(repository) + "'.", e);
         }

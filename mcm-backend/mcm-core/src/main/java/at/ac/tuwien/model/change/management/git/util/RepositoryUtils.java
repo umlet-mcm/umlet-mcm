@@ -42,7 +42,7 @@ public final class RepositoryUtils {
         return repository.getWorkTree().getName();
     }
 
-    public static Optional<AnyObjectId> resolveCommit(@NonNull Repository repository, String commitRef) throws IOException {
+    public static Optional<AnyObjectId> resolveCommit(@NonNull Repository repository, @NonNull String commitRef) throws IOException {
         return Optional.ofNullable(repository.resolve(commitRef));
     }
 

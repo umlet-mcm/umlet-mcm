@@ -52,7 +52,7 @@ public class RelationDSLMapperImpl implements RelationDSLMapper {
                                 .map(relativePositionDSLMapper::toDSL)
                                 .collect(Collectors.toList()))
                         .orElse(null));
-        positionsDSL.setRelativeEndPoint(relativePositionDSLMapper.toDSL(relation.getRelativeEndpoint()));
+        positionsDSL.setRelativeEndPoint(relativePositionDSLMapper.toDSL(relation.getRelativeEndPoint()));
 
         MetadataDSL metadataDSL = new MetadataDSL();
         metadataDSL.setCoordinates(coordinatesDSLMapper.toDSL(relation.getUmletPosition()));

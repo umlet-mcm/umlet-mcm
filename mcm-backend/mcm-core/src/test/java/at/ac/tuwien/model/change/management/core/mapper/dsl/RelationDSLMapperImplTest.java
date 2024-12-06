@@ -141,7 +141,7 @@ public class RelationDSLMapperImplTest {
         assertNotNull(result.getEndPoint());
         assertTrue(result.getRelativeMidPoints().isEmpty());
         assertNotNull(result.getRelativeStartPoint());
-        assertNotNull(result.getRelativeEndpoint());
+        assertNotNull(result.getRelativeEndPoint());
     }
 
     @Test

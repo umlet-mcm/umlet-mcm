@@ -2,88 +2,72 @@ package at.ac.tuwien.model.change.management.server.mapper;
 
 import at.ac.tuwien.model.change.management.core.model.Node;
 import at.ac.tuwien.model.change.management.core.model.Relation;
-import at.ac.tuwien.model.change.management.core.model.UMLetPosition;
 import at.ac.tuwien.model.change.management.server.dto.NodeDTO;
 import at.ac.tuwien.model.change.management.server.dto.RelationDTO;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
-import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class RelationDtoMapperTest {
+public class RelationDtoMapperTest extends MapperTest {
 
-    private final RelationDtoMapper mapper = Mappers.getMapper(RelationDtoMapper.class);
-    private final String SRC = "src";
-    private final String TGT = "tgt";
-    private final String TYPE = "type";
-    private final UMLetPosition UMLET_POSITION = new UMLetPosition(1, 1, 1, 1);
-    private final Map<String, Object> PROPERTIES = Map.of("key", new Object());
-    private final Set<String> LABELS = Set.of("label");
-    private final String ID = "1";
-    private final Set<RelationDTO> RELATIONS = Set.of();
+    private RelationDtoMapper mapper;
+
+    @BeforeEach
+    void setUp() {
+        mapper = Mappers.getMapper(RelationDtoMapper.class);
+    }
 
     @Test
     void testToDto() {
-        Node nodeSrc = new Node();
-        nodeSrc.setDescription(SRC);
+        Relation relation = getRelation(new Node(), "relation-123");
 
-        Node nodeTgt = new Node();
-        nodeTgt.setDescription(TGT);
+        CycleAvoidingMappingContext context = new CycleAvoidingMappingContext();
+        RelationDTO dto = mapper.toDto(relation, context);
 
-        Relation relation = new Relation();
-        relation.setId(ID);
-        relation.setTarget(nodeTgt);
-        relation.setType(TYPE);
-        relation.setUmletPosition(UMLET_POSITION);
-
-        RelationDTO relationDTO = mapper.toDto(relation);
-
-        assertNotNull(relationDTO);
-        assertEquals(relation.getUmletPosition().getX(), relationDTO.umletPosition().getX());
-        assertNotNull(relationDTO.target());
+        assertNotNull(dto);
+        assertEquals(relation.getId(), dto.id());
+        assertEquals(relation.getType(), dto.type());
+        assertEquals(relation.getTags(), dto.tags());
+        assertEquals(relation.getTitle(), dto.title());
+        assertEquals(relation.getMcmModel(), dto.mcmModel());
+        assertEquals(relation.getUmletAttributes(), dto.umletAttributes());
+        assertEquals(relation.getOriginalText(), dto.originalText());
+        assertEquals(relation.getPprType(), dto.pprType());
+        assertEquals(relation.getUmletPosition().getX(), dto.umletPosition().x());
+        assertEquals(relation.getRelativeEndPoint().getAbsX(), dto.relativeEndPoint().absX());
+        assertEquals(relation.getRelativeStartPoint().getAbsX(), dto.relativeStartPoint().absX());
+        assertEquals(relation.getRelativeMidPoints().size(), dto.relativeMidPoints().size());
+        assertEquals(relation.getStartPoint().x(), dto.startPoint().x());
+        assertEquals(relation.getEndPoint().x(), dto.endPoint().x());
     }
 
     @Test
-    void testFromDto() {
-        RelationDTO relationDTO = getRelationDTO();
+    void testFromDTO() {
+        NodeDTO tgtDTO = getNodeDTO(Set.of(), "node-123");
+        RelationDTO relationDTO = getRelationDTO(tgtDTO, "relation-123");
 
-        Relation relation = mapper.fromDto(relationDTO);
+        CycleAvoidingMappingContext context = new CycleAvoidingMappingContext();
+        Relation relation = mapper.fromDto(relationDTO, context);
 
         assertNotNull(relation);
-        assertEquals(relationDTO.umletPosition().getX(), relation.getUmletPosition().getX());
-        assertNotNull(relation.getTarget());
-    }
-
-    private RelationDTO getRelationDTO() {
-        NodeDTO srcDto = new NodeDTO(
-                ID,
-                SRC,
-                RELATIONS,
-                TYPE,
-                PROPERTIES,
-                LABELS,
-                UMLET_POSITION
-        );
-
-        NodeDTO tgtDto = new NodeDTO(
-                ID,
-                TGT,
-                RELATIONS,
-                TYPE,
-                PROPERTIES,
-                LABELS,
-                UMLET_POSITION
-        );
-
-        return new RelationDTO(
-                TYPE,
-                srcDto,
-                tgtDto,
-                UMLET_POSITION
-        );
+        assertEquals(relationDTO.id(), relation.getId());
+        assertEquals(relationDTO.type(), relation.getType());
+        assertEquals(relationDTO.tags(), relation.getTags());
+        assertEquals(relationDTO.title(), relation.getTitle());
+        assertEquals(relationDTO.mcmModel(), relation.getMcmModel());
+        assertEquals(relationDTO.mcmAttributes(), relation.getUmletAttributes());
+        assertEquals(relationDTO.originalText(), relation.getOriginalText());
+        assertEquals(relationDTO.pprType(), relation.getPprType());
+        assertEquals(relationDTO.umletPosition().x(), relation.getUmletPosition().getX());
+        assertEquals(relationDTO.relativeEndPoint().offsetX(), relation.getRelativeEndPoint().getOffsetX());
+        assertEquals(relationDTO.relativeStartPoint().offsetX(), relation.getRelativeStartPoint().getOffsetX());
+        assertEquals(relationDTO.relativeMidPoints().size(), relation.getRelativeMidPoints().size());
+        assertEquals(relationDTO.startPoint().x(), relation.getStartPoint().x());
+        assertEquals(relationDTO.endPoint().x(), relation.getEndPoint().x());
     }
 }

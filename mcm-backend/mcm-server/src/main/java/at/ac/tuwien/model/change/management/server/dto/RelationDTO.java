@@ -1,12 +1,25 @@
 package at.ac.tuwien.model.change.management.server.dto;
 
-import at.ac.tuwien.model.change.management.core.model.UMLetPosition;
-import jakarta.validation.constraints.NotNull;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 public record RelationDTO(
         String type,
-        @NotNull NodeDTO source,
-        @NotNull NodeDTO target,
-        @NotNull UMLetPosition umletPosition
+        NodeDTO target,
+        UMLetPositionDTO umletPosition,
+        RelativePositionDTO relativeStartPoint,
+        List<RelativePositionDTO> relativeMidPoints,
+        RelativePositionDTO relativeEndPoint,
+        PointDTO startPoint,
+        PointDTO endPoint,
+        String id,
+        List<String> tags,
+        String originalText,
+        String title,
+        String description,
+        LinkedHashMap<String, Object> mcmAttributes,
+        String mcmModel,
+        LinkedHashMap<String, String> umletAttributes,
+        String pprType
 ) {
 }

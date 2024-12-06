@@ -180,12 +180,12 @@ public class ConfigurationIOManagerTest {
     }
 
     private void saveConfigurationToRepository(Repository repository, Configuration configuration) throws GitAPIException {
-        var contents = configurationIOManager.writeConfigurationToRepository(repository, configuration);
-        VersionControlUtils.stageRepositoryContents(repository, contents);
-        VersionControlUtils.commitRepository(repository, "Initial commit");
+        configurationIOManager.writeConfigurationToRepository(repository, configuration);
+        VersionControlUtils.stageAllChanges(repository);
+        VersionControlUtils.commitRepository(repository, "Initial commit", true);
     }
 
     public void commitRepository(Repository repository) throws GitAPIException {
-        VersionControlUtils.commitRepository(repository, "Initial commit");
+        VersionControlUtils.commitRepository(repository, "Initial commit", true);
     }
 }

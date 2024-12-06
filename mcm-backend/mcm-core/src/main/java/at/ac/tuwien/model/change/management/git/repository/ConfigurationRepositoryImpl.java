@@ -79,7 +79,9 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
                 configurationIoManager.clearConfigurationRepository(repository);
                 var repositoryContents = configurationIoManager.writeConfigurationToRepository(repository, configuration);
                 VersionControlUtils.stageRepositoryContents(repository, repositoryContents);
-                VersionControlUtils.commitRepository(repository, generateCommitMessage(configuration.getName(), repositoryContents));
+                VersionControlUtils.commitRepository(
+                        repository, generateCommitMessage(configuration.getName(), repositoryContents), true
+                );
                 log.info("Saved configuration '{}' to repository.", configuration.getName());
                 return configurationIoManager.readConfigurationFromRepository(repository, Constants.HEAD);
             } catch (GitAPIException e) {

@@ -11,5 +11,11 @@ import java.util.Set;
 @Setter
 @EqualsAndHashCode(callSuper = true)
 public class Model extends BaseAttributes {
+
+    /**
+     * Needed for Umlet to correctly render the diagram.
+     */
+    private int zoomLevel = 10;
+
     private Set<Node> nodes;
 }

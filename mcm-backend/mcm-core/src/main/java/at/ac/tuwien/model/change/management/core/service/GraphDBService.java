@@ -4,6 +4,8 @@ import at.ac.tuwien.model.change.management.core.model.Configuration;
 import at.ac.tuwien.model.change.management.core.model.Model;
 import at.ac.tuwien.model.change.management.core.model.Node;
 import org.neo4j.procedure.Mode;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.InputStreamResource;
 
 import java.util.List;
 import java.util.Map;
@@ -118,4 +120,11 @@ public interface GraphDBService {
      * @return The result of the query
      */
     List<Map<String,Object>> executeQuery(String query);
+
+    /**
+     * Generates a CSV file from the graph database
+     * @param fileName The name of the CSV file
+     * @return The CSV file as an InputStreamResource
+     */
+    ByteArrayResource generateCSV(String fileName);
 }

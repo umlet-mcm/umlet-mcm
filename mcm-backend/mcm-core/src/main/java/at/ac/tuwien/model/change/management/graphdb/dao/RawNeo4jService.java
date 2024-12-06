@@ -1,5 +1,6 @@
 package at.ac.tuwien.model.change.management.graphdb.dao;
 
+import at.ac.tuwien.model.change.management.graphdb.config.Neo4JProperties;
 import at.ac.tuwien.model.change.management.graphdb.exceptions.InvalidQueryException;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
@@ -7,8 +8,12 @@ import org.neo4j.driver.Result;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.exceptions.ClientException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +26,8 @@ public class RawNeo4jService {
     /* The Neo4j driver to database */
     @Autowired
     private Driver neo4jDriver;
+    @Autowired
+    private Neo4JProperties properties;
 
     /**
      * Executes a raw query on the Neo4j database
@@ -38,6 +45,33 @@ public class RawNeo4jService {
             return rawData;
         } catch (ClientException e) {
             throw new InvalidQueryException("Invalid query: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Generates a CSV file from the Neo4j database
+     * @param fileName The name of the CSV file
+     */
+    public void generateCSV(String fileName) {
+        try (Session session = neo4jDriver.session()) {
+            String query = "CALL apoc.export.csv.all('" + fileName + ".csv', {})";
+            session.run(query);
+        } catch (ClientException e) {
+            throw new InvalidQueryException("Error Exporting to CSV! " + e.getMessage());
+        }
+    }
+
+    /**
+     * Downloads a CSV file from the Neo4j database folder
+     * @param fileName The name of the CSV file
+     * @return The CSV file as an InputStreamResource
+     */
+    public ByteArrayResource downloadCSV(String fileName) {
+        try {
+            ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(Paths.get(properties.getDatabasePath().toString() + "\\" + fileName + ".csv")));
+            return resource;
+        } catch (IOException e) {
+            throw new InvalidQueryException("Error downloading CSV! " + e.getMessage());
         }
     }
 }

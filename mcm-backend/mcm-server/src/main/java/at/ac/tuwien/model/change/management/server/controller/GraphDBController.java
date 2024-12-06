@@ -9,6 +9,9 @@ import at.ac.tuwien.model.change.management.server.mapper.NodeDtoMapper;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -56,5 +59,16 @@ public class GraphDBController {
             @RequestParam String attributeName) {
         val node = graphDBService.sumUpAttribute(nodeID, attributeName);
         return ResponseEntity.ok(nodeDtoMapper.toDto(node));
+    }
+
+    @GetMapping(path = "/csvExport")
+    public ResponseEntity<Resource> exportToCSV(
+            @RequestParam String fileName) {
+        ByteArrayResource resource = graphDBService.generateCSV(fileName);
+        return ResponseEntity.ok()
+                .contentLength(resource.contentLength())
+                .contentType(MediaType.valueOf("application/CSV"))
+                .header("Content-Disposition", "attachment; filename=" + fileName + ".csv")
+                .body(resource);
     }
 }

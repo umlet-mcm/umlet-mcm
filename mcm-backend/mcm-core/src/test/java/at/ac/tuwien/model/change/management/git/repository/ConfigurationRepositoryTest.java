@@ -6,9 +6,9 @@ import at.ac.tuwien.model.change.management.git.exception.RepositoryDoesNotExist
 import at.ac.tuwien.model.change.management.git.operation.ConfigurationIOManager;
 import at.ac.tuwien.model.change.management.git.operation.RepositoryManager;
 import at.ac.tuwien.model.change.management.git.util.VersionControlUtils;
-import at.ac.tuwien.model.change.management.git.operation.MockConfigurationIOManager;
-import at.ac.tuwien.model.change.management.git.operation.MockRepositoryManager;
 import at.ac.tuwien.model.change.management.testutil.DomainModelGen;
+import at.ac.tuwien.model.change.management.testutil.MockConfigurationIOManager;
+import at.ac.tuwien.model.change.management.testutil.MockRepositoryManager;
 import at.ac.tuwien.model.change.management.testutil.TestUtils;
 import org.assertj.core.api.Assertions;
 import org.eclipse.jgit.api.errors.GitAPIException;

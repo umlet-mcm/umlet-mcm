@@ -1,6 +1,7 @@
-package at.ac.tuwien.model.change.management.git.operation;
+package at.ac.tuwien.model.change.management.testutil;
 
 import at.ac.tuwien.model.change.management.git.exception.RepositoryAccessException;
+import at.ac.tuwien.model.change.management.git.operation.RepositoryManager;
 import at.ac.tuwien.model.change.management.git.util.RepositoryUtils;
 import org.eclipse.jgit.lib.Repository;
 

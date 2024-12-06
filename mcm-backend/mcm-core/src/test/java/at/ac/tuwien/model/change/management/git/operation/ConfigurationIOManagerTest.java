@@ -4,7 +4,7 @@ import at.ac.tuwien.model.change.management.core.model.Configuration;
 import at.ac.tuwien.model.change.management.git.util.RepositoryUtils;
 import at.ac.tuwien.model.change.management.git.util.VersionControlUtils;
 import at.ac.tuwien.model.change.management.testutil.DomainModelGen;
-import at.ac.tuwien.model.change.management.core.transformer.MockDSLTransformer;
+import at.ac.tuwien.model.change.management.testutil.MockDSLTransformer;
 import at.ac.tuwien.model.change.management.testutil.TestUtils;
 import org.assertj.core.api.Assertions;
 import org.eclipse.jgit.api.errors.GitAPIException;

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -49,8 +50,9 @@ class ModelDtoMapperTest extends MapperTest {
 
     @Test
     void testFromDto() {
-        NodeDTO nodeDTO = getNodeDTO(Set.of(), "node-123");
-        ModelDTO modelDTO = getModelDTO(Set.of(nodeDTO), "model-123");
+        ModelDTO modelDTO = getModelDTO(new LinkedHashSet<>(), "model-123");
+        NodeDTO nodeDTO = getNodeDTO(Set.of(), "node-123", modelDTO.id());
+        modelDTO.nodes().add(nodeDTO);
 
         Model model = mapper.fromDto(modelDTO);
 

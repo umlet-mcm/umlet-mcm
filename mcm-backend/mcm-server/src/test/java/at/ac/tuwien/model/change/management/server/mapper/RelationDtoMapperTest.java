@@ -8,7 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
-import java.util.Set;
+import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -48,8 +48,9 @@ public class RelationDtoMapperTest extends MapperTest {
 
     @Test
     void testFromDTO() {
-        NodeDTO tgtDTO = getNodeDTO(Set.of(), "node-123");
+        NodeDTO tgtDTO = getNodeDTO(new HashSet<>(), "node-123", "c4144490-b60b-4283-b8a1-51cc631c3874");
         RelationDTO relationDTO = getRelationDTO(tgtDTO, "relation-123");
+        tgtDTO.relations().add(relationDTO);
 
         CycleAvoidingMappingContext context = new CycleAvoidingMappingContext();
         Relation relation = mapper.fromDto(relationDTO, context);

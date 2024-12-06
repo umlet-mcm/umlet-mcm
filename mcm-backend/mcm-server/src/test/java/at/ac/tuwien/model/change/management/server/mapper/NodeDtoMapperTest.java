@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -21,7 +22,7 @@ public class NodeDtoMapperTest extends MapperTest {
 
     @Test
     void testToDto() {
-        Node node = getNode(Set.of(new Relation()), "node-123");
+        Node node = getNode(Set.of(new Relation()), "node-123", "c4144490-b60b-4283-b8a1-51cc631c3874");
 
         CycleAvoidingMappingContext context = new CycleAvoidingMappingContext();
         NodeDTO dto = mapper.toDto(node, context);
@@ -38,14 +39,16 @@ public class NodeDtoMapperTest extends MapperTest {
         assertEquals(node.getRelations().size(), dto.relations().size());
         assertEquals(node.getUmletPosition().getX(), dto.umletPosition().x());
         assertEquals(node.getMcmModel(), dto.mcmModel());
+        assertEquals(node.getMcmModelId(), dto.mcmModelId());
         assertEquals(node.getGeneratedAttributes(), dto.generatedAttributes());
         assertEquals(node.getUmletAttributes(), dto.umletAttributes());
     }
 
     @Test
     void testFromDto() {
-        RelationDTO relationDTO = getRelationDTO(getNodeDTO(Set.of(), "tgt-123"), "relation");
-        NodeDTO nodeDTO = getNodeDTO(Set.of(relationDTO), "src-123");
+        NodeDTO nodeDTO = getNodeDTO(new HashSet<>(), "src-123", "c4144490-b60b-4283-b8a1-51cc631c3874");
+        RelationDTO relationDTO = getRelationDTO(getNodeDTO(Set.of(), "tgt-123", nodeDTO.mcmModelId()), "relation");
+        nodeDTO.relations().add(relationDTO);
 
         CycleAvoidingMappingContext context = new CycleAvoidingMappingContext();
         Node node = mapper.fromDto(nodeDTO, context);
@@ -62,6 +65,7 @@ public class NodeDtoMapperTest extends MapperTest {
         assertEquals(nodeDTO.relations().size(), node.getRelations().size());
         assertEquals(nodeDTO.umletPosition().x(), node.getUmletPosition().getX());
         assertEquals(nodeDTO.mcmModel(), node.getMcmModel());
+        assertEquals(nodeDTO.mcmModelId(), node.getMcmModelId());
         assertEquals(nodeDTO.generatedAttributes(), node.getGeneratedAttributes());
         assertEquals(nodeDTO.umletAttributes(), node.getUmletAttributes());
         assertEquals(nodeDTO.relations().size(), node.getRelations().size());
@@ -72,8 +76,8 @@ public class NodeDtoMapperTest extends MapperTest {
         Relation srcToTgt = getRelation(null, "relation-123");
         Relation tgtToSrc = getRelation(null, "relation-456");
 
-        Node src = getNode(Set.of(), "src-123");
-        Node tgt = getNode(Set.of(), "tgt-123");
+        Node src = getNode(Set.of(), "src-123", "c4144490-b60b-4283-b8a1-51cc631c3874");
+        Node tgt = getNode(Set.of(), "tgt-123", "c4144490-b60b-4283-b8a1-51cc631c3874");
 
         srcToTgt.setTarget(tgt);
         src.setRelations(Set.of(srcToTgt));

@@ -11,7 +11,7 @@ import java.util.Set;
 
 public abstract class MapperTest {
 
-    protected NodeDTO getNodeDTO(Set<RelationDTO> relationDTOs, String id) {
+    protected NodeDTO getNodeDTO(Set<RelationDTO> relationDTOs, String id, String modelID) {
         return new NodeDTO(
                 "node",
                 List.of(1, 2),
@@ -24,6 +24,7 @@ public abstract class MapperTest {
                 "description",
                 new LinkedHashMap<>(Map.of("key1", "value1", "key2", "value2")),
                 "mcmModel",
+                modelID,
                 new LinkedHashMap<>(Map.of("key1", "value1", "key2", "value2")),
                 "pprType"
         );
@@ -66,7 +67,7 @@ public abstract class MapperTest {
         );
     }
 
-    protected Node getNode(Set<Relation> relations, String id) {
+    protected Node getNode(Set<Relation> relations, String id, String modelId) {
         Node node = new Node();
         node.setId(id);
         node.setTags(List.of("tag1", "tag2"));
@@ -79,6 +80,7 @@ public abstract class MapperTest {
         node.setRelations(relations);
         node.setUmletPosition(new UMLetPosition(1, 2, 3, 4));
         node.setMcmModel("mcmModel");
+        node.setMcmModelId(modelId);
         node.setGeneratedAttributes(List.of(1, 2));
         node.setUmletAttributes(new LinkedHashMap<>(Map.of("key1", "value1", "key2", "value2")));
 

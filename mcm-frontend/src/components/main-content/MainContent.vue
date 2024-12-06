@@ -31,22 +31,41 @@ defineProps({
 });
 const emit = defineEmits(["update:selectedEntity", "update:response"]);
 
-// functions
-const executeQuery = async () => {
-  if(!query.value) return
-  queryNum.value += 1
+// execute multiple queries
+const executeMultipleQuery = async (queries: string[]) => {
+  let nbOk = 0, totalTime = 0, response
+  errorMessage.value = undefined
+  queryMessage.value = undefined
+
   try {
-    const startTime = performance.now();
-    const response = await sendRequest(query.value)
-    const endTime = performance.now();
-    emit('update:response', response)
-    errorMessage.value = undefined
-    queryMessage.value = `Query executed successfully in ${(endTime - startTime)} ms`
+    for (const query of queries.filter(Boolean)) {
+      // for all queries, measure the time it takes to execute
+      const startTime = performance.now()
+      response = await sendRequest(query)
+      totalTime += performance.now() - startTime
+      nbOk++
+      queryNum.value++
+    }
   } catch (error: any) {
-    errorMessage.value = error.response.data.Message ? error.response.data.Message : error.message
-    queryMessage.value = undefined
+    // if an error occurs, display the error message and the number of queries executed successfully
+    queryMessage.value = nbOk ? `${nbOk} ${nbOk === 1 ? "query" : "queries"} executed successfully in ${totalTime} ms. Error on query ${nbOk + 1}` : undefined
+    errorMessage.value = error.response?.data?.Message || error.message
   }
-}
+
+  // display the last response
+  if (response) emit('update:response', response)
+  if (!errorMessage.value) {
+    queryMessage.value = `${nbOk} ${nbOk === 1 ? "query" : "queries"} executed successfully in ${totalTime} ms.`
+  }
+};
+
+// execute the query field
+const executeQuery = async () => {
+  if (!query.value?.trim()) return
+  query.value = query.value.trim().replace("/\n/g", "")
+  const formattedQuery = query.value.endsWith(";") ? query.value : `${query.value};`
+  await executeMultipleQuery(formattedQuery.split(";").filter(Boolean))
+};
 </script>
 
 <template>
@@ -59,8 +78,8 @@ const executeQuery = async () => {
           <Play class="mr-2 h-4 w-4" />
           Execute Query
         </Button>
-        <label v-if="errorMessage" class="text-sm text-red-500 content-center">{{ "["+queryNum+"] " + errorMessage }}</label>
         <label v-if="queryMessage" class="text-sm text-green-500 content-center">{{ "["+queryNum+"] " + queryMessage }}</label>
+        <label v-if="errorMessage" class="text-sm text-red-500 content-center">{{ "["+queryNum+"] " + errorMessage }}</label>
       </div>
     </div>
     <div class="flex items-center justify-between">

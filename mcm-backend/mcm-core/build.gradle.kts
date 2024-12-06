@@ -1,6 +1,5 @@
 plugins {
     `java-library`
-    `java-test-fixtures`
 
     // mcm.java.conventions is our custom build plugin, which includes some general configuration for Java
     alias(libs.plugins.mcm.java.conventions)
@@ -29,14 +28,6 @@ dependencies {
     annotationProcessor(libs.mapstruct.processor)
     implementation(libs.spring.boot.starter.data.neo4j)
     testImplementation(libs.spring.boot.starter.test)
-
-    // TODO: maybe reduce dependencies for testFixtures
-    testFixturesImplementation(libs.spring.boot.starter.data.neo4j)
-    testFixturesImplementation(libs.spring.boot.starter.test)
-    testFixturesImplementation(libs.neo4j) {
-        exclude(group = "org.neo4j", module = "neo4j-slf4j-provider")
-    }
-    testFixturesImplementation(libs.jgit)
 }
 
 tasks.test {

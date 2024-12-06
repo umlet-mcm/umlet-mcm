@@ -1,7 +1,5 @@
 package at.ac.tuwien.model.change.management.core.utils;
 
-import lombok.SneakyThrows;
-
 import java.util.function.Function;
 
 import static lombok.Lombok.sneakyThrow;

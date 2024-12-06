@@ -13,12 +13,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.Repository;
 import org.springframework.util.FileSystemUtils;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+
+import static at.ac.tuwien.model.change.management.git.util.RepositoryManagerUtils.withRepositories;
 
 @GitComponent
 @Slf4j
@@ -50,25 +51,21 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
                 log.warn("Repository for configuration '{}' could not be found.", name);
                 return Optional.empty();
             }
-            log.info("Found repository for configuration '{}'.", name);
+            log.debug("Found repository for configuration '{}'.", name);
             return Optional.of(configurationIoManager.readConfigurationFromRepository(repository, Constants.HEAD));
         }
     }
 
     @Override
     public List<Configuration> findAllConfigurations() {
-        log.debug("Finding all configurations.");
-        var repositories = repositoryManager.listRepositories();
-
-        try {
+        log.debug("Searching all repositories for configurations.");
+        return withRepositories(repositoryManager.listRepositories(), repositories -> {
             var configurations = repositories.stream()
                     .map(repository -> configurationIoManager.readConfigurationFromRepository(repository, Constants.HEAD))
                     .toList();
-            log.info("Found {} configurations.", configurations.size());
+            log.debug("Found {} configurations in repositories.", configurations.size());
             return configurations;
-        } finally {
-            repositories.forEach(Repository::close);
-        }
+        });
     }
 
     @Override

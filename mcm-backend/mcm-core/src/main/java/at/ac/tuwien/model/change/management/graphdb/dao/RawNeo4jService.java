@@ -74,4 +74,16 @@ public class RawNeo4jService {
             throw new InvalidQueryException("Error downloading CSV! " + e.getMessage());
         }
     }
+
+    /**
+     * Clears the Neo4j database, removing everything and detaching all nodes from their relations
+     */
+    public void clearDatabase() {
+        try (Session session = neo4jDriver.session()) {
+            String query = "MATCH (n) DETACH DELETE n";
+            session.run(query);
+        } catch (ClientException e) {
+            throw new InvalidQueryException("Error clearing database! " + e.getMessage());
+        }
+    }
 }

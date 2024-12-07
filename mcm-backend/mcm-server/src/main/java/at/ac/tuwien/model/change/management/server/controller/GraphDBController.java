@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * REST controller for managing graph database operations.
+ */
 @RestController
 @RequestMapping("/api/v1/graphdb")
 @RequiredArgsConstructor
@@ -26,18 +29,63 @@ public class GraphDBController {
     private final NodeDtoMapper nodeDtoMapper;
     private final ConfigurationDtoMapper configurationDtoMapper;
 
+    /**
+     * Loads a node into the graph database.
+     * @param nodeDTO the node data transfer object
+     * @return the loaded node as a data transfer object
+     */
     @PostMapping(path = "/nodes/load")
     public ResponseEntity<NodeDTO> loadNode(@RequestBody NodeDTO nodeDTO) {
         var node = graphDBService.loadNode(nodeDtoMapper.fromDto(nodeDTO));
         return ResponseEntity.ok(nodeDtoMapper.toDto(node));
     }
 
+    /**
+     * Deletes a node from the graph database.
+     * @param nodeID the ID of the node to delete
+     */
+    @DeleteMapping(path = "/nodes/{nodeID}")
+    public ResponseEntity<Void> deleteNode(@PathVariable("nodeID") String nodeID) {
+        graphDBService.deleteNode(nodeID);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Loads a configuration into the graph database.
+     * @param configurationDTO the configuration data transfer object
+     * @return the loaded configuration as a data transfer object
+     */
     @PostMapping(path = "/configuration")
     public ResponseEntity<ConfigurationDTO> loadConfiguration(@RequestBody ConfigurationDTO configurationDTO) {
         var configuration = graphDBService.loadConfiguration(configurationDtoMapper.fromDto(configurationDTO));
         return ResponseEntity.ok(configurationDtoMapper.toDto(configuration));
     }
 
+    /**
+     * Deletes a configuration from the graph database.
+     * @param configurationID the ID of the configuration to delete
+     */
+    @DeleteMapping(path = "/configuration/{configurationID}")
+    public ResponseEntity<Void> deleteConfiguration(@PathVariable("configurationID") String configurationID) {
+        graphDBService.deleteConfiguration(configurationID);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Clears the entire graph database.
+     * @return a response entity with a success message
+     */
+    @DeleteMapping
+    public ResponseEntity<String> clearDatabase() {
+        graphDBService.clearDatabase();
+        return ResponseEntity.ok("Successfully cleared the DB!");
+    }
+
+    /**
+     * Executes a custom query on the graph database. (including currently attached libraries)
+     * @param query the cypher query for database
+     * @return the query result as a JSON string
+     */
     @GetMapping(path = "/query")
     public ResponseEntity<String> executeQuery(@RequestBody QueryDTO query) {
         val result = graphDBService.executeQuery(query.query());
@@ -46,6 +94,11 @@ public class GraphDBController {
         return ResponseEntity.ok(convert);
     }
 
+    /**
+     * Retrieves the predecessors of a node
+     * @param nodeID the ID of the node
+     * @return a list of predecessor nodes
+     */
     @GetMapping(path = "/nodes/predecessors")
     public ResponseEntity<List<NodeDTO>> getPredecessors(
             @RequestParam String nodeID) {

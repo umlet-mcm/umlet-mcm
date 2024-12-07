@@ -167,4 +167,9 @@ public class GraphDBServiceImpl implements GraphDBService {
         rawNeo4jService.generateCSV(fileName);
         return rawNeo4jService.downloadCSV(fileName);
     }
+
+    @Override
+    public void clearDatabase() {
+        rawNeo4jService.clearDatabase();
+    }
 }

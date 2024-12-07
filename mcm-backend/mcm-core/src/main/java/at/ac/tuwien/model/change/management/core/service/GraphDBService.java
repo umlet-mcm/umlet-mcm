@@ -116,6 +116,7 @@ public interface GraphDBService {
     void deleteModel(String id);
 
     /******** GENERIC PART ********/
+    
     /**
      * Executes a generic query on the graph database
      * @param query The query to execute
@@ -129,4 +130,9 @@ public interface GraphDBService {
      * @return The CSV file as an InputStreamResource
      */
     ByteArrayResource generateCSV(String fileName);
+
+    /**
+     * Clears the graph database, removing all nodes, relations and attributes
+     */
+    void clearDatabase();
 }

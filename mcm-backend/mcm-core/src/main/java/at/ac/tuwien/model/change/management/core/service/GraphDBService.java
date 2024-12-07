@@ -50,8 +50,10 @@ public interface GraphDBService {
     List<Node> getPredecessors(String nodeID);
 
     /**
-     * Finds all predecessors of a given node that contain a specific attribute
-     * @return The node containing the sum of the attribute
+     * Sum up one given attribute from all predecessors of a node
+     * @param nodeID The node ID which will be summed up
+     * @param attributeName The attribute name to sum up
+     * @return The node containing the summed attribute
      */
     Node sumUpAttribute(String nodeID, String attributeName);
 

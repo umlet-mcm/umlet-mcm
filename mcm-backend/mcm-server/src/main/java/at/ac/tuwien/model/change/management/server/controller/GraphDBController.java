@@ -53,6 +53,12 @@ public class GraphDBController {
         return ResponseEntity.ok(nodes.stream().map(nodeDtoMapper::toDto).toList());
     }
 
+    /**
+     * Sum up one given attribute from all predecessors of a node
+     * @param nodeID The node ID which will be summed up
+     * @param attributeName The attribute name to sum up
+     * @return The node containing the summed attribute
+     */
     @GetMapping(path = "/nodes/sumUpAttribute")
     public ResponseEntity<NodeDTO> sumUpAttribute(
             @RequestParam String nodeID,

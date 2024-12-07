@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
 import java.util.HashSet;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -24,13 +25,15 @@ public class RelationDtoMapperTest extends MapperTest {
 
     @Test
     void testToDto() {
-        Relation relation = getRelation(new Node(), "relation-123", "6c1d704c-7535-4020-a8a4-8ef39b9cd22e");
+        var targetNode = new Node();
+        targetNode.setId("c4144490-b60b-4283-b8a1-51cc631c3874");
 
-        CycleAvoidingMappingContext context = new CycleAvoidingMappingContext();
-        RelationDTO dto = mapper.toDto(relation, context);
+        Relation relation = getRelation(targetNode, "relation-123", "6c1d704c-7535-4020-a8a4-8ef39b9cd22e");
+        RelationDTO dto = mapper.toDto(relation);
 
         assertNotNull(dto);
         assertEquals(relation.getId(), dto.id());
+        assertEquals(Optional.ofNullable(relation.getTarget()).map(Node::getId).orElse(null), dto.target());
         assertEquals(relation.getType(), dto.type());
         assertEquals(relation.getTags(), dto.tags());
         assertEquals(relation.getTitle(), dto.title());
@@ -53,8 +56,7 @@ public class RelationDtoMapperTest extends MapperTest {
         RelationDTO relationDTO = getRelationDTO(tgtDTO, "relation-123", "6c1d704c-7535-4020-a8a4-8ef39b9cd22e");
         tgtDTO.relations().add(relationDTO);
 
-        CycleAvoidingMappingContext context = new CycleAvoidingMappingContext();
-        Relation relation = mapper.fromDto(relationDTO, context);
+        Relation relation = mapper.fromDto(relationDTO);
 
         assertNotNull(relation);
         assertEquals(relationDTO.id(), relation.getId());

@@ -2,6 +2,7 @@ package at.ac.tuwien.model.change.management.server.testutil;
 
 import at.ac.tuwien.model.change.management.server.dto.*;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.lang.Nullable;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -39,6 +40,21 @@ public final class DtoGen{
             int numberRelationsPerNode) {
         return generateRandomizedConfigurationDTO(
                 name,
+                null,
+                numberModels,
+                numberNodesPerModel,
+                numberRelationsPerNode);
+    }
+
+    public static ConfigurationDTO generateRandomizedConfigurationDTO(
+            String name,
+            @Nullable String version,
+            int numberModels,
+            int numberNodesPerModel,
+            int numberRelationsPerNode) {
+        return generateRandomizedConfigurationDTO(
+                name,
+                version,
                 numberModels,
                 numberModels,
                 numberNodesPerModel,
@@ -50,6 +66,7 @@ public final class DtoGen{
 
     public static ConfigurationDTO generateRandomizedConfigurationDTO(
             String name,
+            String version,
             int minNumberModels,
             int maxNumberModels,
             int minNumberNodesPerModel,
@@ -75,7 +92,7 @@ public final class DtoGen{
         }
         return new ConfigurationDTO(
                 name,
-                RandomStringUtils.randomAlphabetic(MAX_TITLE_LENGTH),
+                version,
                 models
         );
     }
@@ -107,34 +124,16 @@ public final class DtoGen{
         }
         for (NodeDTO node : nodes) {
             int numRelations = getRandomInt(upperBoundRelations) + minNumberRelationsPerNode;
-            Set<RelationDTO> relations = new HashSet<>(Optional.ofNullable(node.relations()).orElseGet(Collections::emptySet));
             List<NodeDTO> availableTargets = nodes.stream().filter(n -> !n.equals(node)).toList();
             for (int i = 0; i < numRelations; i++) {
                 if (!availableTargets.isEmpty()) {
-                    relations.add(generateRandomizedRelationDTO(availableTargets));
+                    node.relations().add(generateRandomizedRelationDTO(availableTargets));
                 }
             }
-            nodes.remove(node);
-            nodes.add(new NodeDTO(
-                    node.elementType(),
-                    node.generatedAttributes(),
-                    node.umletPosition(),
-                    relations,
-                    node.id(),
-                    node.tags(),
-                    node.originalText(),
-                    node.title(),
-                    node.description(),
-                    node.mcmAttributes(),
-                    node.mcmModel(),
-                    node.mcmModelId(),
-                    node.umletAttributes(),
-                    node.pprType()
-            ));
         }
         return new ModelDTO(
                 nodes,
-                RandomStringUtils.randomAlphabetic(MAX_TITLE_LENGTH),
+                null,
                 IntStream.range(0, getRandomInt(MAX_TAG_NUMBER + 1))
                         .mapToObj(i -> RandomStringUtils.randomAlphabetic(MAX_TAG_LENGTH))
                         .toList(),
@@ -158,8 +157,8 @@ public final class DtoGen{
                         .mapToObj(i -> getRandomInt(MAX_GENERATED_ATTRIBUTE_VALUE + 1))
                         .toList(),
                 generateRandomizedUMLetPositionDTO(),
-                null,
-                RandomStringUtils.randomAlphabetic(MAX_TITLE_LENGTH),
+                new HashSet<>(),
+                RandomStringUtils.randomAlphanumeric(40).toLowerCase(),
                 IntStream.range(0, getRandomInt(MAX_TAG_NUMBER + 1))
                         .mapToObj(i -> RandomStringUtils.randomAlphabetic(MAX_TAG_LENGTH))
                         .toList(),
@@ -173,7 +172,7 @@ public final class DtoGen{
                         LinkedHashMap::new
                 )),
                 RandomStringUtils.randomAlphabetic(MAX_TITLE_LENGTH),
-                RandomStringUtils.randomAlphabetic(MAX_TITLE_LENGTH),
+                null,
                 IntStream.range(0, getRandomInt(MAX_MCM_ATTRIBUTE_NUMBER + 1)).boxed().collect(Collectors.toMap(
                         k -> RandomStringUtils.randomAlphabetic(MAX_MCM_ATTRIBUTE_KEY_LENGTH),
                         v -> RandomStringUtils.randomAlphabetic(MAX_MCM_ATTRIBUTE_VALUE_LENGTH),
@@ -188,7 +187,7 @@ public final class DtoGen{
         int randomTargetIndex = getRandomInt(availableTargets.size());
         return new RelationDTO(
                 ElementType.RELATION.toString(),
-                availableTargets.get(randomTargetIndex),
+                availableTargets.get(randomTargetIndex).id(),
                 generateRandomizedUMLetPositionDTO(),
                 generateRandomizedRelativePositionDTO(),
                 IntStream.range(0, getRandomInt(MAX_RELATIVE_MID_POINTS + 1))
@@ -197,7 +196,7 @@ public final class DtoGen{
                 generateRandomizedRelativePositionDTO(),
                 generateRandomizedPointDTO(),
                 generateRandomizedPointDTO(),
-                RandomStringUtils.randomAlphabetic(MAX_TITLE_LENGTH),
+                RandomStringUtils.randomAlphanumeric(40).toLowerCase(),
                 IntStream.range(0, getRandomInt(MAX_TAG_NUMBER + 1))
                         .mapToObj(i -> RandomStringUtils.randomAlphabetic(MAX_TAG_LENGTH))
                         .toList(),
@@ -211,7 +210,7 @@ public final class DtoGen{
                         LinkedHashMap::new
                 )),
                 RandomStringUtils.randomAlphabetic(MAX_TITLE_LENGTH),
-                RandomStringUtils.randomAlphabetic(MAX_TITLE_LENGTH),
+                null,
                 IntStream.range(0, getRandomInt(MAX_MCM_ATTRIBUTE_NUMBER + 1)).boxed().collect(Collectors.toMap(
                         k -> RandomStringUtils.randomAlphabetic(MAX_MCM_ATTRIBUTE_KEY_LENGTH),
                         v -> RandomStringUtils.randomAlphabetic(MAX_MCM_ATTRIBUTE_VALUE_LENGTH),

@@ -125,6 +125,7 @@ public class ConfigurationIOManagerImpl implements ConfigurationIOManager {
                 if (node.getMcmModelId() == null) node.setMcmModelId(model.getId());
                 for (var relation : tryAccessCollection(node.getRelations())) {
                     if (relation.getId() == null) relation.setId(generateIdUniqueToRepository(repository));
+                    if (relation.getMcmModelId() == null) relation.setMcmModelId(model.getId());
                 }
             }
         }

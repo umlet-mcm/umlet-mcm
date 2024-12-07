@@ -2,6 +2,7 @@ package at.ac.tuwien.model.change.management.server.mapper;
 
 import at.ac.tuwien.model.change.management.core.model.*;
 import at.ac.tuwien.model.change.management.server.dto.*;
+import org.springframework.lang.Nullable;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -30,10 +31,10 @@ public abstract class MapperTest {
         );
     }
 
-    protected RelationDTO getRelationDTO(NodeDTO targetDTO, String id, String modelId) {
+    protected RelationDTO getRelationDTO(@Nullable NodeDTO targetDTO, String id, String modelId) {
         return new RelationDTO(
                 "RelationType1",
-                targetDTO,
+                targetDTO != null ? targetDTO.id() : null,
                 new UMLetPositionDTO(50, 60, 70, 80),
                 new RelativePositionDTO(5, 5, 2, 2),
                 List.of(

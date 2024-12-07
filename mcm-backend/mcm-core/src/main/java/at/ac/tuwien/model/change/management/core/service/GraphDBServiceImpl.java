@@ -15,6 +15,8 @@ import at.ac.tuwien.model.change.management.graphdb.entities.RelationEntity;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -159,5 +161,10 @@ public class GraphDBServiceImpl implements GraphDBService {
     public List<Map<String,Object>> executeQuery(String query) {
         val response = rawNeo4jService.executeRawQuery(query);
         return response;
+    }
+
+    public ByteArrayResource generateCSV(String fileName) {
+        rawNeo4jService.generateCSV(fileName);
+        return rawNeo4jService.downloadCSV(fileName);
     }
 }

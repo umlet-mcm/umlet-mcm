@@ -66,9 +66,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     @Override
-    public void deleteConfiguration(@NonNull String configurationName) {
-        log.debug("Deleting configuration '{}'.", configurationName);
-        var sanitizedName = ConfigurationUtils.sanitizeConfigurationName(configurationName);
+    public void deleteConfiguration(@NonNull String name) {
+        log.debug("Deleting configuration '{}'.", name);
+        var sanitizedName = ConfigurationUtils.sanitizeConfigurationName(name);
         try {
             configurationRepository.deleteConfiguration(sanitizedName);
             log.info("Deleted configuration '{}'.", sanitizedName);

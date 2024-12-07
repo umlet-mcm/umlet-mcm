@@ -13,10 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +35,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             return savedConfiguration;
         } catch (RepositoryAlreadyExistsException e) {
             throw new ConfigurationAlreadyExistsException("Configuration with name '" + configuration.getName() + "' already exists.", e);
-        } catch (RepositoryDoesNotExistException | RepositoryAccessException e) {
+        } catch (RepositoryAccessException e) {
             // repository really should exist at this point
             throw new ConfigurationCreateException("Failed to create configuration with name '" + configuration.getName() + "'.", e);
         }
@@ -69,9 +66,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     @Override
-    public void deleteConfiguration(@NonNull String configurationName) {
-        log.debug("Deleting configuration '{}'.", configurationName);
-        var sanitizedName = ConfigurationUtils.sanitizeConfigurationName(configurationName);
+    public void deleteConfiguration(@NonNull String name) {
+        log.debug("Deleting configuration '{}'.", name);
+        var sanitizedName = ConfigurationUtils.sanitizeConfigurationName(name);
         try {
             configurationRepository.deleteConfiguration(sanitizedName);
             log.info("Deleted configuration '{}'.", sanitizedName);
@@ -107,31 +104,54 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     private void validateNewConfiguration(Configuration configuration) {
+        if (configuration.getVersion() != null) {
+            throw new ConfigurationValidationException("New configuration cannot have a version.");
+        }
+
+        var elementIDs = new ArrayList<String>();
         for (var model : tryAccessCollection(configuration.getModels())) {
-            if (model.getId() != null) {
-                throw new ConfigurationValidationException("Model cannot have an id when creating a new configuration.");
-            }
+            if (model.getId() != null) elementIDs.add(model.getId());
             for (var node : tryAccessCollection(model.getNodes())) {
-                if (node.getId() != null) {
-                    throw new ConfigurationValidationException("Node cannot have an id when creating a new configuration.");
+                if (node.getId() != null) elementIDs.add(node.getId());
+                if (node.getMcmModelId() != null && ! node.getMcmModelId().equals(model.getId())) {
+                    throw new ConfigurationValidationException("Node does not belong to the model it is assigned to.");
                 }
                 for (var relation : tryAccessCollection(node.getRelations())) {
-                    if (relation.getId() != null) {
-                        throw new ConfigurationValidationException("Relation cannot have an id when creating a new configuration.");
+                    if (relation.getId() != null) elementIDs.add(relation.getId());
+                    if (relation.getMcmModelId() != null && ! relation.getMcmModelId().equals(model.getId())) {
+                        throw new ConfigurationValidationException("Relation does not belong to the model it is assigned to.");
                     }
                 }
             }
         }
+        checkForDuplicateElementIDs(elementIDs);
     }
 
     private void validateExistingConfiguration(Configuration configuration) {
+        var elementIDs = new ArrayList<String>();
         for (var model : tryAccessCollection(configuration.getModels())) {
+            if (model.getId() != null) elementIDs.add(model.getId());
             for (var node : tryAccessCollection(model.getNodes())) {
-                if (node.getMcmModel() == null) node.setMcmModel(model.getId());
-                else if (! node.getMcmModel().equals(model.getId())) {
+                if (node.getId() != null) elementIDs.add(node.getId());
+                if (node.getMcmModelId() == null) node.setMcmModelId(model.getId());
+                else if (! node.getMcmModelId().equals(model.getId())) {
                     throw new ConfigurationValidationException("Node does not belong to the model it is assigned to.");
                 }
+                for (var relation : tryAccessCollection(node.getRelations())) {
+                    if (relation.getId() != null) elementIDs.add(relation.getId());
+                    if (relation.getMcmModelId() == null) relation.setMcmModelId(model.getId());
+                    else if (! relation.getMcmModelId().equals(model.getId())) {
+                        throw new ConfigurationValidationException("Relation does not belong to the model it is assigned to.");
+                    }
+                }
             }
+        }
+        checkForDuplicateElementIDs(elementIDs);
+    }
+
+    private void checkForDuplicateElementIDs(List<String> elementIDs) {
+        if (elementIDs.size() != new HashSet<>(elementIDs).size()) {
+            throw new ConfigurationValidationException("Configuration contains duplicate element IDs");
         }
     }
 

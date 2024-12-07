@@ -1,6 +1,7 @@
-package at.ac.tuwien.model.change.management.git.operation;
+package at.ac.tuwien.model.change.management.testutil;
 
 import at.ac.tuwien.model.change.management.core.model.Configuration;
+import at.ac.tuwien.model.change.management.git.operation.ConfigurationIOManager;
 import at.ac.tuwien.model.change.management.git.util.RepositoryContents;
 import at.ac.tuwien.model.change.management.git.util.RepositoryUtils;
 

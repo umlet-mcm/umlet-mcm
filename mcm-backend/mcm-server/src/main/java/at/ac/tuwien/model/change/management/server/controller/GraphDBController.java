@@ -61,6 +61,11 @@ public class GraphDBController {
         return ResponseEntity.ok(nodeDtoMapper.toDto(node));
     }
 
+    /**
+     * Exports the graph database to a CSV file
+     * @param fileName The name of the CSV file
+     * @return The CSV file
+     */
     @GetMapping(path = "/csvExport")
     public ResponseEntity<Resource> exportToCSV(
             @RequestParam String fileName) {

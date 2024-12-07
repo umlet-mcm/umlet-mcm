@@ -49,12 +49,12 @@ public class RawNeo4jService {
     }
 
     /**
-     * Generates a CSV file from the Neo4j database
+     * Generates a CSV file from the Neo4j database and stores it inside the database folder
      * @param fileName The name of the CSV file
      */
     public void generateCSV(String fileName) {
         try (Session session = neo4jDriver.session()) {
-            String query = "CALL apoc.export.csv.all('" + fileName + ".csv', {})";
+            String query = "CALL apoc.export.csv.all('" + properties.getRelativeExportsPath().toString() + "/" + fileName + ".csv', {})";
             session.run(query);
         } catch (ClientException e) {
             throw new InvalidQueryException("Error Exporting to CSV! " + e.getMessage());
@@ -68,7 +68,7 @@ public class RawNeo4jService {
      */
     public ByteArrayResource downloadCSV(String fileName) {
         try {
-            ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(Paths.get(properties.getDatabasePath().toString() + "\\" + fileName + ".csv")));
+            ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(Paths.get(properties.getExportsPath().toString() + "\\" + fileName + ".csv")));
             return resource;
         } catch (IOException e) {
             throw new InvalidQueryException("Error downloading CSV! " + e.getMessage());

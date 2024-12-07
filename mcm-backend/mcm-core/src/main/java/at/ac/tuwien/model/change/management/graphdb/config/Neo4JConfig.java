@@ -17,6 +17,7 @@ import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.time.Duration;
 
 import static org.neo4j.configuration.GraphDatabaseSettings.DEFAULT_DATABASE_NAME;
@@ -69,9 +70,14 @@ public class Neo4JConfig {
         ClassPathResource pluginsResource = new ClassPathResource("graphDB/plugins");
         ClassPathResource configsResource = new ClassPathResource("graphDB/configs");
         try {
+            /* Copy the resources to the graphDB directory */
             FileUtils.copyDirectory(pluginsResource.getFile(), properties.getPluginPath());
             FileUtils.copyDirectory(configsResource.getFile(), properties.getConfigsPath());
             log.info("Copied resources to the graphDB directory");
+
+            /* Create the exports directory */
+            Files.createDirectories(properties.getExportsPath());
+            log.info("Created exports directory");
         } catch (IOException e) {
             log.error("Error copying resources", e);
         }

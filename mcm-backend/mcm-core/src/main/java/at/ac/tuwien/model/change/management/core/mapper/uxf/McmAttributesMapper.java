@@ -63,8 +63,8 @@ public class McmAttributesMapper {
         if (base.getMcmAttributes() == null) {
             return attrs;
         }
-        attrs.put(AttributeKeys.ID, base.getMcmAttributes().get(AttributeKeys.ID));
-        attrs.put(AttributeKeys.TAGS, base.getMcmAttributes().get(AttributeKeys.TAGS));
+        attrs.put(AttributeKeys.ID, base.getId());
+        attrs.put(AttributeKeys.TAGS, base.getTags());
         return attrs;
     }
 
@@ -78,9 +78,9 @@ public class McmAttributesMapper {
         if (element.getMcmAttributes() == null) {
             return attrs;
         }
-        attrs.put(AttributeKeys.MODEL_ID, element.getMcmAttributes().get(AttributeKeys.MODEL_ID));
-        attrs.put(AttributeKeys.MODEL, element.getMcmAttributes().get(AttributeKeys.MODEL));
-        attrs.put(AttributeKeys.PPR_TYPE, element.getMcmAttributes().get(AttributeKeys.PPR_TYPE));
+        attrs.put(AttributeKeys.MODEL_ID, element.getMcmModelId());
+        attrs.put(AttributeKeys.MODEL, element.getMcmModel());
+        attrs.put(AttributeKeys.PPR_TYPE, element.getPprType());
         return attrs;
     }
 }

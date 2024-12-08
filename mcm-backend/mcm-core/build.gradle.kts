@@ -38,9 +38,14 @@ dependencies {
     }
     testFixturesImplementation(libs.jgit)
 
+    // These libraries need to be copied to the graphdb plugins directory
+    runtimeOnly(files("src\\main\\resources\\graphDB\\plugins\\neo4j-graph-data-science-2.12.0.jar"))
+    runtimeOnly(files("src\\main\\resources\\graphDB\\plugins\\apoc-5.25.1-core.jar"))
+
+    // Dependency for copying files
+    implementation("commons-io:commons-io:2.18.0")
 }
 
 tasks.test {
     useJUnitPlatform()
 }
-

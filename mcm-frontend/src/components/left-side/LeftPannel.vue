@@ -7,13 +7,10 @@ import { Configuration } from '@/types/Configuration.ts'
 import ModelList from "@/components/left-side/ModelList.vue"
 import { FileUp, Save, FileOutput, FileStack, Settings } from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
-import DialogMerge from "@/components/left-side/DialogMerge.vue";
-import {ref} from "vue";
-import DialogSettings from "@/components/left-side/DialogSettings.vue";
 
 const version = AppConfig.version
 
-const props = defineProps({
+defineProps({
   selectedModel: {
     type: Object as () => Model,
     required: false
@@ -25,12 +22,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["update:selectedModel"]);
-const isDialogOpen = ref({merge: false, settings: false})
-
-const handleMerge = (mergedModel: Model) => {
-  props.selectedConfiguration.models.push(mergedModel)
-  emit('update:selectedModel', mergedModel)
-}
 
 const placeholder = () => {
   console.log('Placeholder')
@@ -45,7 +36,7 @@ const placeholder = () => {
         <h1 class="text-xl font-bold">{{ selectedConfiguration.name }}</h1>
         <p class="text-sm text-muted-foreground">{{ version }}</p>
       </div>
-      <Button variant="ghost" size="icon" @click="isDialogOpen.settings = true">
+      <Button variant="ghost" size="icon" @click="placeholder">
         <Settings />
       </Button>
     </div>
@@ -79,7 +70,7 @@ const placeholder = () => {
             <FileUp class="mr-2" />
             Add Model in project
           </Button>
-          <Button variant="outline" class="w-full justify-start" @click="isDialogOpen.merge = true">
+          <Button variant="outline" class="w-full justify-start" @click="placeholder">
             <FileStack class="mr-2" />
             Merge Models
           </Button>
@@ -99,15 +90,4 @@ const placeholder = () => {
           @update:selectedModel="emit('update:selectedModel', $event)"/>
     </div>
   </div>
-
-  <!-- dialogs -->
-  <DialogMerge
-      v-model:isOpen="isDialogOpen.merge"
-      :models="selectedConfiguration.models"
-      @merge="handleMerge"
-  />
-  <DialogSettings
-      v-model:isOpen="isDialogOpen.settings"
-      :currentConfiguration="selectedConfiguration"
-  />
 </template>

@@ -25,14 +25,17 @@ public class RelationEntityMapperImpl implements RelationEntityMapper {
         RelationEntity relationEntity = new RelationEntity();
 
         if(relation.getId() != null) {
-            relationEntity.setGraphId( relation.getId() );
+            //relationEntity.setGraphId( relation.getId() );
         }
         relationEntity.setName( relation.getTitle() );
         relationEntity.setDescription( relation.getDescription() );
         relationEntity.setType( relation.getType() );
-        relationEntity.setProperties( relation.getMcmAttributes() );
-        relationEntity.setUmletProperties( relation.getUmletAttributes() );
-        relationEntity.setTags( new HashSet<>(relation.getTags()));
+        if(relation.getMcmAttributes() != null)
+            relationEntity.setProperties( relation.getMcmAttributes() );
+        if(relation.getUmletAttributes() != null)
+            relationEntity.setUmletProperties( relation.getUmletAttributes() );
+        if(relation.getTags() != null)
+            relationEntity.setTags( new HashSet<>(relation.getTags()));
         relationEntity.setTarget( nodeMapper.toEntity( relation.getTarget() ) );
 
         return relationEntity;

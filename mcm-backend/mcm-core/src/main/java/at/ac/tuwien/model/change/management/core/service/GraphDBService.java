@@ -116,7 +116,7 @@ public interface GraphDBService {
     void deleteModel(String id);
 
     /******** GENERIC PART ********/
-    
+
     /**
      * Executes a generic query on the graph database
      * @param query The query to execute

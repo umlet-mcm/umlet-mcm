@@ -95,7 +95,7 @@ public class GraphDBController {
     }
 
     /**
-     * Retrieves the predecessors of a node
+     * Retrieves all the predecessors of a node even in recursive relation
      * @param nodeID the ID of the node
      * @return a list of predecessor nodes
      */

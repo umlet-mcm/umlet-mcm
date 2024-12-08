@@ -11,12 +11,10 @@ import at.ac.tuwien.model.change.management.graphdb.dao.ModelEntityDAO;
 import at.ac.tuwien.model.change.management.graphdb.dao.NodeEntityDAO;
 import at.ac.tuwien.model.change.management.graphdb.dao.RawNeo4jService;
 import at.ac.tuwien.model.change.management.graphdb.entities.NodeEntity;
-import at.ac.tuwien.model.change.management.graphdb.entities.RelationEntity;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -39,28 +37,8 @@ public class GraphDBServiceImpl implements GraphDBService {
 
     @Override
     public Node loadNode(@NonNull Node node) {
-//        var nodeEntity = nodeEntityDAO.save(nodeEntityMapper.toEntity(node));
-//        return nodeEntityMapper.fromEntity(nodeEntity);
-        val nodeEntityA = new NodeEntity();
-        nodeEntityA.setGeneratedID(UUID.randomUUID().toString());
-        nodeEntityA.setName("A");
-        nodeEntityA.setProperties(Map.of("a", 1.0));
-        val nodeEntityB = new NodeEntity();
-        nodeEntityB.setGeneratedID(UUID.randomUUID().toString());
-        nodeEntityB.setName("B");
-        nodeEntityB.setProperties(Map.of("a", 2.0));
-        val nodeEntityC = new NodeEntity();
-        nodeEntityC.setGeneratedID(UUID.randomUUID().toString());
-        nodeEntityC.setName("C");
-        nodeEntityC.setProperties(Map.of("a", -1));
-        val relationAB = new RelationEntity();
-        relationAB.setTarget(nodeEntityB);
-        nodeEntityA.setRelations(Set.of(relationAB));
-        val relationBC = new RelationEntity();
-        relationBC.setTarget(nodeEntityC);
-        nodeEntityB.setRelations(Set.of(relationBC));
-        nodeEntityDAO.saveAll(List.of(nodeEntityA, nodeEntityB, nodeEntityC));
-        return null;
+        var nodeEntity = nodeEntityDAO.save(nodeEntityMapper.toEntity(node));
+        return nodeEntityMapper.fromEntity(nodeEntity);
     }
 
     @Override

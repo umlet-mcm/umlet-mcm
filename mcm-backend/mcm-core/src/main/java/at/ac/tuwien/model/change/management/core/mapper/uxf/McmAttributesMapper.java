@@ -43,6 +43,8 @@ public class McmAttributesMapper {
         // use the other method to populate the common fields
         ElementAttributes populatedBase = (ElementAttributes) McmAttributesMapper.<BaseAttributes>populateFields(mcmAttributes, target);
 
+        populatedBase.setMcmModelId((String) populatedBase.getMcmAttributes().get(AttributeKeys.MODEL_ID));
+        populatedBase.getMcmAttributes().remove(AttributeKeys.MODEL_ID);
         populatedBase.setMcmModel((String) populatedBase.getMcmAttributes().get(AttributeKeys.MODEL));
         populatedBase.getMcmAttributes().remove(AttributeKeys.MODEL);
         populatedBase.setPprType((String) populatedBase.getMcmAttributes().get(AttributeKeys.PPR_TYPE));
@@ -76,6 +78,7 @@ public class McmAttributesMapper {
         if (element.getMcmAttributes() == null) {
             return attrs;
         }
+        attrs.put(AttributeKeys.MODEL_ID, element.getMcmAttributes().get(AttributeKeys.MODEL_ID));
         attrs.put(AttributeKeys.MODEL, element.getMcmAttributes().get(AttributeKeys.MODEL));
         attrs.put(AttributeKeys.PPR_TYPE, element.getMcmAttributes().get(AttributeKeys.PPR_TYPE));
         return attrs;

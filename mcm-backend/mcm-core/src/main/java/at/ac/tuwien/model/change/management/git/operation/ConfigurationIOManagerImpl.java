@@ -5,6 +5,7 @@ import at.ac.tuwien.model.change.management.core.model.Model;
 import at.ac.tuwien.model.change.management.core.model.Node;
 import at.ac.tuwien.model.change.management.core.model.Relation;
 import at.ac.tuwien.model.change.management.core.transformer.DSLTransformer;
+import at.ac.tuwien.model.change.management.git.util.PathUtils;
 import at.ac.tuwien.model.change.management.git.annotation.GitComponent;
 import at.ac.tuwien.model.change.management.git.exception.RepositoryReadException;
 import at.ac.tuwien.model.change.management.git.exception.RepositoryWriteException;
@@ -16,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.treewalk.TreeWalk;
-import org.springframework.util.FileSystemUtils;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -45,9 +45,9 @@ public class ConfigurationIOManagerImpl implements ConfigurationIOManager {
         try {
             log.debug("Clearing repository '{}'.", RepositoryUtils.getRepositoryName(repository));
             var repositoryPath = repository.getWorkTree().toPath();
-            FileSystemUtils.deleteRecursively(repositoryPath.resolve(NODES_DIRECTORY));
-            FileSystemUtils.deleteRecursively(repositoryPath.resolve(RELATIONS_DIRECTORY));
-            FileSystemUtils.deleteRecursively(repositoryPath.resolve(MODELS_DIRECTORY));
+            PathUtils.deleteFilesRecursively(repositoryPath.resolve(NODES_DIRECTORY));
+            PathUtils.deleteFilesRecursively(repositoryPath.resolve(RELATIONS_DIRECTORY));
+            PathUtils.deleteFilesRecursively(repositoryPath.resolve(MODELS_DIRECTORY));
         } catch (IOException e) {
             throw new RepositoryWriteException("Could not clear repository '" + RepositoryUtils.getRepositoryName(repository) + "'.", e);
         }
@@ -94,10 +94,10 @@ public class ConfigurationIOManagerImpl implements ConfigurationIOManager {
 
             for (var node : nodes) {
                 var refModel = models.stream()
-                        .filter(model -> Objects.equals(model.getId(), node.getMcmModel()))
+                        .filter(model -> Objects.equals(model.getId(), node.getMcmModelId()))
                         .findFirst()
                         .orElseThrow(() -> new RepositoryReadException(
-                                "Could not find a model with ID: '" + node.getMcmModel() + "' referenced by node '" + node.getId() + "'"
+                                "Could not find a model with ID: '" + node.getMcmModelId() + "' referenced by node '" + node.getId() + "'"
                         ));
                 refModel.setNodes(Optional.ofNullable(refModel.getNodes()).orElse(new HashSet<>()));
                 refModel.getNodes().add(node);
@@ -122,9 +122,10 @@ public class ConfigurationIOManagerImpl implements ConfigurationIOManager {
             if (model.getId() == null) model.setId(generateIdUniqueToRepository(repository));
             for (var node : tryAccessCollection(model.getNodes())) {
                 if (node.getId() == null) node.setId(generateIdUniqueToRepository(repository));
-                if (node.getMcmModel() == null) node.setMcmModel(model.getId());
+                if (node.getMcmModelId() == null) node.setMcmModelId(model.getId());
                 for (var relation : tryAccessCollection(node.getRelations())) {
                     if (relation.getId() == null) relation.setId(generateIdUniqueToRepository(repository));
+                    if (relation.getMcmModelId() == null) relation.setMcmModelId(model.getId());
                 }
             }
         }

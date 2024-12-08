@@ -4,7 +4,7 @@ import at.ac.tuwien.model.change.management.core.model.Configuration;
 import at.ac.tuwien.model.change.management.git.util.RepositoryUtils;
 import at.ac.tuwien.model.change.management.git.util.VersionControlUtils;
 import at.ac.tuwien.model.change.management.testutil.DomainModelGen;
-import at.ac.tuwien.model.change.management.core.transformer.MockDSLTransformer;
+import at.ac.tuwien.model.change.management.testutil.MockDSLTransformer;
 import at.ac.tuwien.model.change.management.testutil.TestUtils;
 import org.assertj.core.api.Assertions;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -180,12 +180,12 @@ public class ConfigurationIOManagerTest {
     }
 
     private void saveConfigurationToRepository(Repository repository, Configuration configuration) throws GitAPIException {
-        var contents = configurationIOManager.writeConfigurationToRepository(repository, configuration);
-        VersionControlUtils.stageRepositoryContents(repository, contents);
-        VersionControlUtils.commitRepository(repository, "Initial commit");
+        configurationIOManager.writeConfigurationToRepository(repository, configuration);
+        VersionControlUtils.stageAllChanges(repository);
+        VersionControlUtils.commitRepository(repository, "Initial commit", true);
     }
 
     public void commitRepository(Repository repository) throws GitAPIException {
-        VersionControlUtils.commitRepository(repository, "Initial commit");
+        VersionControlUtils.commitRepository(repository, "Initial commit", true);
     }
 }

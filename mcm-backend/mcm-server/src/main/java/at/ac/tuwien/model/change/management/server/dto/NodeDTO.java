@@ -1,18 +1,23 @@
 package at.ac.tuwien.model.change.management.server.dto;
 
-import at.ac.tuwien.model.change.management.core.model.UMLetPosition;
-import jakarta.validation.constraints.NotBlank;
-
-import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Set;
 
 public record NodeDTO(
-        String id,
-        @NotBlank String text,
+        String elementType,
+        List<Integer> generatedAttributes,
+        UMLetPositionDTO umletPosition,
         Set<RelationDTO> relations,
-        String type,
-        Map<String, Object> properties,
-        Set<String> labels,
-        UMLetPosition umletPosition
+        String id,
+        List<String> tags,
+        String originalText,
+        String title,
+        String description,
+        LinkedHashMap<String, Object> mcmAttributes,
+        String mcmModel,
+        String mcmModelId,
+        LinkedHashMap<String, String> umletAttributes,
+        String pprType
 ) {
 }

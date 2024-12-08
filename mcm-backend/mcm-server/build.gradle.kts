@@ -14,6 +14,7 @@ dependencies {
     testImplementation(libs.spring.boot.starter.test)
     testImplementation(testFixtures(project(":mcm-core")))
     implementation("com.google.code.gson:gson:2.11.0")
+    testImplementation(libs.apache.commons.lang3)
 }
 
 tasks.test {

@@ -3,12 +3,13 @@ package at.ac.tuwien.model.change.management.core.service;
 import at.ac.tuwien.model.change.management.core.exception.ConfigurationAlreadyExistsException;
 import at.ac.tuwien.model.change.management.core.exception.ConfigurationDoesNotExistException;
 import at.ac.tuwien.model.change.management.core.exception.ConfigurationUpdateException;
+import at.ac.tuwien.model.change.management.core.exception.ConfigurationValidationException;
 import at.ac.tuwien.model.change.management.core.model.Configuration;
 import at.ac.tuwien.model.change.management.git.exception.RepositoryDoesNotExistException;
 import at.ac.tuwien.model.change.management.git.repository.ConfigurationRepository;
 import at.ac.tuwien.model.change.management.git.repository.VersionControlRepository;
-import at.ac.tuwien.model.change.management.git.repository.MockConfigurationRepository;
 import at.ac.tuwien.model.change.management.testutil.DomainModelGen;
+import at.ac.tuwien.model.change.management.testutil.MockConfigurationRepository;
 import at.ac.tuwien.model.change.management.testutil.TestUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.assertj.core.api.Assertions;
@@ -55,11 +56,50 @@ public class ConfigurationServiceTest {
 
     @Test
     public void testCreateConfiguration_existingConfiguration_shouldThrowConfigurationAlreadyExistsException() {
+        var configurationName = "test";
+        var configuration = new Configuration();
+        configuration.setName(configurationName);
+        configurationService.createConfiguration(configuration);
+
+        var configurationWithExistingName = new Configuration();
+        configurationWithExistingName.setName(configurationName);
+        Assertions.assertThatThrownBy(() -> configurationService.createConfiguration(configurationWithExistingName))
+                .isInstanceOf(ConfigurationAlreadyExistsException.class);
+    }
+
+    @Test
+    public void testCreate_versionSet_shouldThrowConfigurationValidationException() {
         var configuration = new Configuration();
         configuration.setName("test");
-        configurationService.createConfiguration(configuration);
+        configuration.setVersion(RandomStringUtils.randomAlphanumeric(40).toLowerCase());
         Assertions.assertThatThrownBy(() -> configurationService.createConfiguration(configuration))
-                .isInstanceOf(ConfigurationAlreadyExistsException.class);
+                .isInstanceOf(ConfigurationValidationException.class);
+    }
+
+    @Test
+    public void testCreate_duplicateID_shouldThrowConfigurationValidationException() {
+        var configuration = DomainModelGen.generateRandomizedConfiguration("test", 1, 2, 0);
+        var id = RandomStringUtils.randomAlphanumeric(40).toLowerCase();
+        for (var model : configuration.getModels()) {
+            for (var node : model.getNodes()) {
+                node.setId(id);
+            }
+        }
+        Assertions.assertThatThrownBy(() -> configurationService.createConfiguration(configuration))
+                .isInstanceOf(ConfigurationValidationException.class);
+    }
+
+    @Test
+    public void testCreate_incorrectModelIdReferenceSet_shouldThrowConfigurationValidationException() {
+        var configuration = DomainModelGen.generateRandomizedConfiguration("test", 1, 1, 0);
+        configuration.getModels().stream().findFirst()
+                .orElseThrow()
+                .getNodes().stream().findFirst()
+                .orElseThrow()
+                .setMcmModelId(RandomStringUtils.randomAlphanumeric(40).toLowerCase());
+
+        Assertions.assertThatThrownBy(() -> configurationService.createConfiguration(configuration))
+                .isInstanceOf(ConfigurationValidationException.class);
     }
 
     @Test
@@ -103,6 +143,42 @@ public class ConfigurationServiceTest {
     }
 
     @Test
+    public void testUpdateConfiguration_noVersionSet_shouldThrowConfigurationValidationException() {
+        var configuration = new Configuration();
+        configuration.setName("test");
+        configurationService.createConfiguration(configuration);
+        configuration.setVersion(null);
+
+        Assertions.assertThatThrownBy(() -> configurationService.updateConfiguration(configuration))
+                .isInstanceOf(ConfigurationValidationException.class);
+    }
+
+    @Test
+    public void testUpdateConfiguration_wrongVersionSet_shouldThrowConfigurationUpdateException() {
+        var configuration = new Configuration();
+        configuration.setName("test");
+        configurationService.createConfiguration(configuration);
+        configuration.setVersion(RandomStringUtils.randomAlphanumeric(40).toLowerCase());
+
+        Assertions.assertThatThrownBy(() -> configurationService.updateConfiguration(configuration))
+                .isInstanceOf(ConfigurationUpdateException.class);
+    }
+
+    @Test
+    public void testUpdateConfiguration_incorrectModelReferenceInNode_shouldThrowConfigurationValidationException() {
+        var configuration = DomainModelGen.generateRandomizedConfiguration("test", 1, 1, 0);
+        configurationService.createConfiguration(configuration);
+        configuration.getModels().stream().findFirst()
+                .orElseThrow()
+                .getNodes().stream().findFirst()
+                .orElseThrow()
+                .setMcmModelId(RandomStringUtils.randomAlphanumeric(40).toLowerCase());
+
+        Assertions.assertThatThrownBy(() -> configurationService.updateConfiguration(configuration))
+                .isInstanceOf(ConfigurationValidationException.class);
+    }
+
+    @Test
     public void testDeleteConfiguration_existingConfiguration_shouldSucceed() {
         var configuration = new Configuration();
         configuration.setName("test");
@@ -121,6 +197,16 @@ public class ConfigurationServiceTest {
     public void testGetConfigurationByName_existingConfiguration_shouldSucceed() {
         var configuration = new Configuration();
         configuration.setName("test");
+        configurationService.createConfiguration(configuration);
+        var result = configurationService.getConfigurationByName(configuration.getName());
+        Assertions.assertThat(result)
+                .usingRecursiveComparison(TestUtils.recursiveConfigurationComparison())
+                .isEqualTo(configuration);
+    }
+
+    @Test
+    public void testGetConfigurationByName_existingLargeConfiguration_shouldSucceed() {
+        var configuration = DomainModelGen.generateRandomizedConfiguration("test", 5, 100, 20);
         configurationService.createConfiguration(configuration);
         var result = configurationService.getConfigurationByName(configuration.getName());
         Assertions.assertThat(result)

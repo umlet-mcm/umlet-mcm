@@ -5,6 +5,7 @@ import at.ac.tuwien.model.change.management.server.dto.ConfigurationDTO;
 import at.ac.tuwien.model.change.management.server.dto.NodeDTO;
 import at.ac.tuwien.model.change.management.server.dto.QueryDTO;
 import at.ac.tuwien.model.change.management.server.mapper.ConfigurationDtoMapper;
+import at.ac.tuwien.model.change.management.server.mapper.CycleAvoidingMappingContext;
 import at.ac.tuwien.model.change.management.server.mapper.NodeDtoMapper;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
@@ -36,8 +37,9 @@ public class GraphDBController {
      */
     @PostMapping(path = "/nodes/load")
     public ResponseEntity<NodeDTO> loadNode(@RequestBody NodeDTO nodeDTO) {
-        var node = graphDBService.loadNode(nodeDtoMapper.fromDto(nodeDTO));
-        return ResponseEntity.ok(nodeDtoMapper.toDto(node));
+        CycleAvoidingMappingContext context = new CycleAvoidingMappingContext();
+        var node = graphDBService.loadNode(nodeDtoMapper.fromDto(nodeDTO, context));
+        return ResponseEntity.ok(nodeDtoMapper.toDto(node, context));
     }
 
     /**
@@ -102,8 +104,9 @@ public class GraphDBController {
     @GetMapping(path = "/nodes/predecessors")
     public ResponseEntity<List<NodeDTO>> getPredecessors(
             @RequestParam String nodeID) {
+        CycleAvoidingMappingContext context = new CycleAvoidingMappingContext();
         val nodes = graphDBService.getPredecessors(nodeID);
-        return ResponseEntity.ok(nodes.stream().map(nodeDtoMapper::toDto).toList());
+        return ResponseEntity.ok(nodes.stream().map(node -> nodeDtoMapper.toDto(node,context)).toList());
     }
 
     /**
@@ -116,8 +119,9 @@ public class GraphDBController {
     public ResponseEntity<NodeDTO> sumUpAttribute(
             @RequestParam String nodeID,
             @RequestParam String attributeName) {
+        CycleAvoidingMappingContext context = new CycleAvoidingMappingContext();
         val node = graphDBService.sumUpAttribute(nodeID, attributeName);
-        return ResponseEntity.ok(nodeDtoMapper.toDto(node));
+        return ResponseEntity.ok(nodeDtoMapper.toDto(node,context));
     }
 
     /**

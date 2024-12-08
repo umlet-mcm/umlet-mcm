@@ -27,7 +27,7 @@ public class Relation extends ElementAttributes {
     // this is usually (10, 10) which is the default size of handle circles at the ends of the relation
     private RelativePosition relativeStartPoint;
     private List<RelativePosition> relativeMidPoints; // midpoints relative to umletPosition
-    private RelativePosition relativeEndpoint; // position of the end of the line relative to the umletPosition
+    private RelativePosition relativeEndPoint; // position of the end of the line relative to the umletPosition
 
     private Point startPoint;
     private Point endPoint;
@@ -43,7 +43,7 @@ public class Relation extends ElementAttributes {
 
     // also updates the endPoint
     public void setRelativeEndPoint(RelativePosition point) {
-        this.relativeEndpoint = point;
+        this.relativeEndPoint = point;
         this.endPoint = new Point(
                 point.getAbsX(),
                 point.getAbsY()
@@ -129,8 +129,8 @@ public class Relation extends ElementAttributes {
                 genAttrs.add(rp.getOffsetY());
             }
         }
-        genAttrs.add(relativeEndpoint.getOffsetX());
-        genAttrs.add(relativeEndpoint.getOffsetY());
+        genAttrs.add(relativeEndPoint.getOffsetX());
+        genAttrs.add(relativeEndPoint.getOffsetY());
 
         return genAttrs;
     }

@@ -2,7 +2,9 @@ package at.ac.tuwien.model.change.management.core.model.utils;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Slf4j
 public class ParserUtils {
@@ -126,7 +128,7 @@ public class ParserUtils {
     /**
      * Try to parse the input into an int, float or string.
      *
-     * @param in         The string to be parsed.
+     * @param in The string to be parsed.
      * @return The result as int or float for if the value of the input was numerical. If the input was a simple
      * string it will be returned with the quotes removed. Inputs not belonging to any category are kept as strings
      * and not modified.

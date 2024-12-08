@@ -1,8 +1,9 @@
-package at.ac.tuwien.model.change.management.git.repository;
+package at.ac.tuwien.model.change.management.testutil;
 
 import at.ac.tuwien.model.change.management.core.model.Configuration;
 import at.ac.tuwien.model.change.management.git.exception.RepositoryAlreadyExistsException;
 import at.ac.tuwien.model.change.management.git.exception.RepositoryDoesNotExistException;
+import at.ac.tuwien.model.change.management.git.repository.ConfigurationRepository;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import java.util.HashMap;

@@ -9,6 +9,8 @@ import org.eclipse.jgit.lib.Repository;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 public final class VersionControlUtils {
 
@@ -32,26 +34,41 @@ public final class VersionControlUtils {
     public static void stageRepositoryContents(
             @NonNull Repository repository,
             @NonNull RepositoryContents<Path> contents) throws GitAPIException {
-        stagePaths(repository, contents.models());
-        stagePaths(repository, contents.nodes());
-        stagePaths(repository, contents.relations());
+        stagePaths(
+                repository,
+                Stream.of(contents.models(), contents.nodes(), contents.relations()).flatMap(Collection::stream).toList()
+        );
     }
 
     public static void stagePaths(
             @NonNull Repository repository,
             @NonNull Collection<Path> paths) throws GitAPIException {
         if (paths.isEmpty()) return;
-        var addCommand = new AddCommand(repository);
-        var workDir = repository.getWorkTree().toPath();
-        paths.forEach(path -> addCommand.addFilepattern(workDir.relativize(path).toString()));
-        addCommand.call();
+        stage(repository, addCommand -> {
+            var workDir = repository.getWorkTree().toPath();
+            paths.forEach(path -> addCommand.addFilepattern(
+                    PathUtils.normalizePath(workDir.relativize(path).toString())
+            ));
+        });
     }
 
-    public static void commitRepository(@NonNull Repository repository, @NonNull String message) throws GitAPIException {
-        var commitCommand = Git.wrap(repository).commit().setAll(true);
+    // also stages untracked files
+    public static void stageAllChanges(@NonNull Repository repository) throws GitAPIException {
+        stage(repository, addCommand -> addCommand.addFilepattern("."));
+    }
+
+    public static void commitRepository(@NonNull Repository repository,
+                                        @NonNull String message,
+                                        boolean autoStageModifiedFiles) throws GitAPIException {
+        var commitCommand = Git.wrap(repository).commit().setAll(autoStageModifiedFiles);
         commitCommand.setMessage(message);
         commitCommand.call();
     }
 
-
+    private static void stage(@NonNull Repository repository, @NonNull Consumer<AddCommand> addAction)
+            throws GitAPIException {
+        var addCommand = new AddCommand(repository);
+        addAction.accept(addCommand);
+        addCommand.call();
+    }
 }

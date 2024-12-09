@@ -14,6 +14,9 @@ import at.ac.tuwien.model.change.management.graphdb.entities.NodeEntity;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.neo4j.driver.internal.value.IntegerValue;
+import org.neo4j.driver.internal.value.StringValue;
+import org.neo4j.values.storable.NumberValue;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 
@@ -80,7 +83,11 @@ public class GraphDBServiceImpl implements GraphDBService {
         for(NodeEntity predecessor : predecessors) {
             if(predecessor.getProperties().containsKey(attributeName)) {
                 val property = predecessor.getProperties().get(attributeName);
-                sumUp += Double.parseDouble(property.toString());
+                if (property instanceof StringValue) {
+                    sumUp += Double.parseDouble(((StringValue) property).asString());
+                } else if (property instanceof IntegerValue) {
+                    sumUp += ((IntegerValue) property).asDouble();
+                }
             }
         }
 

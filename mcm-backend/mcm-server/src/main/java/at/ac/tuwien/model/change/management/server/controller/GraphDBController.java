@@ -88,7 +88,7 @@ public class GraphDBController {
      * @param query the cypher query for database
      * @return the query result as a JSON string
      */
-    @GetMapping(path = "/query")
+    @PostMapping(path = "/query")
     public ResponseEntity<String> executeQuery(@RequestBody QueryDTO query) {
         val result = graphDBService.executeQuery(query.query());
         Gson gson = new Gson();

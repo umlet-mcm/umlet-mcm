@@ -1,8 +1,10 @@
 package at.ac.tuwien.model.change.management.core.model.dsl;
 
-import at.ac.tuwien.model.change.management.core.utils.ParsingUtils;
+import at.ac.tuwien.model.change.management.core.configuration.JaxbConfig;
+import at.ac.tuwien.model.change.management.core.transformer.XMLTransformerImpl;
 import jakarta.xml.bind.JAXBException;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.Resource;
@@ -13,18 +15,21 @@ import java.nio.file.Files;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = NodeDSL.class)
+@SpringBootTest(classes = {NodeDSL.class, XMLTransformerImpl.class, JaxbConfig.class})
 public class NodeDSLTest {
 
     @Value("classpath:/dsl/node_dsl_representation.xml")
     private Resource nodeResource;
+
+    @Autowired
+    private XMLTransformerImpl xmlTransformerImpl;
 
     @Test
     public void testNodeDSL() throws JAXBException, IOException {
         File xmlFile = nodeResource.getFile();
         assertTrue(xmlFile.exists());
 
-        NodeDSL node = (NodeDSL) ParsingUtils.unmarshalDSL(Files.readString(xmlFile.toPath()));
+        NodeDSL node = (NodeDSL) xmlTransformerImpl.unmarshal(Files.readString(xmlFile.toPath()));
 
         assertNotNull(node.getMetadata());
         assertNotNull(node.getMetadata().getCoordinates());

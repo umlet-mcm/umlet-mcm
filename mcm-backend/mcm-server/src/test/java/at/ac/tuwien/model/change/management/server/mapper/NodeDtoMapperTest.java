@@ -4,6 +4,7 @@ import at.ac.tuwien.model.change.management.core.model.Node;
 import at.ac.tuwien.model.change.management.core.model.Relation;
 import at.ac.tuwien.model.change.management.server.dto.NodeDTO;
 import at.ac.tuwien.model.change.management.server.dto.RelationDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,10 +23,14 @@ public class NodeDtoMapperTest extends MapperTest {
 
     @Test
     void testToDto() {
-        Node node = getNode(Set.of(new Relation()), "node-123", "c4144490-b60b-4283-b8a1-51cc631c3874");
+        Relation relation = getRelation(getNode(null, "tgt-123", "c4144490-b60b-4283-b8a1-51cc631c3874"), "relID", "relModID");
+        Node node = getNode(Set.of(relation), "node-123", "c4144490-b60b-4283-b8a1-51cc631c3874");
 
         CycleAvoidingMappingContext context = new CycleAvoidingMappingContext();
         NodeDTO dto = mapper.toDto(node, context);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
 
         assertNotNull(dto);
         assertEquals(node.getId(), dto.id());

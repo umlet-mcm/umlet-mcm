@@ -4,7 +4,9 @@ import at.ac.tuwien.model.change.management.core.model.Configuration;
 import at.ac.tuwien.model.change.management.core.model.Model;
 import at.ac.tuwien.model.change.management.core.model.Relation;
 import at.ac.tuwien.model.change.management.core.model.attributes.BaseAttributes;
-import at.ac.tuwien.model.change.management.server.dto.*;
+import at.ac.tuwien.model.change.management.server.dto.ConfigurationDTO;
+import at.ac.tuwien.model.change.management.server.dto.ModelDTO;
+import at.ac.tuwien.model.change.management.server.dto.RelationDTO;
 import at.ac.tuwien.model.change.management.server.testutil.DtoGen;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -59,7 +61,6 @@ class ConfigurationDtoMapperTest extends MapperTest {
         assertNotNull(configuration.getModels());
         assertFalse(configuration.getModels().isEmpty());
     }
-
 
     @Test
     void testFromLargeDto() {

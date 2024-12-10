@@ -5,11 +5,12 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Configuration } from '@/types/Configuration.ts'
 import ModelList from "@/components/left-side/ModelList.vue"
-import { FileUp, Save, FileOutput, FileStack, Settings } from 'lucide-vue-next'
+import { FileUp, Save, FileOutput, FileInput, FileStack, Settings } from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
 import DialogMerge from "@/components/left-side/DialogMerge.vue";
 import {ref} from "vue";
 import DialogSettings from "@/components/left-side/DialogSettings.vue";
+import {uploadUxf} from "@/api/files.ts";
 
 const version = AppConfig.version
 

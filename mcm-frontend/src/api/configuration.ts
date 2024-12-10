@@ -55,7 +55,7 @@ export const updateConfiguration = async (data: { name: string, models: Model[] 
 
 export const deleteConfiguration = async (data: { name: string }): Promise<void> => {
     try {
-        await apiClient.delete(`/configurations/${data.name}`);
+        await apiClient.delete(`/${data.name}`);
     } catch (error) {
         throw error;
     }

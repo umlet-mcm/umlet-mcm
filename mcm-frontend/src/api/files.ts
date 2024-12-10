@@ -37,3 +37,31 @@ export const uploadUxfToModel = async (change: any, configName: string) : Promis
         throw error;
     }
 };
+
+export const exportConfigurationToUxf = async (id: string, name: string) => {
+    try {
+        const response = await apiClient.get(`/files/uxf/export/configuration/${id}`, { responseType: 'blob' });
+
+        const blob = new Blob([response.data], { type: 'application/octet-stream' });
+        const url = window.URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${name}.uxf`;
+        document.body.appendChild(link);
+        link.click();
+
+        document.body.removeChild(link);
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const exportModelToUxf = async (id: string) => {
+    try {
+        const response = await apiClient.get('/export/model/' + id);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}

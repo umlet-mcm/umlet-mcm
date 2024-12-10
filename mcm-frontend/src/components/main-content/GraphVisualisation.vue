@@ -87,6 +87,15 @@ const initializeGraph = () => {
       barnesHut: {
         avoidOverlap: 1,
       },
+    },
+    layout: {
+      hierarchical: {
+        direction: 'UD',
+        sortMethod: 'hubsize',
+        parentCentralization: true,
+        edgeMinimization: true,
+        blockShifting: true,
+      }
     }
   };
   if (network) {

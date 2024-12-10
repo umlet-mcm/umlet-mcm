@@ -12,6 +12,7 @@ import DialogSettings from "@/components/left-side/DialogSettings.vue";
 import {exportToUxf, uploadUxfToConfiguration, uploadUxfToModel} from "@/api/files.ts";
 import {useRouter} from "vue-router";
 import DialogExport from "@/components/left-side/DialogExport.vue";
+import { Input } from '@/components/ui/input'
 
 // props related
 const props = defineProps({

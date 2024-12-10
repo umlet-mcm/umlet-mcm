@@ -3,11 +3,12 @@ import { cn } from '@/lib/utils'
 import { Model } from '@/types/Model.ts'
 import {Button} from "@/components/ui/button";
 import {Trash} from "lucide-vue-next";
+import {onMounted} from "vue";
 
-defineProps({
+const props = defineProps({
   items: {
     type: Array as () => Model[],
-    required: true
+    required: true,
   },
   selectedModel: {
     type: Object as () => Model,
@@ -24,6 +25,14 @@ const placeholder = () => {
   console.log('Placeholder')
 }
 
+onMounted(() => {
+  if(props.items.length === 0) return
+  if(props.items[0].id === "Full Graph") return
+  props.items.unshift({
+    id: "Full Graph",
+    nodes: props.items.flatMap((model) => model.nodes),
+  })
+})
 </script>
 
 <template>
@@ -43,7 +52,7 @@ const placeholder = () => {
                 </div>
               </div>
               <div :class="cn('ml-auto', selectedModel?.id === item.id ? 'visible' : 'invisible')">
-                <Button class="rounded-full" variant="destructive" size="icon" @click="placeholder">
+                <Button v-if="item.id !== 'Full Graph'" class="rounded-full" variant="destructive" size="icon" @click="placeholder">
                   <Trash />
                 </Button>
               </div>

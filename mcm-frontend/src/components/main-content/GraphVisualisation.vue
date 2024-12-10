@@ -1,37 +1,44 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { Network, Edge } from 'vis-network'
-import {Node} from "@/types/Node.ts";
 import {Model} from "@/types/Model.ts";
+import {Tabs, TabsList, TabsTrigger} from "@/components/ui/tabs";
 
+// variables
 const container = ref<HTMLElement | null>(null)
+const active = ref('full')
+let network: Network | null = null;
 
+// props related
+const emit = defineEmits(["update:selectedNode"]);
 const props = defineProps({
-  selectedNode: {
-    type: Object as () => Node,
-    required: false
-  },
   selectedModel: {
     type: Object as () => Model,
-    required: false
+    required: true
   }
 })
 
-const emit = defineEmits(["update:selectedNode"]);
+// functions
+const generatePaleColorFromText = (text: string) => {
+  const hash = [...text].reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const red = (hash * 137) % 128 + 127;
+  const green = (hash * 233) % 128 + 127;
+  const blue = (hash * 97) % 128 + 127;
+  return `rgb(${red}, ${green}, ${blue})`;
+}
 
 const selectNode = (nodeId: string) => {
-  const node = props.selectedModel?.nodes.find((node) => node.id === nodeId);
+  const node = props.selectedModel.nodes.find((node) => node.id === nodeId);
   emit("update:selectedNode", node);
 };
 
-let network: Network | null = null;
-
 const initializeGraph = () => {
-  if (!container.value || !props.selectedModel) return;
+  if (!container.value) return;
 
   const nodes = props.selectedModel.nodes.map((node) => ({
     id: node.id,
-    label: node.id,
+    label: node.text,
+    color: generatePaleColorFromText(node.type),
   }));
 
   const edges: Edge[] = []
@@ -49,12 +56,7 @@ const initializeGraph = () => {
   const options = {
     nodes: {
       shape: 'box',
-      color: {
-        background: '#eaf3ff',
-        border: '#007bff',
-      },
       font: {
-        color: '#000',
         size: 16,
         align: 'center'
       }
@@ -67,31 +69,22 @@ const initializeGraph = () => {
       },
       font: {
         size: 12,
-        align: 'top',
+        align: 'middle',
       }
     },
     physics: {
-      enabled: false,
+      enabled: true,
       solver: 'barnesHut',
       barnesHut: {
         avoidOverlap: 1,
-        damping: 0.09,
-        springConstant: 0.04,
-        springLength: 100,
       },
-
-    },
-    layout: {
-      improvedLayout: true
-    },
+    }
   };
-
   if (network) {
     network.destroy();
   }
 
   network = new Network(container.value, { nodes, edges }, options);
-
   network.on('click', (params) => {
     if (params.nodes.length > 0) {
       const nodeId = params.nodes[0];
@@ -100,8 +93,17 @@ const initializeGraph = () => {
   });
 };
 
+// graph initialization
 watch(() => props.selectedModel, (newValue, oldValue) => {
   if (newValue !== oldValue) {
+    initializeGraph();
+  }
+});
+
+watch(active, (newValue) => {
+  if (newValue === 'full') {
+    initializeGraph();
+  } else {
     initializeGraph();
   }
 });
@@ -112,5 +114,11 @@ onMounted(() => {
 </script>
 
 <template>
-  <div ref="container" class="h-[500px] border border-border rounded-md bg-background"></div>
+  <Tabs default-value="full" v-model:model-value="active">
+    <TabsList class="h-[5%]">
+      <TabsTrigger value="full">Full Model</TabsTrigger>
+      <TabsTrigger value="request">Request Model</TabsTrigger>
+    </TabsList>
+    <div ref="container" class="h-[95%] border border-border rounded-md bg-background"/>
+  </Tabs>
 </template>

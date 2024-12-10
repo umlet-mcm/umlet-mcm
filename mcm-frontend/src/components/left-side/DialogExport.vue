@@ -14,6 +14,7 @@ import {Button} from "@/components/ui/button";
 import {exportToUxf} from "@/api/files.ts";
 import {RadioGroup, RadioGroupItem} from "@/components/ui/radio-group";
 import {exportToCsv} from "@/api/graphDB.ts";
+import {Label} from "@/components/ui/label";
 
 // props related
 const props = defineProps({

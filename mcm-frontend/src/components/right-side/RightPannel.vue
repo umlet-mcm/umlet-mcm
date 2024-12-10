@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Separator } from '@/components/ui/separator'
 import {Model} from "@/types/Model.ts";
-import {Node} from "@/types/Node.ts";
+import {Node, Relation} from "@/types/Node.ts";
 import QueryResult from "@/components/right-side/QueryResult.vue";
-import NodeViewer from "@/components/right-side/NodeViewer.vue";
+import PropViewer from "@/components/right-side/PropViewer.vue";
 import {PropType} from "vue";
 
 defineProps({
@@ -11,8 +11,8 @@ defineProps({
     type: Object as () => Model,
     required: false
   },
-  selectedNode: {
-    type: Object as () => Node,
+  selectedEntity: {
+    type: Object as () => Node | Relation,
     required: false
   },
   queryResponse: {
@@ -30,7 +30,7 @@ defineProps({
     </div>
     <Separator />
     <div class="flex-1 overflow-auto">
-      <NodeViewer :selectedNode="selectedNode" />
+      <PropViewer :selectedEntity="selectedEntity" />
     </div>
   </div>
 </template>

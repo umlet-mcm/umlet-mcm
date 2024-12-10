@@ -3,6 +3,7 @@ import { ref, onMounted, watch } from 'vue'
 import { Network, Edge } from 'vis-network'
 import {Model} from "@/types/Model.ts";
 import {Tabs, TabsList, TabsTrigger} from "@/components/ui/tabs";
+import {Relation, Node} from "@/types/Node.ts";
 
 // variables
 const container = ref<HTMLElement | null>(null)
@@ -10,7 +11,7 @@ const active = ref('full')
 let network: Network | null = null;
 
 // props related
-const emit = defineEmits(["update:selectedNode"]);
+const emit = defineEmits(["update:selectedEntity"]);
 const props = defineProps({
   selectedModel: {
     type: Object as () => Model,
@@ -27,9 +28,16 @@ const generatePaleColorFromText = (text: string) => {
   return `rgb(${red}, ${green}, ${blue})`;
 }
 
-const selectNode = (nodeId: string) => {
-  const node = props.selectedModel.nodes.find((node) => node.id === nodeId);
-  emit("update:selectedNode", node);
+const selectedEntity = (id: string, type: string) => {
+  let entity;
+  if (type === 'relation') {
+    entity = props.selectedModel.nodes.flatMap(node => node.relations).find(relation => relation.id === id) as Relation;
+    console.log(props.selectedModel.nodes.flatMap(node => node.relations))
+    console.log(id)
+  } else {
+    entity = props.selectedModel.nodes.find(node => node.id === id) as Node;
+  }
+  if(entity) emit("update:selectedEntity", entity);
 };
 
 const initializeGraph = () => {
@@ -37,17 +45,18 @@ const initializeGraph = () => {
 
   const nodes = props.selectedModel.nodes.map((node) => ({
     id: node.id,
-    label: node.text,
-    color: generatePaleColorFromText(node.type),
+    label: node.title.replace("\n"," ").trim(),
+    color: generatePaleColorFromText(node.elementType),
   }));
 
   const edges: Edge[] = []
   props.selectedModel.nodes.forEach((node) => {
     node.relations.forEach((relation) => {
       edges.push({
-        from: relation.source,
+        id: relation.id,
+        from: node.id,
         to: relation.target,
-        label: relation.text,
+        label: relation.title.replace("\n"," ").trim(),
         arrows: 'to',
       });
     });
@@ -86,9 +95,10 @@ const initializeGraph = () => {
 
   network = new Network(container.value, { nodes, edges }, options);
   network.on('click', (params) => {
-    if (params.nodes.length > 0) {
-      const nodeId = params.nodes[0];
-      if (nodeId) selectNode(nodeId);
+    if(params.edges.length > 0 && !params.nodes.length) {
+      selectedEntity(params.edges[0], 'relation');
+    } else if (params.nodes.length > 0) {
+      selectedEntity(params.nodes[0], 'node');
     }
   });
 };

@@ -10,6 +10,7 @@ import {Model} from "@/types/Model.ts";
 import DialogMerge from "@/components/left-side/DialogMerge.vue";
 import {ref} from "vue";
 import DialogSettings from "@/components/left-side/DialogSettings.vue";
+import {uploadUxf} from "@/api/files.ts";
 
 const version = AppConfig.version
 

@@ -1,7 +1,7 @@
 package at.ac.tuwien.model.change.management.graphdb.config;
 
+import at.ac.tuwien.model.change.management.graphdb.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.neo4j.configuration.GraphDatabaseSettings;
 import org.neo4j.configuration.connectors.BoltConnector;
 import org.neo4j.dbms.api.DatabaseManagementServiceBuilder;
@@ -17,9 +17,9 @@ import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.net.URISyntaxException;
+import java.nio.file.*;
 import java.time.Duration;
-
 import static org.neo4j.configuration.GraphDatabaseSettings.DEFAULT_DATABASE_NAME;
 
 @Slf4j
@@ -30,8 +30,11 @@ public class Neo4JConfig {
     private DatabaseManagementService managementService;
 
     private final Neo4JProperties properties;
-    public Neo4JConfig(Neo4JProperties properties) {
+
+    private final Utils utils;
+    public Neo4JConfig(Neo4JProperties properties, Utils utils) {
         this.properties = properties;
+        this.utils = utils;
     }
 
     @Bean
@@ -71,14 +74,14 @@ public class Neo4JConfig {
         ClassPathResource configsResource = new ClassPathResource("graphDB/configs");
         try {
             /* Copy the resources to the graphDB directory */
-            FileUtils.copyDirectory(pluginsResource.getFile(), properties.getPluginPath());
-            FileUtils.copyDirectory(configsResource.getFile(), properties.getConfigsPath());
+            utils.copyFromJar(pluginsResource, properties.getPluginPath().toPath());
+            utils.copyFromJar(configsResource, properties.getConfigsPath().toPath());
             log.info("Copied resources to the graphDB directory");
 
             /* Create the exports directory */
             Files.createDirectories(properties.getExportsPath());
             log.info("Created exports directory");
-        } catch (IOException e) {
+        } catch (IOException | URISyntaxException e) {
             log.error("Error copying resources", e);
         }
     }

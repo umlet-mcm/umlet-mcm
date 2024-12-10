@@ -10,7 +10,7 @@ import {Model} from "@/types/Model.ts";
 import DialogMerge from "@/components/left-side/DialogMerge.vue";
 import {ref} from "vue";
 import DialogSettings from "@/components/left-side/DialogSettings.vue";
-import {uploadUxf} from "@/api/files.ts";
+import {uploadUxfToConfiguration, uploadUxfToModel } from "@/api/files.ts";
 
 const version = AppConfig.version
 
@@ -38,8 +38,15 @@ const placeholder = () => {
   //todo: replace all usages with functional code
 };
 
-const redirectToInput = async () => {
-  const inputTag = document.getElementById("inputUxfFile");
+const redirectToConfigInput = async () => {
+  const inputTag = document.getElementById("inputUxfForConfiguration");
+  if (inputTag) {
+    inputTag.click();
+  }
+}
+
+const redirectToModelInput = async () => {
+  const inputTag = document.getElementById("inputUxfForModel");
   if (inputTag) {
     inputTag.click();
   }
@@ -71,8 +78,8 @@ const redirectToInput = async () => {
             <Save class="mr-2" />
             Save configuration
           </Button>
-          <Input id="inputUxfFile" type="file" @change="uploadUxf" style="display: none"/>
-          <Button variant="outline" class="w-full justify-start" @click="redirectToInput">
+          <Input id="inputUxfForConfiguration" type="file" @change="uploadUxfToConfiguration" style="display: none"/>
+          <Button variant="outline" class="w-full justify-start" @click="redirectToConfigInput">
             <FileInput class="mr-2" />
             Import from UXF
           </Button>
@@ -89,7 +96,8 @@ const redirectToInput = async () => {
       <div>
         <h2 class="text-sm font-semibold mb-2">Model Operations</h2>
         <div class="space-y-2">
-          <Button variant="outline" class="w-full justify-start" @click="placeholder">
+          <Input id="inputUxfForModel" type="file" @change="uploadUxfToModel($event, selectedConfiguration.name)" style="display: none"/>
+          <Button variant="outline" class="w-full justify-start" @click="redirectToModelInput">
             <FileUp class="mr-2" />
             Add Model in project
           </Button>

@@ -38,9 +38,9 @@ const placeholder = () => {
 <template>
   <div class="w-64 border-r border-border p-4 flex flex-col gap-4 bg-primary-foreground">
     <div class="flex justify-between items-start">
-      <div>
-        <h1 class="text-xl font-bold">{{ selectedConfiguration.name }}</h1>
-        <p class="text-sm text-muted-foreground">{{ selectedConfiguration.version }}</p>
+      <div class="max-w-[80%]">
+        <h1 class="text-xl font-bold truncate ">{{ selectedConfiguration.name }}</h1>
+        <p class="text-sm text-muted-foreground truncate">{{ selectedConfiguration.version }}</p>
       </div>
       <Button variant="ghost" size="icon" @click="isDialogOpen.settings = true">
         <Settings />

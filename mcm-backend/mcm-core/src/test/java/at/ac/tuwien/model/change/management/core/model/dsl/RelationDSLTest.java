@@ -1,8 +1,10 @@
 package at.ac.tuwien.model.change.management.core.model.dsl;
 
-import at.ac.tuwien.model.change.management.core.utils.ParsingUtils;
+import at.ac.tuwien.model.change.management.core.configuration.JaxbConfig;
+import at.ac.tuwien.model.change.management.core.transformer.XMLTransformerImpl;
 import jakarta.xml.bind.JAXBException;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.Resource;
@@ -13,18 +15,21 @@ import java.nio.file.Files;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = RelationDSL.class)
+@SpringBootTest(classes = {RelationDSL.class, XMLTransformerImpl.class, JaxbConfig.class})
 public class RelationDSLTest {
 
     @Value("classpath:/dsl/relation_dsl_representation.xml")
     private Resource relationResource;
+
+    @Autowired
+    private XMLTransformerImpl xmlTransformerImpl;
 
     @Test
     public void testRelationDSL() throws JAXBException, IOException {
         File xmlFile = relationResource.getFile();
         assertTrue(xmlFile.exists());
 
-        RelationDSL relation = (RelationDSL) ParsingUtils.unmarshalDSL(Files.readString(xmlFile.toPath()));
+        RelationDSL relation = (RelationDSL) xmlTransformerImpl.unmarshal(Files.readString(xmlFile.toPath()));
         assertNotNull(relation);
 
         assertNotNull(relation.getMetadata());

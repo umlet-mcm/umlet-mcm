@@ -11,6 +11,7 @@ import {ref} from "vue";
 import DialogSettings from "@/components/left-side/DialogSettings.vue";
 import {uploadUxfToConfiguration, uploadUxfToModel } from "@/api/files.ts";
 import {useRouter} from "vue-router";
+import DialogExport from "@/components/left-side/DialogExport.vue";
 
 const props = defineProps({
   selectedModel: {
@@ -24,7 +25,7 @@ const props = defineProps({
 });
 const router = useRouter()
 const emit = defineEmits(["update:selectedModel", "update:selectedConfiguration"]);
-const isDialogOpen = ref({merge: false, settings: false})
+const isDialogOpen = ref({merge: false, settings: false, export: false})
 
 const handleMerge = (mergedModel: Model) => {
   props.selectedConfiguration.models.push(mergedModel)
@@ -103,9 +104,9 @@ const uploadUxfModel = async (event: any, modelName: string) => {
             <FileInput class="mr-2" />
             Import from UXF
           </Button>
-          <Button variant="outline" class="w-full justify-start" @click="placeholder">
+          <Button variant="outline" class="w-full justify-start" @click="isDialogOpen.export = true">
             <FileOutput class="mr-2" />
-            Export to UXF
+            Export to UXF / CSV
           </Button>
           <Button variant="outline" class="w-full justify-start" @click="placeholder">
             <FileOutput class="mr-2" />
@@ -125,10 +126,6 @@ const uploadUxfModel = async (event: any, modelName: string) => {
             <FileStack class="mr-2" />
             Merge Models
           </Button>
-          <Button variant="outline" class="w-full justify-start" @click="placeholder">
-            <FileOutput class="mr-2" />
-            Export Model to UXF
-          </Button>
         </div>
       </div>
     </div>
@@ -147,6 +144,10 @@ const uploadUxfModel = async (event: any, modelName: string) => {
       v-model:isOpen="isDialogOpen.merge"
       :models="selectedConfiguration.models"
       @merge="handleMerge"
+  />
+  <DialogExport
+      v-model:isOpen="isDialogOpen.export"
+      :configuration-name="selectedConfiguration.name"
   />
   <DialogSettings
       v-model:isOpen="isDialogOpen.settings"

@@ -14,4 +14,12 @@ export const sendRequest = async (query: string): Promise<String> => {
     } catch (error) {
         throw error;
     }
-};
+}
+
+export const exportToCsv = async (filename: string) => {
+    try {
+        const response = await apiClient.get('/graphdb/csvExport', {params: {fileName: filename}});
+    } catch (error) {
+        throw error;
+    }
+}

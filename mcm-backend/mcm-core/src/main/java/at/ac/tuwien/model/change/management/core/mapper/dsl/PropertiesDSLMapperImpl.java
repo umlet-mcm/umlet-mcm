@@ -29,9 +29,21 @@ public class PropertiesDSLMapperImpl implements PropertiesDSLMapper {
         return propertiesDSL.stream()
                 .collect(Collectors.toMap(
                         PropertyDSL::getKey,
-                        PropertyDSL::getValue,
+                        propertyDSL -> parseValue(propertyDSL.getValue()),
                         (existing, replacement) -> existing,
                         LinkedHashMap::new
                 ));
+    }
+
+    private Object parseValue(String value) {
+        try {
+            return Integer.valueOf(value);
+        } catch (NumberFormatException e1) {
+            try {
+                return Float.valueOf(value);
+            } catch (NumberFormatException e2) {
+                return value;
+            }
+        }
     }
 }

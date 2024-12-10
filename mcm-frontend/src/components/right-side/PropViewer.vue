@@ -21,16 +21,14 @@ defineProps({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead class="w-full">Attribute</TableHead>
-            <TableHead>Value</TableHead>
+            <TableHead class="w-1/3">Properties</TableHead>
+            <TableHead class="w-2/3">Value</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           <TableRow v-for="[key, value] in Object.entries({...selectedEntity.mcmAttributes, ...selectedEntity.umletAttributes})">
-            <TableCell class="font-medium w-full">{{ key }}</TableCell>
-            <TableCell>
-              <span>{{ value }}</span>
-            </TableCell>
+            <TableCell class="font-medium w-1/3">{{ key }}</TableCell>
+            <TableCell class="w-2/3">{{ value }}</TableCell>
           </TableRow>
         </TableBody>
       </Table>

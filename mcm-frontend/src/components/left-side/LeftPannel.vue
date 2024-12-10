@@ -58,7 +58,7 @@ const redirectToModelInput = async () => {
 // todo create a dialog for this
 const uploadUxfConfig = async (event: any) => {
   try {
-    const newConfig = await uploadUxfToConfiguration(event)
+    const newConfig = await uploadUxfToConfiguration(event.target.files[0])
     if (confirm('Do you want to load this new configuration ?')) {
       await router.push({name: 'mainview', params: {id: newConfig.name}})
       emit('update:selectedConfiguration', newConfig)
@@ -71,7 +71,7 @@ const uploadUxfConfig = async (event: any) => {
 
 const uploadUxfModel = async (event: any, modelName: string) => {
   try {
-    const newConfig = await uploadUxfToModel(event, modelName);
+    const newConfig = await uploadUxfToModel(event.target.files[0], modelName);
     emit('update:selectedConfiguration', newConfig)
   } catch (e) {
     console.error(e)

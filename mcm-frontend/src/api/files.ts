@@ -8,10 +8,10 @@ const apiClient = axios.create({
     }
 });
 
-export const uploadUxfToConfiguration = async (change: any): Promise<Configuration> => {
+export const uploadUxfToConfiguration = async (file: any): Promise<Configuration> => {
     try {
         let formData = new FormData();
-        formData.append("file", change.target.files[0]);
+        formData.append("file", file);
         const response = await apiClient.post(
             '/files/uxf',
             formData,
@@ -23,10 +23,10 @@ export const uploadUxfToConfiguration = async (change: any): Promise<Configurati
     }
 };
 
-export const uploadUxfToModel = async (change: any, configName: string) : Promise<Configuration> => {
+export const uploadUxfToModel = async (file: any, configName: string) : Promise<Configuration> => {
     try {
         let formData = new FormData();
-        formData.append("file", change.target.files[0]);
+        formData.append("file", file);
         const response = await apiClient.post(
             `/files/uxf/${configName}`,
             formData,

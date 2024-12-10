@@ -9,10 +9,11 @@ import {Model} from "@/types/Model.ts";
 import DialogMerge from "@/components/left-side/DialogMerge.vue";
 import {ref} from "vue";
 import DialogSettings from "@/components/left-side/DialogSettings.vue";
-import {uploadUxfToConfiguration, uploadUxfToModel } from "@/api/files.ts";
+import {exportToUxf, uploadUxfToConfiguration, uploadUxfToModel} from "@/api/files.ts";
 import {useRouter} from "vue-router";
 import DialogExport from "@/components/left-side/DialogExport.vue";
 
+// props related
 const props = defineProps({
   selectedModel: {
     type: Object as () => Model,
@@ -23,10 +24,13 @@ const props = defineProps({
     required: true
   }
 });
+
+// variables
 const router = useRouter()
 const emit = defineEmits(["update:selectedModel", "update:selectedConfiguration"]);
 const isDialogOpen = ref({merge: false, settings: false, export: false})
 
+// functions
 const handleMerge = (mergedModel: Model) => {
   props.selectedConfiguration.models.push(mergedModel)
   emit('update:selectedModel', mergedModel)
@@ -51,6 +55,7 @@ const redirectToModelInput = async () => {
   }
 }
 
+// todo create a dialog for this
 const uploadUxfConfig = async (event: any) => {
   try {
     const newConfig = await uploadUxfToConfiguration(event)
@@ -68,6 +73,15 @@ const uploadUxfModel = async (event: any, modelName: string) => {
   try {
     const newConfig = await uploadUxfToModel(event, modelName);
     emit('update:selectedConfiguration', newConfig)
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+const exportCurrentModel = async () => {
+  if(!props.selectedModel) return;
+  try {
+    await exportToUxf(props.selectedModel.id, props.selectedModel.id, "model");
   } catch (e) {
     console.error(e)
   }
@@ -125,6 +139,10 @@ const uploadUxfModel = async (event: any, modelName: string) => {
           <Button variant="outline" class="w-full justify-start" @click="isDialogOpen.merge = true">
             <FileStack class="mr-2" />
             Merge Models
+          </Button>
+          <Button variant="outline" class="w-full justify-start" @click="exportCurrentModel()">
+            <FileOutput class="mr-2" />
+            Export to UXF
           </Button>
         </div>
       </div>

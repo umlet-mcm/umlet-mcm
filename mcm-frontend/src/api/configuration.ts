@@ -3,7 +3,7 @@ import {Configuration} from "@/types/Configuration";
 import {Model} from "@/types/Model.ts";
 
 const apiClient = axios.create({
-    baseURL: '/api/v1',
+    baseURL: '/api/v1/configurations',
     headers: {
         'Content-Type': 'application/json'
     }
@@ -11,9 +11,8 @@ const apiClient = axios.create({
 
 export const getAllConfigurations = async (): Promise<Configuration[]> => {
     try {
-        // const response = await apiClient.get('/configurations'); //todo use api
-        // return response.data;
-        return configurations_data
+        const response = await apiClient.get('');
+        return response.data.sort((a: Configuration, b: Configuration) => a.name.localeCompare(b.name));
     } catch (error) {
         throw error;
     }
@@ -21,9 +20,8 @@ export const getAllConfigurations = async (): Promise<Configuration[]> => {
 
 export const getConfigurationById = async (data: { id: string }): Promise<Configuration> => {
     try {
-        // const response = await apiClient.get('/configurations'); //todo use api
-        // return response.data;
-        return configurations_data[0]
+        const response = await apiClient.get(`/${data.id}`);
+        return response.data;
     } catch (error) {
         throw error;
     }
@@ -31,7 +29,7 @@ export const getConfigurationById = async (data: { id: string }): Promise<Config
 
 export const createConfiguration = async (data: { name: string }): Promise<Configuration> => {
     try {
-        const response = await apiClient.post('/configurations', data);
+        const response = await apiClient.post('', data);
         return {
             name: response.data.name,
             version: response.data.version,
@@ -44,8 +42,9 @@ export const createConfiguration = async (data: { name: string }): Promise<Confi
 
 export const updateConfiguration = async (data: { name: string, models: Model[] }): Promise<Configuration> => {
     //todo need to check if name is unique
+    //todo read data from response instead
     try {
-        const response = await apiClient.put(`/configurations/${data.name}`, data);
+        const response = await apiClient.put(`/${data.name}`, data);
         return {
             name: data.name,
             version: '',
@@ -58,7 +57,7 @@ export const updateConfiguration = async (data: { name: string, models: Model[] 
 
 export const deleteConfiguration = async (data: { name: string }): Promise<void> => {
     try {
-        await apiClient.delete(`/configurations/${data.name}`);
+        await apiClient.delete(`/${data.name}`);
     } catch (error) {
         throw error;
     }

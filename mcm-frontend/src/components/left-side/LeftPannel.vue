@@ -4,11 +4,13 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Configuration } from '@/types/Configuration.ts'
 import ModelList from "@/components/left-side/ModelList.vue"
-import { FileUp, Save, FileOutput, FileStack, Settings } from 'lucide-vue-next'
+import { FileUp, Save, FileOutput, FileInput, FileStack, Settings } from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
 import DialogMerge from "@/components/left-side/DialogMerge.vue";
 import {ref} from "vue";
 import DialogSettings from "@/components/left-side/DialogSettings.vue";
+import {uploadUxfToConfiguration, uploadUxfToModel } from "@/api/files.ts";
+import {useRouter} from "vue-router";
 
 const props = defineProps({
   selectedModel: {
@@ -20,8 +22,8 @@ const props = defineProps({
     required: true
   }
 });
-
-const emit = defineEmits(["update:selectedModel"]);
+const router = useRouter()
+const emit = defineEmits(["update:selectedModel", "update:selectedConfiguration"]);
 const isDialogOpen = ref({merge: false, settings: false})
 
 const handleMerge = (mergedModel: Model) => {
@@ -30,7 +32,44 @@ const handleMerge = (mergedModel: Model) => {
 }
 
 const placeholder = () => {
-  console.log('Placeholder')
+  console.log('Placeholder');
+  //todo: replace all usages with functional code
+};
+
+const redirectToConfigInput = async () => {
+  const inputTag = document.getElementById("inputUxfForConfiguration");
+  if (inputTag) {
+    inputTag.click();
+  }
+}
+
+const redirectToModelInput = async () => {
+  const inputTag = document.getElementById("inputUxfForModel");
+  if (inputTag) {
+    inputTag.click();
+  }
+}
+
+const uploadUxfConfig = async (event: any) => {
+  try {
+    const newConfig = await uploadUxfToConfiguration(event)
+    if (confirm('Do you want to load this new configuration ?')) {
+      await router.push({name: 'mainview', params: {id: newConfig.name}})
+      emit('update:selectedConfiguration', newConfig)
+      emit('update:selectedModel', newConfig.models[0])
+    }
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+const uploadUxfModel = async (event: any, modelName: string) => {
+  try {
+    const newConfig = await uploadUxfToModel(event, modelName);
+    emit('update:selectedConfiguration', newConfig)
+  } catch (e) {
+    console.error(e)
+  }
 }
 
 </script>
@@ -59,6 +98,11 @@ const placeholder = () => {
             <Save class="mr-2" />
             Save configuration
           </Button>
+          <Input id="inputUxfForConfiguration" type="file" @change="uploadUxfConfig" style="display: none"/>
+          <Button variant="outline" class="w-full justify-start" @click="redirectToConfigInput">
+            <FileInput class="mr-2" />
+            Import from UXF
+          </Button>
           <Button variant="outline" class="w-full justify-start" @click="placeholder">
             <FileOutput class="mr-2" />
             Export to UXF
@@ -72,7 +116,8 @@ const placeholder = () => {
       <div>
         <h2 class="text-sm font-semibold mb-2">Model Operations</h2>
         <div class="space-y-2">
-          <Button variant="outline" class="w-full justify-start" @click="placeholder">
+          <Input id="inputUxfForModel" type="file" @change="uploadUxfModel($event, selectedConfiguration.name)" style="display: none"/>
+          <Button variant="outline" class="w-full justify-start" @click="redirectToModelInput">
             <FileUp class="mr-2" />
             Add Model in project
           </Button>

@@ -39,19 +39,19 @@ onMounted(() => {
     <div class="flex-1 flex flex-col gap-1">
       <TransitionGroup name="list" appear>
         <button
-            v-for="item of items"
+            v-for="item of items.sort((a, b) => a.id.localeCompare(b.id))"
             :key="item.id"
             :class="cn(
             'flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent bg-primary-light', selectedModel?.id === item.id && 'bg-muted')"
             @click="selectModel(item)">
           <div class="flex w-full flex-col gap-1">
-            <div class="flex items-center">
-              <div class="flex items-center gap-2">
-                <div class="font-semibold">
+            <div class="flex items-center w-full">
+              <div class="flex items-center gap-2 w-4/5">
+                <div class="font-semibold w-4/5">
                   {{ item.id }}
                 </div>
               </div>
-              <div :class="cn('ml-auto', selectedModel?.id === item.id ? 'visible' : 'invisible')">
+              <div :class="cn('ml-auto', selectedModel?.id === item.id ? 'visible' : 'invisible')" class="w-1/4">
                 <Button v-if="item.id !== 'Full Graph'" class="rounded-full" variant="destructive" size="icon" @click="placeholder">
                   <Trash />
                 </Button>

@@ -10,6 +10,7 @@ import DialogMerge from "@/components/left-side/DialogMerge.vue";
 import {ref} from "vue";
 import DialogSettings from "@/components/left-side/DialogSettings.vue";
 import {uploadUxfToConfiguration, uploadUxfToModel } from "@/api/files.ts";
+import {useRouter} from "vue-router";
 
 const props = defineProps({
   selectedModel: {
@@ -21,8 +22,8 @@ const props = defineProps({
     required: true
   }
 });
-
-const emit = defineEmits(["update:selectedModel"]);
+const router = useRouter()
+const emit = defineEmits(["update:selectedModel", "update:selectedConfiguration"]);
 const isDialogOpen = ref({merge: false, settings: false})
 
 const handleMerge = (mergedModel: Model) => {
@@ -46,6 +47,28 @@ const redirectToModelInput = async () => {
   const inputTag = document.getElementById("inputUxfForModel");
   if (inputTag) {
     inputTag.click();
+  }
+}
+
+const uploadUxfConfig = async (event: any) => {
+  try {
+    const newConfig = await uploadUxfToConfiguration(event)
+    if (confirm('Do you want to load this new configuration ?')) {
+      await router.push({name: 'mainview', params: {id: newConfig.name}})
+      emit('update:selectedConfiguration', newConfig)
+      emit('update:selectedModel', newConfig.models[0])
+    }
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+const uploadUxfModel = async (event: any, modelName: string) => {
+  try {
+    const newConfig = await uploadUxfToModel(event, modelName);
+    emit('update:selectedConfiguration', newConfig)
+  } catch (e) {
+    console.error(e)
   }
 }
 
@@ -75,7 +98,7 @@ const redirectToModelInput = async () => {
             <Save class="mr-2" />
             Save configuration
           </Button>
-          <Input id="inputUxfForConfiguration" type="file" @change="uploadUxfToConfiguration" style="display: none"/>
+          <Input id="inputUxfForConfiguration" type="file" @change="uploadUxfConfig" style="display: none"/>
           <Button variant="outline" class="w-full justify-start" @click="redirectToConfigInput">
             <FileInput class="mr-2" />
             Import from UXF
@@ -93,7 +116,7 @@ const redirectToModelInput = async () => {
       <div>
         <h2 class="text-sm font-semibold mb-2">Model Operations</h2>
         <div class="space-y-2">
-          <Input id="inputUxfForModel" type="file" @change="uploadUxfToModel($event, selectedConfiguration.name)" style="display: none"/>
+          <Input id="inputUxfForModel" type="file" @change="uploadUxfModel($event, selectedConfiguration.name)" style="display: none"/>
           <Button variant="outline" class="w-full justify-start" @click="redirectToModelInput">
             <FileUp class="mr-2" />
             Add Model in project

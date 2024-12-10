@@ -32,7 +32,7 @@ onMounted(() => {
 <template>
   <div v-if="selectedConfiguration">
     <div class="flex h-screen">
-      <LeftPannel v-model:selectedModel="selectedModel" :selectedConfiguration="selectedConfiguration"/>
+      <LeftPannel v-model:selectedModel="selectedModel" v-model:selectedConfiguration="selectedConfiguration"/>
       <MainContent :selectedModel="selectedModel" v-model:selectedEntity="selectedEntity" v-model:response="queryResponse"/>
       <RightPannel :selectedModel="selectedModel" :selectedEntity="selectedEntity" :queryResponse="queryResponse"/>
     </div>

@@ -1,4 +1,5 @@
 import axios from "axios"
+import {Configuration} from "@/types/Configuration.ts";
 
 const apiClient = axios.create({
     baseURL: '/api/v1',
@@ -7,7 +8,7 @@ const apiClient = axios.create({
     }
 });
 
-export const uploadUxfToConfiguration = async (change: any) => {
+export const uploadUxfToConfiguration = async (change: any): Promise<Configuration> => {
     try {
         let formData = new FormData();
         formData.append("file", change.target.files[0]);
@@ -16,13 +17,13 @@ export const uploadUxfToConfiguration = async (change: any) => {
             formData,
             { headers: { 'Content-Type': 'multipart/form-data' } }
         );
-        return response.status;
+        return response.data;
     } catch (error) {
         throw error;
     }
 };
 
-export const uploadUxfToModel = async (change: any, configName: string) => {
+export const uploadUxfToModel = async (change: any, configName: string) : Promise<Configuration> => {
     try {
         let formData = new FormData();
         formData.append("file", change.target.files[0]);
@@ -31,7 +32,7 @@ export const uploadUxfToModel = async (change: any, configName: string) => {
             formData,
             { headers: { 'Content-Type': 'multipart/form-data' } }
         );
-        return response.status;
+        return response.data;
     } catch (error) {
         throw error;
     }

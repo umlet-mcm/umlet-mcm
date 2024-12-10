@@ -12,7 +12,7 @@ const apiClient = axios.create({
 export const getAllConfigurations = async (): Promise<Configuration[]> => {
     try {
         const response = await apiClient.get('');
-        return response.data;
+        return response.data.sort((a: Configuration, b: Configuration) => a.name.localeCompare(b.name));
     } catch (error) {
         throw error;
     }

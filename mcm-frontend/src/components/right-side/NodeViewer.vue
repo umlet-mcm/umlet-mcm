@@ -14,7 +14,7 @@ defineProps({
   <div class="space-y-2 p-2 h-full flex flex-col">
     <div class="flex items-center justify-between space-y-2">
       <h2 class="text-lg font-semibold">
-        Node attributes{{ selectedNode?.text ? `: ${selectedNode.text}` : '' }}
+        Node attributes{{ selectedNode?.title ? `: ${selectedNode.title}` : '' }}
       </h2>
     </div>
     <div v-if="selectedNode" class="rounded-md border">
@@ -26,7 +26,7 @@ defineProps({
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow v-for="[key, value] in selectedNode?.properties" :key="key">
+          <TableRow v-for="[key, value] in Object.entries({...selectedNode.mcmAttributes, ...selectedNode.umletAttributes})">
             <TableCell class="font-medium w-full">{{ key }}</TableCell>
             <TableCell>
               <span>{{ value }}</span>

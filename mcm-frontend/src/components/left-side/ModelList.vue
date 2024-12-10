@@ -27,11 +27,11 @@ const placeholder = () => {
 
 onMounted(() => {
   if(props.items.length === 0) return
-  if(props.items[0].id === "Full Graph") return
-  props.items.unshift({
-    id: "Full Graph",
-    nodes: props.items.flatMap((model) => model.nodes),
-  })
+  // if(props.items[0].id === "Full Graph") return
+  // props.items.unshift({
+  //   id: "Full Graph",
+  //   nodes: props.items.flatMap((model) => model.nodes),
+  // })
 })
 </script>
 

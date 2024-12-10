@@ -37,17 +37,17 @@ const initializeGraph = () => {
 
   const nodes = props.selectedModel.nodes.map((node) => ({
     id: node.id,
-    label: node.text,
-    color: generatePaleColorFromText(node.type),
+    label: node.title.replace("\n"," ").trim(),
+    color: generatePaleColorFromText(node.elementType),
   }));
 
   const edges: Edge[] = []
   props.selectedModel.nodes.forEach((node) => {
     node.relations.forEach((relation) => {
       edges.push({
-        from: relation.source,
+        from: node.id,
         to: relation.target,
-        label: relation.text,
+        label: relation.title.replace("\n"," ").trim(),
         arrows: 'to',
       });
     });

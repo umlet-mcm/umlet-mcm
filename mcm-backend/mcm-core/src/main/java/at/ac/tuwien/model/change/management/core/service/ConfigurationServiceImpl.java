@@ -36,7 +36,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
             // Load the configuration into the graph database
             graphDBService.clearDatabase();
-            graphDBService.loadConfiguration(configuration);
+            graphDBService.loadConfiguration(savedConfiguration);
 
             return savedConfiguration;
         } catch (RepositoryAlreadyExistsException e) {
@@ -66,7 +66,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
             // Load the configuration into the graph database
             graphDBService.clearDatabase();
-            graphDBService.loadConfiguration(configuration);
+            graphDBService.loadConfiguration(savedConfiguration);
 
             return savedConfiguration;
         } catch (RepositoryDoesNotExistException e) {

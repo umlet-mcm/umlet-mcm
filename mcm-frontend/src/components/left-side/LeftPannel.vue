@@ -1,18 +1,19 @@
 <script setup lang="ts">
 
-import {AppConfig} from "@/config.ts";
-import {Button} from '@/components/ui/button'
-import {Separator} from '@/components/ui/separator'
-import {Configuration} from '@/types/Configuration.ts'
+import { AppConfig } from "@/config.ts";
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import { Configuration } from '@/types/Configuration.ts'
 import ModelList from "@/components/left-side/ModelList.vue"
-import {FileInput, FileOutput, FileStack, FileUp, Save, Settings} from 'lucide-vue-next'
+import { FileUp, Save, FileOutput, FileStack, Settings } from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
-import { uploadUxf } from "@/api/files.ts";
-import {Input} from "@/components/ui/input";
+import DialogMerge from "@/components/left-side/DialogMerge.vue";
+import {ref} from "vue";
+import DialogSettings from "@/components/left-side/DialogSettings.vue";
 
 const version = AppConfig.version
 
-defineProps({
+const props = defineProps({
   selectedModel: {
     type: Object as () => Model,
     required: false
@@ -24,6 +25,12 @@ defineProps({
 });
 
 const emit = defineEmits(["update:selectedModel"]);
+const isDialogOpen = ref({merge: false, settings: false})
+
+const handleMerge = (mergedModel: Model) => {
+  props.selectedConfiguration.models.push(mergedModel)
+  emit('update:selectedModel', mergedModel)
+}
 
 const placeholder = () => {
   console.log('Placeholder');
@@ -46,7 +53,7 @@ const redirectToInput = async () => {
         <h1 class="text-xl font-bold">{{ selectedConfiguration.name }}</h1>
         <p class="text-sm text-muted-foreground">{{ version }}</p>
       </div>
-      <Button variant="ghost" size="icon" @click="placeholder">
+      <Button variant="ghost" size="icon" @click="isDialogOpen.settings = true">
         <Settings />
       </Button>
     </div>
@@ -85,7 +92,7 @@ const redirectToInput = async () => {
             <FileUp class="mr-2" />
             Add Model in project
           </Button>
-          <Button variant="outline" class="w-full justify-start" @click="placeholder">
+          <Button variant="outline" class="w-full justify-start" @click="isDialogOpen.merge = true">
             <FileStack class="mr-2" />
             Merge Models
           </Button>
@@ -105,4 +112,15 @@ const redirectToInput = async () => {
           @update:selectedModel="emit('update:selectedModel', $event)"/>
     </div>
   </div>
+
+  <!-- dialogs -->
+  <DialogMerge
+      v-model:isOpen="isDialogOpen.merge"
+      :models="selectedConfiguration.models"
+      @merge="handleMerge"
+  />
+  <DialogSettings
+      v-model:isOpen="isDialogOpen.settings"
+      :currentConfiguration="selectedConfiguration"
+  />
 </template>

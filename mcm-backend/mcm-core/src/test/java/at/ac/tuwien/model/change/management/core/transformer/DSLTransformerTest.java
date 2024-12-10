@@ -109,6 +109,22 @@ public class DSLTransformerTest {
         assertEquals(model.getMcmAttributes().get("key1"), parsedModel.getMcmAttributes().get("key1"));
     }
 
+    @Test
+    public void testRelation_emptyTarget() throws DSLException {
+        Node nodeA = getNewNode("1");
+        nodeA.setRelations(Set.of(getNewRelation("3")));
+
+        String nodeAsString = dslService.parseToNodeDSL(nodeA);
+        String relationAsString = dslService.parseToRelationDSL(nodeA.getRelations().iterator().next(), nodeA);
+
+        Set<Node> node = dslService.parseToNodes(Set.of(nodeAsString), Set.of(relationAsString));
+        assertNotNull(node);
+        assertEquals(1, node.size());
+        assertNotNull(node.iterator().next().getRelations());
+        assertEquals(1, node.iterator().next().getRelations().size());
+        assertNull(node.iterator().next().getRelations().iterator().next().getTarget());
+    }
+
     private Node getNewNode(String id) {
         Node node = new Node();
         node.setId(id);

@@ -10,15 +10,13 @@ import at.ac.tuwien.model.change.management.core.model.Relation;
 import at.ac.tuwien.model.change.management.core.model.dsl.ModelDSL;
 import at.ac.tuwien.model.change.management.core.model.dsl.NodeDSL;
 import at.ac.tuwien.model.change.management.core.model.dsl.RelationDSL;
+import at.ac.tuwien.model.change.management.core.model.dsl.RelationEndpointDSL;
 import at.ac.tuwien.model.change.management.core.utils.ParsingUtils;
 import jakarta.xml.bind.JAXBException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
@@ -48,15 +46,16 @@ public class DSLTransformerImpl implements DSLTransformer {
             try {
                 RelationDSL relationDSL = (RelationDSL) ParsingUtils.unmarshalDSL(textualRelationDSL);
 
-                Node targetNode = nodes.get(relationDSL.getTarget().getId());
-                if (targetNode == null) {
-                    throw new DSLException("Target node " + relationDSL.getTarget().getText() + " not found for relation with ID: " + relationDSL.getId());
+                if (relationDSL.getSource() == null || nodes.get(relationDSL.getSource().getId()) == null) {
+                    throw new DSLException("Source node is null for relation : " + relationDSL.getId());
                 }
 
                 Node sourceNode = nodes.get(relationDSL.getSource().getId());
-                if (sourceNode == null) {
-                    throw new DSLException("Source node " + relationDSL.getSource().getText() + " not found for relation with ID: " + relationDSL.getId());
-                }
+
+                Node targetNode = Optional.ofNullable(relationDSL.getTarget())
+                        .map(RelationEndpointDSL::getId)
+                        .map(nodes::get)
+                        .orElse(null);
 
                 Relation relation = relationDSLMapper.fromDSL(relationDSL, targetNode);
                 sourceNode.getRelations().add(relation);

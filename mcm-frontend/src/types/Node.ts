@@ -1,15 +1,30 @@
 export type Node = {
     id: string
-    text: string
-    type: string
+    elementType: string
+    tags: string[]
+    originalText: string
+    title: string
+    description: string
+    mcmModel: string
+    mcmModelId: string
+    mcmAttributes: Record<string, object>
+    umletAttributes: Record<string, string>
+    pprType: string
+    generatedAttributes: number[]
     relations: Relation[]
-    labels: string[]
-    properties: [string, string][] // key-value pairs
 }
 
 export type Relation = {
     type: string
-    text: string | undefined
-    source: string // node id
-    target: string // node id
+    target: string
+    id: string
+    tags: string[]
+    originalText: string
+    title: string
+    description: string
+    mcmModel: string
+    mcmModelId: string
+    mcmAttributes: Record<string, object>
+    umletAttributes: Record<string, string>
+    pprType: string
 }

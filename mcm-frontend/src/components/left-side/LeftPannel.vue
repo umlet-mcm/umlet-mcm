@@ -1,6 +1,5 @@
 <script setup lang="ts">
 
-import { AppConfig } from "@/config.ts";
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Configuration } from '@/types/Configuration.ts'
@@ -11,8 +10,6 @@ import DialogMerge from "@/components/left-side/DialogMerge.vue";
 import {ref} from "vue";
 import DialogSettings from "@/components/left-side/DialogSettings.vue";
 import {uploadUxfToConfiguration, uploadUxfToModel } from "@/api/files.ts";
-
-const version = AppConfig.version
 
 const props = defineProps({
   selectedModel: {
@@ -59,7 +56,7 @@ const redirectToModelInput = async () => {
     <div class="flex justify-between items-start">
       <div>
         <h1 class="text-xl font-bold">{{ selectedConfiguration.name }}</h1>
-        <p class="text-sm text-muted-foreground">{{ version }}</p>
+        <p class="text-sm text-muted-foreground">{{ selectedConfiguration.version }}</p>
       </div>
       <Button variant="ghost" size="icon" @click="isDialogOpen.settings = true">
         <Settings />

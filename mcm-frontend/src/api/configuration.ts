@@ -1,5 +1,5 @@
 import axios from "axios"
-import {Configuration, configurations_data} from "@/types/Configuration";
+import {Configuration} from "@/types/Configuration";
 import {Model} from "@/types/Model.ts";
 
 const apiClient = axios.create({
@@ -32,6 +32,7 @@ export const createConfiguration = async (data: { name: string }): Promise<Confi
         const response = await apiClient.post('', data);
         return {
             name: response.data.name,
+            version: response.data.version,
             models: []
         };
     } catch (error) {
@@ -46,6 +47,7 @@ export const updateConfiguration = async (data: { name: string, models: Model[] 
         const response = await apiClient.put(`/${data.name}`, data);
         return {
             name: data.name,
+            version: '',
             models: data.models
         };
     } catch (error) {

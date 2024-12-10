@@ -18,7 +18,7 @@ defineEmits<{
   >
     <FileIcon class="w-5 h-5 text-gray-500" />
     <div>
-      <p class="font-medium">{{ configuration.name }} <span class="text-gray-500">@version</span></p>
+      <p class="font-medium">{{ configuration.name }} <span class="text-gray-500">@{{configuration.version}}</span></p>
       <p class="text-sm text-gray-500">{{ configuration.models.length }} models</p>
     </div>
   </button>

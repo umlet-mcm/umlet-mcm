@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -17,5 +18,5 @@ public class Model extends BaseAttributes {
      */
     private int zoomLevel = 10;
 
-    private Set<Node> nodes;
+    private Set<Node> nodes = new HashSet<>();
 }

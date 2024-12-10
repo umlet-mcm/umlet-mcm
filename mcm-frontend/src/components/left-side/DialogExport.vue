@@ -11,7 +11,7 @@ import {
 import {Card, CardContent} from "@/components/ui/card";
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
-import {exportConfigurationToUxf} from "@/api/files.ts";
+import {exportToUxf} from "@/api/files.ts";
 import {RadioGroup, RadioGroupItem} from "@/components/ui/radio-group";
 import {exportToCsv} from "@/api/graphDB.ts";
 
@@ -50,7 +50,7 @@ const handleExport = async () => {
     try {
       switch(exportType.value) {
         case 'uxf':
-          await exportConfigurationToUxf(props.configurationName, exportName.value)
+          await exportToUxf(props.configurationName, exportName.value, "configuration")
           break
         case 'csv':
           await exportToCsv(exportName.value)

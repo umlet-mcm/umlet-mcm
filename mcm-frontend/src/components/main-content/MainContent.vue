@@ -5,7 +5,7 @@ import GraphVisualisation from "@/components/main-content/GraphVisualisation.vue
 import {PropType, ref} from "vue"
 import { Play } from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
-import {Node} from "@/types/Node.ts";
+import {Node, Relation} from "@/types/Node.ts";
 import {sendRequest} from "@/api/graphDB.ts";
 
 // variables
@@ -20,8 +20,8 @@ defineProps({
     type: Object as () => Model,
     required: false
   },
-  selectedNode: {
-    type: Object as () => Node,
+  selectedEntity: {
+    type: Object as () => Node | Relation,
     required: false
   },
   response: {
@@ -29,7 +29,7 @@ defineProps({
     required: false
   }
 });
-const emit = defineEmits(["update:selectedNode", "update:response"]);
+const emit = defineEmits(["update:selectedEntity", "update:response"]);
 
 // functions
 const executeQuery = async () => {
@@ -80,7 +80,7 @@ const executeQuery = async () => {
         <GraphVisualisation
             class="h-full w-full"
             :selected-model="selectedModel"
-            @update:selectedNode="emit('update:selectedNode', $event)"/>
+            @update:selectedEntity="emit('update:selectedEntity', $event)"/>
       </div>
       <div v-else class="h-full w-full">
         <div class="flex-1 flex justify-center">

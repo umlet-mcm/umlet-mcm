@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import {Node} from "@/types/Node.ts";
+import {Node, Relation} from "@/types/Node.ts";
 import {TableBody, TableCell, TableHead, TableHeader, TableRow, Table} from "@/components/ui/table";
 
 defineProps({
-  selectedNode: {
-    type: Object as () => Node,
+  selectedEntity: {
+    type: Object as () => Node | Relation,
     required: false
   }
 });
@@ -14,10 +14,10 @@ defineProps({
   <div class="space-y-2 p-2 h-full flex flex-col">
     <div class="flex items-center justify-between space-y-2">
       <h2 class="text-lg font-semibold">
-        Node attributes{{ selectedNode?.title ? `: ${selectedNode.title}` : '' }}
+        Properties {{ selectedEntity?.title ? `: ${selectedEntity.title}` : '' }}
       </h2>
     </div>
-    <div v-if="selectedNode" class="rounded-md border">
+    <div v-if="selectedEntity" class="rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
@@ -26,7 +26,7 @@ defineProps({
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow v-for="[key, value] in Object.entries({...selectedNode.mcmAttributes, ...selectedNode.umletAttributes})">
+          <TableRow v-for="[key, value] in Object.entries({...selectedEntity.mcmAttributes, ...selectedEntity.umletAttributes})">
             <TableCell class="font-medium w-full">{{ key }}</TableCell>
             <TableCell>
               <span>{{ value }}</span>

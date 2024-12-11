@@ -1,0 +1,39 @@
+<node xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="../../mcm-backend/mcm-core/src/main/resources/dsl/node.xsd">
+    <id>1</id>
+    <mcm_model>PPR</mcm_model>
+    <title>QC Technician</title>
+    <description>QC Technician</description>
+    <element_type>class</element_type>
+    <ppr_type></ppr_type>
+
+    <tags></tags>
+    <properties>
+        <property>
+            <key>Qualification</key>
+            <value>Expert in chemical lab experiment procedures.</value>
+        </property>
+        <property>
+            <key>Tags</key>
+            <value></value>
+        </property>
+        <property>
+            <key>Property</key>
+            <value></value>
+        </property>
+    </properties>
+    <metadata>
+        <coordinates>
+            <x>380</x>
+            <y>70</y>
+            <w>100</w>
+            <h>30</h>
+        </coordinates>
+        <panel_attributes>
+            <panel_attribute>
+                <key>bg</key>
+                <value>#a4a4f7</value>
+            </panel_attribute>
+        </panel_attributes>
+    </metadata>
+</node>

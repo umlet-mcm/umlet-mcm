@@ -22,6 +22,7 @@ public class ModelDSLMapperImpl implements ModelDSLMapper {
         modelDSL.setDescription(model.getDescription());
         modelDSL.setTags(model.getTags());
         modelDSL.setProperties(propertiesDSLMapper.toDSL(model.getMcmAttributes()));
+        modelDSL.setZoomLevel(model.getZoomLevel());
 
         MetadataDSL metadataDSL = new MetadataDSL();
         metadataDSL.setOriginalText(model.getOriginalText());
@@ -42,6 +43,7 @@ public class ModelDSLMapperImpl implements ModelDSLMapper {
         model.setOriginalText(Optional.ofNullable(modelDSL.getMetadata())
                 .map(MetadataDSL::getOriginalText)
                 .orElse(null));
+        model.setZoomLevel(modelDSL.getZoomLevel());
         return model;
     }
 }

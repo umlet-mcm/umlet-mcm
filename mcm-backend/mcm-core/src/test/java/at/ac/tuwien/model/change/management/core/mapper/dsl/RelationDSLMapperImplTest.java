@@ -45,6 +45,7 @@ public class RelationDSLMapperImplTest {
         relation.setType("line");
         relation.setOriginalText("Original Text");
         relation.setMcmModel("MCM Model");
+        relation.setMcmModelId("6c1d704c-7535-4020-a8a4-8ef39b9cd22e");
         relation.setUmletAttributes(new LinkedHashMap<>(Map.of("key1", "value1")));
 
         Node source = new Node();
@@ -61,6 +62,8 @@ public class RelationDSLMapperImplTest {
         assertEquals(relation.getPprType(), result.getPprType());
         assertEquals(relation.getType(), result.getElementType());
         assertEquals(relation.getOriginalText(), result.getMetadata().getOriginalText());
+        assertEquals(relation.getMcmModel(), result.getMcmModel());
+        assertEquals(relation.getMcmModelId(), result.getMcmModelId());
 
         assertNotNull(result.getMetadata());
         assertNotNull(result.getMetadata().getCoordinates());
@@ -88,6 +91,8 @@ public class RelationDSLMapperImplTest {
         relationDSL.setTags(List.of("tag1"));
         relationDSL.setPprType("TestType");
         relationDSL.setElementType("line");
+        relationDSL.setMcmModel("MCM Model");
+        relationDSL.setMcmModelId("6c1d704c-7535-4020-a8a4-8ef39b9cd22e");
 
         MetadataDSL metadata = new MetadataDSL();
         metadata.setCoordinates(new CoordinatesDSL(10, 20, 30, 40));
@@ -120,6 +125,8 @@ public class RelationDSLMapperImplTest {
         assertEquals(target, result.getTarget());
         assertEquals(relationDSL.getPprType(), result.getPprType());
         assertEquals(relationDSL.getElementType(), result.getType());
+        assertEquals(relationDSL.getMcmModel(), result.getMcmModel());
+        assertEquals(relationDSL.getMcmModelId(), result.getMcmModelId());
 
         assertNotNull(result.getTags());
         assertEquals(relationDSL.getTags(), result.getTags());
@@ -141,7 +148,7 @@ public class RelationDSLMapperImplTest {
         assertNotNull(result.getEndPoint());
         assertTrue(result.getRelativeMidPoints().isEmpty());
         assertNotNull(result.getRelativeStartPoint());
-        assertNotNull(result.getRelativeEndpoint());
+        assertNotNull(result.getRelativeEndPoint());
     }
 
     @Test

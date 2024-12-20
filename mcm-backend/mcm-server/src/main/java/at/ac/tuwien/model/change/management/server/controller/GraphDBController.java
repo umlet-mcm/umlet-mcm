@@ -2,6 +2,7 @@ package at.ac.tuwien.model.change.management.server.controller;
 
 import at.ac.tuwien.model.change.management.core.service.GraphDBService;
 import at.ac.tuwien.model.change.management.server.dto.NodeDTO;
+import at.ac.tuwien.model.change.management.server.mapper.CycleAvoidingMappingContext;
 import at.ac.tuwien.model.change.management.server.mapper.NodeDtoMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,8 @@ public class GraphDBController {
 
     @PostMapping(path = "/nodes/load")
     public ResponseEntity<NodeDTO> loadNode(@RequestBody NodeDTO nodeDTO) {
-        var node = graphDBService.loadNode(nodeDtoMapper.fromDto(nodeDTO));
-        return ResponseEntity.ok(nodeDtoMapper.toDto(node));
+        CycleAvoidingMappingContext context = new CycleAvoidingMappingContext();
+        var node = graphDBService.loadNode(nodeDtoMapper.fromDto(nodeDTO, context));
+        return ResponseEntity.ok(nodeDtoMapper.toDto(node, context));
     }
 }

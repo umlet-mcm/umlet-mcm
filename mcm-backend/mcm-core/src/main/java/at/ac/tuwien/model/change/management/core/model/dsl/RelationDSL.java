@@ -17,6 +17,9 @@ public class RelationDSL {
     @XmlElement(name = "mcm_model")
     private String mcmModel;
 
+    @XmlElement(name = "mcm_model_id")
+    private String mcmModelId;
+
     @XmlElement(name = "title")
     private String title;
 

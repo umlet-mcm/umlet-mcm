@@ -12,7 +12,16 @@ import java.util.LinkedHashMap;
 @Getter
 @Setter
 public abstract class ElementAttributes extends BaseAttributes {
+
+    /**
+     * The type of the model e.g. PAN, CEN
+     */
     protected String mcmModel;
+
+    /**
+     * The UUID of the model to which the node belongs
+     */
+    private String mcmModelId;
 
     /**
      * key=value attributes extracted from panel_attributes. E.g. background color

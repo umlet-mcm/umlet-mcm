@@ -28,6 +28,7 @@ public class NodeDSLMapperImpl implements NodeDSLMapper {
         NodeDSL nodeDSL = new NodeDSL();
         nodeDSL.setId(node.getId());
         nodeDSL.setMcmModel(node.getMcmModel());
+        nodeDSL.setMcmModelId(node.getMcmModelId());
         nodeDSL.setTitle(node.getTitle());
         nodeDSL.setDescription(node.getDescription());
         nodeDSL.setElementType(node.getElementType());
@@ -48,6 +49,7 @@ public class NodeDSLMapperImpl implements NodeDSLMapper {
         Node node = new Node();
         node.setId(nodeDSL.getId());
         node.setMcmModel(nodeDSL.getMcmModel());
+        node.setMcmModelId(nodeDSL.getMcmModelId());
         node.setTitle(nodeDSL.getTitle());
         node.setDescription(nodeDSL.getDescription());
         node.setElementType(nodeDSL.getElementType());

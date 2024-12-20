@@ -1,7 +1,9 @@
 package at.ac.tuwien.model.change.management.server.exception;
 
-import at.ac.tuwien.model.change.management.git.exception.PersistenceException;
-import at.ac.tuwien.model.change.management.git.exception.ConfigurationAlreadyExistsException;
+import at.ac.tuwien.model.change.management.core.exception.ConfigurationAlreadyExistsException;
+import at.ac.tuwien.model.change.management.core.exception.ConfigurationDoesNotExistException;
+import at.ac.tuwien.model.change.management.core.exception.ConfigurationValidationException;
+import at.ac.tuwien.model.change.management.core.service.ConfigurationNotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +24,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return defaultHandleExceptionInternal(e, HttpStatus.CONFLICT, request);
     }
 
-    @ExceptionHandler(PersistenceException.class)
-    public ResponseEntity<Object> handlePersistenceException(PersistenceException e, WebRequest request) {
-        return defaultHandleExceptionInternal(e, HttpStatus.INTERNAL_SERVER_ERROR, request);
+    @ExceptionHandler
+    public ResponseEntity<Object> handleConfigurationDoesNotExistException(ConfigurationDoesNotExistException e, WebRequest request) {
+        return defaultHandleExceptionInternal(e, HttpStatus.CONFLICT, request);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<Object> handleConfigurationNotFoundException(ConfigurationNotFoundException e, WebRequest request) {
+        return defaultHandleExceptionInternal(e, HttpStatus.NOT_FOUND, request);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<Object> handleConfigurationValidationException(ConfigurationValidationException e, WebRequest request) {
+        return defaultHandleExceptionInternal(e, HttpStatus.BAD_REQUEST, request);
     }
 }

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.neo4j.driver.internal.value.StringValue;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -50,7 +51,7 @@ class ModelEntityMapperImplTest {
         assertEquals("1", result.getId());
         assertEquals(Set.of(nodeEntity), result.getNodes());
         assertEquals(Set.of("tag1", "tag2"), result.getTags());
-        assertEquals(Map.of("property1", "key1", "property2", "key2"), result.getProperties());
+        assertEquals(Map.of("property1", new StringValue("key1"), "property2", new StringValue("key2")), result.getProperties());
         assertEquals("Model Name", result.getName());
         assertEquals("Model Description", result.getDescription());
     }
@@ -69,7 +70,7 @@ class ModelEntityMapperImplTest {
         NodeEntity nodeEntity = new NodeEntity();
         modelEntity.setNodes(Set.of(nodeEntity));
         modelEntity.setTags(Set.of("tag1", "tag2"));
-        modelEntity.setProperties(Map.of("property1", "key1", "property2", "key2"));
+        modelEntity.setProperties(Map.of("property1", new StringValue("key1"), "property2", new StringValue("key2")));
         modelEntity.setName("Model Name");
         modelEntity.setDescription("Model Description");
 
@@ -110,7 +111,7 @@ class ModelEntityMapperImplTest {
         assertEquals("1", result.getId());
         assertTrue(result.getNodes().isEmpty());
         assertEquals(Set.of("tag1", "tag2"), result.getTags());
-        assertEquals(Map.of("property1", "key1", "property2", "key2"), result.getProperties());
+        assertEquals(Map.of("property1", new StringValue("key1"), "property2", new StringValue("key2")), result.getProperties());
         assertEquals("Model Name", result.getName());
         assertEquals("Model Description", result.getDescription());
 
@@ -122,7 +123,7 @@ class ModelEntityMapperImplTest {
         modelEntity.setId("1");
         modelEntity.setNodes(Set.of());
         modelEntity.setTags(Set.of("tag1", "tag2"));
-        modelEntity.setProperties(Map.of("property1", "key1", "property2", "key2"));
+        modelEntity.setProperties(Map.of("property1", new StringValue("key1"), "property2", new StringValue("key2")));
         modelEntity.setName("Model Name");
         modelEntity.setDescription("Model Description");
 

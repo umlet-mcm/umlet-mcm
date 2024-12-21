@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.neo4j.driver.internal.value.StringValue;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -53,7 +54,7 @@ class RelationEntityMapperImplTest {
         assertEquals("Affected by", result.getName());
         assertEquals("Relation description", result.getDescription());
         assertEquals("CEN", result.getType());
-        assertEquals(Map.of("property1", "key1"), result.getProperties());
+        assertEquals(Map.of("property1", new StringValue("key1")), result.getProperties());
         assertEquals(Map.of("dashed", "true"), result.getUmletProperties());
         assertEquals(Set.of("tag1", "tag2"), result.getTags());
         assertEquals(targetNodeEntity, result.getTarget());
@@ -73,7 +74,7 @@ class RelationEntityMapperImplTest {
         relationEntity.setName("Causes");
         relationEntity.setDescription("Relation description");
         relationEntity.setType("PAN");
-        relationEntity.setProperties(Map.of("property1", "key1"));
+        relationEntity.setProperties(Map.of("property1", new StringValue("key1")));
         relationEntity.setUmletProperties(Map.of("dashed", "false"));
         relationEntity.setTags(Set.of("tag1", "tag2"));
         NodeEntity targetNodeEntity = new NodeEntity();

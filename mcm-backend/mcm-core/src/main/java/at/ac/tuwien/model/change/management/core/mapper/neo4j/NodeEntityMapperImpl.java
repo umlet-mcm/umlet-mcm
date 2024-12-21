@@ -3,6 +3,8 @@ package at.ac.tuwien.model.change.management.core.mapper.neo4j;
 
 import at.ac.tuwien.model.change.management.core.model.Node;
 import at.ac.tuwien.model.change.management.graphdb.entities.NodeEntity;
+import lombok.val;
+import org.neo4j.driver.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -65,7 +67,12 @@ public class NodeEntityMapperImpl implements NodeEntityMapper {
         }
 
         // Set the properties of the node
-        nodeEntity.setProperties(node.getMcmAttributes());
+        if (node.getMcmAttributes() != null) {
+            val mcmAttributes = new HashMap<String, Value>() {{
+                node.getMcmAttributes().forEach((key, value) -> put(key, Neo4jValueConverter.convertObject(value)));
+            }};
+            nodeEntity.setProperties(mcmAttributes);
+        }
 
         // Set the attributes of the node
         nodeEntity.setUmletProperties(node.getUmletAttributes());
@@ -119,7 +126,10 @@ public class NodeEntityMapperImpl implements NodeEntityMapper {
         }
 
         // Maps the properties of the node entity back to node model
-        node.setMcmAttributes( new LinkedHashMap<>(nodeEntity.getProperties()) );
+        val mcmAttributes  = new LinkedHashMap<String,Object>() {{
+            nodeEntity.getProperties().forEach((key, value) -> put(key, Neo4jValueConverter.convertValue((Value) value)));
+        }};
+        node.setMcmAttributes( mcmAttributes );
         node.setUmletAttributes( new LinkedHashMap<>(nodeEntity.getUmletProperties()) );
 
         // Set the tags of the node

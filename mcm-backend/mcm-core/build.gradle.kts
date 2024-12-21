@@ -28,6 +28,16 @@ dependencies {
     annotationProcessor(libs.mapstruct.processor)
     implementation(libs.spring.boot.starter.data.neo4j)
     testImplementation(libs.spring.boot.starter.test)
+
+    // These libraries need to be copied to the graphdb plugins directory
+    runtimeOnly(files("src\\main\\resources\\graphDB\\plugins\\neo4j-graph-data-science-2.12.0.jar"))
+    runtimeOnly(files("src\\main\\resources\\graphDB\\plugins\\apoc-5.25.1-core.jar"))
+
+    // Dependency for copying files
+    implementation(libs.commons.io)
+
+    // Test Neo4J
+    testImplementation(libs.neo4j.harness)
 }
 
 tasks.test {

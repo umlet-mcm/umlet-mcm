@@ -3,9 +3,12 @@ package at.ac.tuwien.model.change.management.core.mapper.neo4j;
 import at.ac.tuwien.model.change.management.core.model.Model;
 import at.ac.tuwien.model.change.management.graphdb.entities.ModelEntity;
 import lombok.AllArgsConstructor;
+import lombok.val;
+import org.neo4j.driver.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
@@ -38,7 +41,12 @@ public class ModelEntityMapperImpl implements ModelEntityMapper {
         modelEntity.setTags( new HashSet<>(model.getTags()));
 
         // Assign properties
-        modelEntity.setProperties( model.getMcmAttributes() );
+        if(model.getMcmAttributes() != null) {
+            val mcmAttributes = new HashMap<String, Value>() {{
+                model.getMcmAttributes().forEach((key, value) -> put(key, Neo4jValueConverter.convertObject(value)));
+            }};
+            modelEntity.setProperties( mcmAttributes );
+        }
 
         // Assign name
         modelEntity.setName(model.getTitle());
@@ -69,7 +77,10 @@ public class ModelEntityMapperImpl implements ModelEntityMapper {
         model.setTags( new ArrayList<>(modelEntity.getTags()));
 
         // Assign properties
-        model.setMcmAttributes( new LinkedHashMap<>(modelEntity.getProperties()) );
+        val mcmAttributes  = new LinkedHashMap<String,Object>() {{
+            modelEntity.getProperties().forEach((key, value) -> put(key, Neo4jValueConverter.convertValue((Value) value)));
+        }};
+        model.setMcmAttributes( mcmAttributes );
 
         // Assign name
         model.setTitle(modelEntity.getName());

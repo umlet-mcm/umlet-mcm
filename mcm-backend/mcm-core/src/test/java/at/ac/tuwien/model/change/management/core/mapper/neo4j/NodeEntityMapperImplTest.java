@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.neo4j.driver.internal.value.StringValue;
 
 import java.util.*;
 
@@ -65,7 +66,7 @@ class NodeEntityMapperImplTest {
         assertEquals("Process", result.getType());
         assertEquals("Process", result.getPprType());
         assertEquals(Map.of("background", "red"), result.getUmletProperties());
-        assertEquals(Map.of("camera", "Sony"), result.getProperties());
+        assertEquals(Map.of("camera", new StringValue("Sony")), result.getProperties());
         assertEquals(Set.of("NEW", "IN-PROCESS"), result.getTags());
         assertEquals(Map.of("x", 10, "y", 20, "width", 30, "height", 40), result.getPosition());
         assertEquals(Set.of(relationEntity), result.getRelations());
@@ -87,7 +88,7 @@ class NodeEntityMapperImplTest {
         nodeEntity.setDescription("void doAPhoto() {}; String name = \"photo\";");
         nodeEntity.setType("Process");
         nodeEntity.setPprType("Process");
-        nodeEntity.setProperties(Map.of("camera", "Sony"));
+        nodeEntity.setProperties(Map.of("camera", new StringValue("Sony")));
         nodeEntity.setUmletProperties(Map.of("background", "red"));
         nodeEntity.setTags(Set.of("NEW", "IN-PROCESS"));
         nodeEntity.setPosition(Map.of("x", 10, "y", 20, "width", 30, "height", 40));

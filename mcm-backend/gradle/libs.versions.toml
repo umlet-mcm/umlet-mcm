@@ -5,6 +5,9 @@ lombok = "8.10.2"
 jgit = "7.0.0.202409031743-r"
 neo4j = "5.25.1"
 mapstruct = "1.6.2"
+commons-io = "2.18.0"
+neo4j-harness = "5.26.0"
+gson = "2.11.0"
 
 [plugins]
 mcm-java-conventions = { id = "at.ac.tuwien.model.change.management.java-conventions" }
@@ -22,4 +25,7 @@ spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-star
 spring-boot-starter-data-neo4j = { module = "org.springframework.boot:spring-boot-starter-data-neo4j" }
 spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web" }
 spring-boot-starter-validation = { module = "org.springframework.boot:spring-boot-starter-validation" }
+commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
+neo4j-harness = { module = "org.neo4j.test:neo4j-harness", version.ref = "neo4j-harness" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 apache-commons-lang3 = { module = "org.apache.commons:commons-lang3" }

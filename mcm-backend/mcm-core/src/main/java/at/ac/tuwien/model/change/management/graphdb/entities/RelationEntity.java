@@ -2,6 +2,7 @@ package at.ac.tuwien.model.change.management.graphdb.entities;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.neo4j.driver.Value;
 import org.springframework.data.neo4j.core.schema.*;
 
 import java.util.Map;
@@ -29,7 +30,7 @@ public class RelationEntity {
 
     /* The properties of the relation in UMLet Diagram */
     @CompositeProperty
-    private Map<String,Object> properties = Map.of();
+    private Map<String, Value> properties = Map.of();
 
     /* The attributes of the relation in UMLet Diagram e.g. color */
     @CompositeProperty

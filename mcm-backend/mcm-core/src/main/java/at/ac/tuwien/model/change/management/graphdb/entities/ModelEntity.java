@@ -2,6 +2,7 @@ package at.ac.tuwien.model.change.management.graphdb.entities;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.neo4j.driver.Value;
 import org.springframework.data.neo4j.core.schema.*;
 import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
@@ -31,7 +32,7 @@ public class ModelEntity {
 
     /* The properties of the whole model in UMLet Diagram */
     @CompositeProperty
-    private Map<String,Object> properties = Map.of();
+    private Map<String, Value> properties = Map.of();
 
     /* The name of the model */
     private String name;

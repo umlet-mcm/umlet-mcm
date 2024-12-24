@@ -11,6 +11,7 @@ import {RadioGroup, RadioGroupItem} from "@/components/ui/radio-group";
 import {uploadUxfToConfiguration, uploadUxfToModel} from "@/api/files.ts";
 import AlertConfirmation from "@/components/left-side/AlertConfirmation.vue";
 import {ScrollArea} from "@/components/ui/scroll-area";
+import { LoaderCircleIcon } from 'lucide-vue-next'
 
 //props related
 const props = defineProps({
@@ -23,36 +24,49 @@ const props = defineProps({
     required: true
   },
 });
-const emit = defineEmits(['update:isOpen', 'update:currentConfiguration']);
+const emit = defineEmits(['update:isOpen', 'update:currentConfiguration', 'update:currentModel']);
 
 //variables
-const errorMessage = ref<string | undefined>(undefined)
 const router = useRouter()
+
+const errorMessage = ref<string | undefined>(undefined)
 const selectedFile = ref(undefined)
-const uploadLocation = ref()
-const configUploaded = ref<Configuration | undefined>(undefined)
-const isDialogOpen = ref({confirmation: false})
+const uploadLocation = ref(undefined)
+const uploadedConfig = ref<Configuration | undefined>(undefined)
+const newConfig = ref<Configuration | undefined>(undefined)
+
 const uploadedName = ref("")
 const warnings = ref<string[]>([])
+const isLoadingUpload = ref(false)
+const isLoadingValidate = ref(false)
+
+// confirmation dialog
+const isDialogOpen = ref({confirmation: false})
 
 //functions
 const upload = async () => {
   try {
     //todo upload uxf without database storing and retrieve the warnings
-    configUploaded.value = {name: "test", version: "1.0", models: []}
-    uploadedName.value = configUploaded.value.name
+    isLoadingUpload.value = true
+    uploadedConfig.value = {name: "test", version: "1.0", models: []}
+    uploadedName.value = uploadedConfig.value.name
     warnings.value = []
+    isLoadingUpload.value = false
   } catch (error: any) {
-    errorMessage.value = error.message
+    errorMessage.value = "ERROR : " + (error.response?.data?.message ?? error.message)
+    isLoadingUpload.value = false
   }
 }
 
 const closeDialog = () => {
-  // reset all values
   errorMessage.value = undefined
   selectedFile.value = undefined
-  configUploaded.value = undefined
-  isDialogOpen.value.confirmation = false
+  uploadLocation.value = undefined
+  isLoadingUpload.value = false
+  isLoadingValidate.value = false
+  warnings.value = []
+  uploadedName.value = ""
+  uploadedConfig.value = undefined
   emit('update:isOpen', false)
 }
 
@@ -65,22 +79,31 @@ const validateButton = async () => {
   try {
     if(uploadLocation.value === "configuration") {
       // create a new configuration and open the alert dialog
-      await uploadUxfToConfiguration(selectedFile.value)
+      isLoadingValidate.value = true
+      newConfig.value = await uploadUxfToConfiguration(selectedFile.value)
       isDialogOpen.value.confirmation = true
     } else {
       // upload uxf to current configuration
-      await uploadUxfToModel(selectedFile.value, props.currentConfiguration.name)
+      isLoadingValidate.value = true
+      newConfig.value = await uploadUxfToModel(selectedFile.value, props.currentConfiguration.name)
+
+      // find the first model that is not in the current configuration (newly created model)
+      const newModel = newConfig.value.models.find(m => !props.currentConfiguration.models.map(m => m.id).includes(m.id))
+      emit('update:currentConfiguration', newConfig.value)
+      emit('update:currentModel', newModel)
     }
+    closeDialog()
   } catch (error: any) {
-    errorMessage.value = error.message
+    errorMessage.value = "ERROR : " + (error.response?.data?.message ?? error.message)
+    isLoadingValidate.value = false
   }
 }
 
 const loadNewConfiguration = () => {
   // called when the user confirms the alert dialog
-  router.push({name: 'mainview', params: {id: configUploaded.value!.name}})
-  emit('update:currentConfiguration', configUploaded.value!)
-  closeDialog()
+  router.push({name: 'mainview', params: {id: newConfig.value!.name}})
+  emit('update:currentConfiguration', newConfig.value!)
+  emit('update:currentModel', newConfig.value!.models[0])
 }
 </script>
 
@@ -102,14 +125,17 @@ const loadNewConfiguration = () => {
               <label class="text-sm font-medium">UXF selection</label>
               <div class="flex w-full items-center gap-1.5">
                 <Input id="file" type="file" @change="fileSelected" accept=".uxf"/>
-                <Button :disabled="!selectedFile" @click="upload">Upload</Button>
+                <Button :disabled="!selectedFile" @click="upload">
+                  <LoaderCircleIcon v-if="isLoadingUpload" class="animate-spin"/>
+                  Upload
+                </Button>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <!-- UXF overview and configuration -->
-        <div v-if="configUploaded" class="grid grid-cols-2 gap-4">
+        <div v-if="uploadedConfig" class="grid grid-cols-2 gap-4">
           <Card>
             <CardContent class="p-4 space-y-4">
               <div class="space-y-4">
@@ -120,10 +146,10 @@ const loadNewConfiguration = () => {
                     <Input id="uploadedName" type="text" placeholder="Name" v-model="uploadedName"/>
                   </div>
                   <div class="flex flex-col">
-                    <Label class="text-sm font-medium">Number of nodes : {{ configUploaded.models.flatMap(m => m.nodes).length }}</Label>
+                    <Label class="text-sm font-medium">Number of nodes : {{ uploadedConfig.models.flatMap(m => m.nodes).length }}</Label>
                   </div>
                   <div class="flex flex-col">
-                    <Label class="text-sm font-medium">Number of relations : {{ configUploaded.models.flatMap(m => m.nodes).flatMap(n => n.relations).length }}</Label>
+                    <Label class="text-sm font-medium">Number of relations : {{ uploadedConfig.models.flatMap(m => m.nodes).flatMap(n => n.relations).length }}</Label>
                   </div>
                 </div>
               </div>
@@ -169,13 +195,17 @@ const loadNewConfiguration = () => {
       </div>
       <DialogFooter>
         <Button variant="outline" @click="closeDialog">Cancel</Button>
-        <Button @click="validateButton" :disabled="!configUploaded || !uploadLocation || uploadedName.trim().length === 0">OK</Button>
+        <Button @click="validateButton" :disabled="!uploadedConfig || !uploadLocation || uploadedName.trim().length === 0">
+          <LoaderCircleIcon v-if="isLoadingValidate" class="animate-spin"/>
+          OK
+        </Button>
       </DialogFooter>
     </DialogContent>
 
     <!-- Alert dialog to load a configuration -->
     <AlertConfirmation
         :on-confirm="loadNewConfiguration"
+        :on-reject="closeDialog"
         dialog-title="Load this configuration?"
         dialog-description=""
         dialog-content="Do you want to load this newly created configuration? All unsaved modifications will be erased."

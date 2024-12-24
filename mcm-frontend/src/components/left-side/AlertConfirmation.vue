@@ -29,6 +29,10 @@ const props = defineProps({
   onConfirm: {
     type: Function,
     required: true
+  },
+  onReject: {
+    type: Function,
+    required: false
   }
 });
 
@@ -43,6 +47,7 @@ const confirm = () => {
 }
 
 const closeDialog = () => {
+  if(props.onReject) props.onReject()
   emit('update:isOpen', false)
 }
 

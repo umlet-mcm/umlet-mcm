@@ -9,10 +9,9 @@ import {Model} from "@/types/Model.ts";
 import DialogMerge from "@/components/left-side/DialogMerge.vue";
 import {ref} from "vue";
 import DialogSettings from "@/components/left-side/DialogSettings.vue";
-import {exportToUxf, uploadUxfToConfiguration, uploadUxfToModel} from "@/api/files.ts";
-import {useRouter} from "vue-router";
+import {exportToUxf} from "@/api/files.ts";
 import DialogExport from "@/components/left-side/DialogExport.vue";
-import { Input } from '@/components/ui/input'
+import DialogUploadUXF from "@/components/left-side/DialogUploadUXF.vue";
 
 // props related
 const props = defineProps({
@@ -27,9 +26,8 @@ const props = defineProps({
 });
 
 // variables
-const router = useRouter()
 const emit = defineEmits(["update:selectedModel", "update:selectedConfiguration"]);
-const isDialogOpen = ref({merge: false, settings: false, export: false})
+const isDialogOpen = ref({merge: false, settings: false, export: false, upload: false, alertConfirmation: false})
 
 // functions
 const handleMerge = (mergedModel: Model) => {
@@ -41,43 +39,6 @@ const placeholder = () => {
   console.log('Placeholder');
   //todo: replace all usages with functional code
 };
-
-const redirectToConfigInput = async () => {
-  const inputTag = document.getElementById("inputUxfForConfiguration");
-  if (inputTag) {
-    inputTag.click();
-  }
-}
-
-const redirectToModelInput = async () => {
-  const inputTag = document.getElementById("inputUxfForModel");
-  if (inputTag) {
-    inputTag.click();
-  }
-}
-
-// todo create a dialog for this
-const uploadUxfConfig = async (event: any) => {
-  try {
-    const newConfig = await uploadUxfToConfiguration(event.target.files[0])
-    if (confirm('Do you want to load this new configuration ?')) {
-      await router.push({name: 'mainview', params: {id: newConfig.name}})
-      emit('update:selectedConfiguration', newConfig)
-      emit('update:selectedModel', newConfig.models[0])
-    }
-  } catch (e) {
-    console.error(e)
-  }
-}
-
-const uploadUxfModel = async (event: any, modelName: string) => {
-  try {
-    const newConfig = await uploadUxfToModel(event.target.files[0], modelName);
-    emit('update:selectedConfiguration', newConfig)
-  } catch (e) {
-    console.error(e)
-  }
-}
 
 const exportCurrentModel = async () => {
   if(!props.selectedModel) return;
@@ -114,10 +75,9 @@ const exportCurrentModel = async () => {
             <Save class="mr-2" />
             Save configuration
           </Button>
-          <Input id="inputUxfForConfiguration" type="file" @change="uploadUxfConfig" style="display: none"/>
-          <Button variant="outline" class="w-full justify-start" @click="redirectToConfigInput">
+          <Button variant="outline" class="w-full justify-start" @click="isDialogOpen.upload = true">
             <FileInput class="mr-2" />
-            Import from UXF
+            Import UXF file
           </Button>
           <Button variant="outline" class="w-full justify-start" @click="isDialogOpen.export = true">
             <FileOutput class="mr-2" />
@@ -132,11 +92,6 @@ const exportCurrentModel = async () => {
       <div>
         <h2 class="text-sm font-semibold mb-2">Model Operations</h2>
         <div class="space-y-2">
-          <Input id="inputUxfForModel" type="file" @change="uploadUxfModel($event, selectedConfiguration.name)" style="display: none"/>
-          <Button variant="outline" class="w-full justify-start" @click="redirectToModelInput">
-            <FileUp class="mr-2" />
-            Add Model in project
-          </Button>
           <Button variant="outline" class="w-full justify-start" @click="isDialogOpen.merge = true">
             <FileStack class="mr-2" />
             Merge Models
@@ -171,5 +126,11 @@ const exportCurrentModel = async () => {
   <DialogSettings
       v-model:isOpen="isDialogOpen.settings"
       :currentConfiguration="selectedConfiguration"
+  />
+  <DialogUploadUXF
+      v-model:isOpen="isDialogOpen.upload"
+      :currentConfiguration="selectedConfiguration"
+      @update:currentConfiguration="emit('update:selectedConfiguration', $event)"
+      @update:currentModel="emit('update:selectedModel', $event)"
   />
 </template>

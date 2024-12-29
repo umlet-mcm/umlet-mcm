@@ -25,6 +25,7 @@ dependencies {
         exclude(group = "org.neo4j", module = "neo4j-slf4j-provider")
     }
     implementation(libs.mapstruct)
+    testImplementation(project(mapOf("path" to ":mcm-server")))
     annotationProcessor(libs.mapstruct.processor)
     implementation(libs.spring.boot.starter.data.neo4j)
     testImplementation(libs.spring.boot.starter.test)

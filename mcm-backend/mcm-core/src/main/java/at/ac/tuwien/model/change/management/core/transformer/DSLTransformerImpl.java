@@ -11,7 +11,6 @@ import at.ac.tuwien.model.change.management.core.model.dsl.ModelDSL;
 import at.ac.tuwien.model.change.management.core.model.dsl.NodeDSL;
 import at.ac.tuwien.model.change.management.core.model.dsl.RelationDSL;
 import at.ac.tuwien.model.change.management.core.model.dsl.RelationEndpointDSL;
-import at.ac.tuwien.model.change.management.core.utils.ParsingUtils;
 import jakarta.xml.bind.JAXBException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -25,6 +24,7 @@ public class DSLTransformerImpl implements DSLTransformer {
     private final NodeDSLMapper nodeDSLMapper;
     private final RelationDSLMapper relationDSLMapper;
     private final ModelDSLMapper modelDSLMapper;
+    private final XMLTransformer xmlTransformer;
 
     @Override
     public Set<Node> parseToNodes(Set<String> nodesDSL, Set<String> relationsDSL) throws DSLException {
@@ -33,7 +33,7 @@ public class DSLTransformerImpl implements DSLTransformer {
         // Parse nodes
         for (String textualNodeDSL : nodesDSL) {
             try {
-                NodeDSL nodeDSL = (NodeDSL) ParsingUtils.unmarshalDSL(textualNodeDSL);
+                NodeDSL nodeDSL = (NodeDSL) xmlTransformer.unmarshal(textualNodeDSL);
                 Node node = nodeDSLMapper.fromDSL(nodeDSL);
                 nodes.put(node.getId(), node);
             } catch (JAXBException e) {
@@ -44,7 +44,7 @@ public class DSLTransformerImpl implements DSLTransformer {
         // Parse relation & attach to source node
         for (String textualRelationDSL : relationsDSL) {
             try {
-                RelationDSL relationDSL = (RelationDSL) ParsingUtils.unmarshalDSL(textualRelationDSL);
+                RelationDSL relationDSL = (RelationDSL) xmlTransformer.unmarshal(textualRelationDSL);
 
                 if (relationDSL.getSource() == null || nodes.get(relationDSL.getSource().getId()) == null) {
                     throw new DSLException("Source node is null for relation : " + relationDSL.getId());
@@ -71,7 +71,7 @@ public class DSLTransformerImpl implements DSLTransformer {
     public String parseToNodeDSL(Node node) throws DSLException {
         try {
             NodeDSL nodeDSL = nodeDSLMapper.toDSL(node);
-            return ParsingUtils.marshalDSL(nodeDSL);
+            return xmlTransformer.marshal(nodeDSL);
         } catch (JAXBException e) {
             throw new DSLException("Failed to parse node to DSL: " + node, e);
         }
@@ -81,7 +81,7 @@ public class DSLTransformerImpl implements DSLTransformer {
     public String parseToRelationDSL(Relation relation, Node source) throws DSLException {
         try {
             RelationDSL relationDSL = relationDSLMapper.toDSL(relation, source);
-            return ParsingUtils.marshalDSL(relationDSL);
+            return xmlTransformer.marshal(relationDSL);
         } catch (JAXBException e) {
             throw new DSLException("Failed to parse relation to DSL: " + relation, e);
         }
@@ -90,7 +90,7 @@ public class DSLTransformerImpl implements DSLTransformer {
     @Override
     public Model parseToModel(String modelDSLText) throws DSLException {
         try {
-            ModelDSL modelDSL = (ModelDSL) ParsingUtils.unmarshalDSL(modelDSLText);
+            ModelDSL modelDSL = (ModelDSL) xmlTransformer.unmarshal(modelDSLText);
             return modelDSLMapper.fromDSL(modelDSL);
         } catch (JAXBException e) {
             throw new DSLException("Failed to parse model DSL: " + modelDSLText, e);
@@ -101,7 +101,7 @@ public class DSLTransformerImpl implements DSLTransformer {
     public String parseToModelDSL(Model model) throws DSLException {
         try {
             ModelDSL modelDSL = modelDSLMapper.toDSL(model);
-            return ParsingUtils.marshalDSL(modelDSL);
+            return xmlTransformer.marshal(modelDSL);
         } catch (JAXBException e) {
             throw new DSLException("Failed to parse model to DSL: " + model, e);
         }

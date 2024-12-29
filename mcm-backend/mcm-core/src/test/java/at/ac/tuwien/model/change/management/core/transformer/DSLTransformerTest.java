@@ -1,5 +1,6 @@
 package at.ac.tuwien.model.change.management.core.transformer;
 
+import at.ac.tuwien.model.change.management.core.configuration.JaxbConfig;
 import at.ac.tuwien.model.change.management.core.exception.DSLException;
 import at.ac.tuwien.model.change.management.core.mapper.dsl.*;
 import at.ac.tuwien.model.change.management.core.model.*;
@@ -24,7 +25,9 @@ import static org.junit.jupiter.api.Assertions.*;
         PanelAttributesDSLMapperImpl.class,
         RelativePositionDSLMapperImpl.class,
         CoordinatesDSLMapperImpl.class,
-        ModelDSLMapperImpl.class
+        ModelDSLMapperImpl.class,
+        XMLTransformerImpl.class,
+        JaxbConfig.class
 })
 public class DSLTransformerTest {
 

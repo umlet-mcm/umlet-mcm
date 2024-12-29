@@ -1,9 +1,11 @@
 package at.ac.tuwien.model.change.management.core.model.dsl;
 
 
-import at.ac.tuwien.model.change.management.core.utils.ParsingUtils;
+import at.ac.tuwien.model.change.management.core.configuration.JaxbConfig;
+import at.ac.tuwien.model.change.management.core.transformer.XMLTransformerImpl;
 import jakarta.xml.bind.JAXBException;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.Resource;
@@ -14,11 +16,14 @@ import java.nio.file.Files;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = ModelDSL.class)
+@SpringBootTest(classes = {ModelDSL.class, XMLTransformerImpl.class, JaxbConfig.class})
 public class ModelDSLTest {
 
     @Value("classpath:/dsl/model_dsl_representation.xml")
     private Resource modelResource;
+
+    @Autowired
+    private XMLTransformerImpl xmlTransformerImpl;
 
 
     @Test
@@ -26,7 +31,7 @@ public class ModelDSLTest {
         File xmlFile = modelResource.getFile();
         assertTrue(xmlFile.exists());
 
-        ModelDSL model = (ModelDSL) ParsingUtils.unmarshalDSL(Files.readString(xmlFile.toPath()));
+        ModelDSL model = (ModelDSL) xmlTransformerImpl.unmarshal(Files.readString(xmlFile.toPath()));
         assertNotNull(model);
 
         assertEquals("1", model.getId());

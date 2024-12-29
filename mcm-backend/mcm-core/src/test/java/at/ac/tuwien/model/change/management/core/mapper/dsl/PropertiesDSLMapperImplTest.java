@@ -36,4 +36,22 @@ public class PropertiesDSLMapperImplTest {
         assertEquals(2, result.size());
         assertEquals("value1", result.get("key1"));
     }
+
+    @Test
+    void testFromDSL_IntValue() {
+        List<PropertyDSL> input = List.of(new PropertyDSL("key1", "15"));
+        Map<String, Object> result = mapper.fromDSL(input);
+
+        assertNotNull(result);
+        assertInstanceOf(Integer.class, result.get("key1"));
+    }
+
+    @Test
+    void testFromDSL_FloatValue() {
+        List<PropertyDSL> input = List.of(new PropertyDSL("key1", "15.5"));
+        Map<String, Object> result = mapper.fromDSL(input);
+
+        assertNotNull(result);
+        assertInstanceOf(Float.class, result.get("key1"));
+    }
 }

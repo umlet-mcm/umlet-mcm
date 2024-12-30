@@ -8,7 +8,6 @@ import at.ac.tuwien.model.change.management.core.model.intermediary.ElementAttri
 import at.ac.tuwien.model.change.management.core.model.intermediary.ElementUxf;
 import at.ac.tuwien.model.change.management.core.model.intermediary.ModelUxf;
 import at.ac.tuwien.model.change.management.core.model.intermediary.UmletPositionUxf;
-import at.ac.tuwien.model.change.management.core.model.utils.ParserUtils;
 import at.ac.tuwien.model.change.management.core.model.utils.RelationUtils;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
@@ -72,10 +71,7 @@ public interface ModelUxfMapper {
             UmletPositionUxf positionUxf = umletPositionUxfMapper.fromUmletPosition(r.getUmletPosition(), m.getZoomLevel());
             relationElement.setUmletPosition(positionUxf);
 
-            // denormalize coordinates
-            var genCoords = r.getGeneratedAttributes();
-            genCoords.replaceAll(val -> ParserUtils.denormalizeCoordinate(val, m.getZoomLevel()));
-            relationElement.setGeneratedAttributes(genCoords);
+            relationElement.setGeneratedAttributes(r.getGeneratedAttributes());
 
             LinkedHashMap<String, Object> mcmAttrs = McmAttributesMapper.mergeAttributes(r);
             if (relationElement.getAttributes().getMcmAttributes() == null) {

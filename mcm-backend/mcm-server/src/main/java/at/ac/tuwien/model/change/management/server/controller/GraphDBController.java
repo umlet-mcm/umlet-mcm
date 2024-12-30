@@ -8,6 +8,7 @@ import at.ac.tuwien.model.change.management.server.mapper.ConfigurationDtoMapper
 import at.ac.tuwien.model.change.management.server.mapper.CycleAvoidingMappingContext;
 import at.ac.tuwien.model.change.management.server.mapper.NodeDtoMapper;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.springframework.core.io.ByteArrayResource;
@@ -91,9 +92,7 @@ public class GraphDBController {
     @PostMapping(path = "/query")
     public ResponseEntity<String> executeQuery(@RequestBody QueryDTO query) {
         val result = graphDBService.executeQuery(query.query());
-        Gson gson = new Gson();
-        val convert = gson.toJson(result);
-        return ResponseEntity.ok(convert);
+        return ResponseEntity.ok(result);
     }
 
     /**

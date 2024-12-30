@@ -1,9 +1,6 @@
 package at.ac.tuwien.model.change.management.core.service;
 
-import at.ac.tuwien.model.change.management.core.mapper.neo4j.ConfigurationEntityMapper;
-import at.ac.tuwien.model.change.management.core.mapper.neo4j.ModelEntityMapper;
-import at.ac.tuwien.model.change.management.core.mapper.neo4j.Neo4jValueConverter;
-import at.ac.tuwien.model.change.management.core.mapper.neo4j.NodeEntityMapper;
+import at.ac.tuwien.model.change.management.core.mapper.neo4j.*;
 import at.ac.tuwien.model.change.management.core.model.Configuration;
 import at.ac.tuwien.model.change.management.core.model.Model;
 import at.ac.tuwien.model.change.management.core.model.Node;
@@ -12,9 +9,16 @@ import at.ac.tuwien.model.change.management.graphdb.dao.ModelEntityDAO;
 import at.ac.tuwien.model.change.management.graphdb.dao.NodeEntityDAO;
 import at.ac.tuwien.model.change.management.graphdb.dao.RawNeo4jService;
 import at.ac.tuwien.model.change.management.graphdb.entities.NodeEntity;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.neo4j.driver.Value;
+import org.neo4j.driver.internal.value.FloatValue;
+import org.neo4j.driver.internal.value.IntegerValue;
+import org.neo4j.driver.internal.value.ListValue;
+import org.neo4j.driver.internal.value.StringValue;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 
@@ -137,9 +141,15 @@ public class GraphDBServiceImpl implements GraphDBService {
     }
 
     @Override
-    public List<Map<String,Object>> executeQuery(String query) {
+    public String executeQuery(String query) {
         val response = rawNeo4jService.executeRawQuery(query);
-        return response;
+        // Register the custom serializer with Gson
+        Gson gson = new GsonBuilder()
+                .registerTypeHierarchyAdapter(Value.class, new Neo4jTypeAdapter())
+                .create();
+        // Convert to JSON
+        val convert = gson.toJson(response);
+        return convert;
     }
 
     public ByteArrayResource generateCSV(String fileName) {

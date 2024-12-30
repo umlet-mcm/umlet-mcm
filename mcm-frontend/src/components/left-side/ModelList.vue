@@ -3,9 +3,8 @@ import { cn } from '@/lib/utils'
 import { Model } from '@/types/Model.ts'
 import {Button} from "@/components/ui/button";
 import {Trash} from "lucide-vue-next";
-import {onMounted} from "vue";
 
-const props = defineProps({
+defineProps({
   items: {
     type: Array as () => Model[],
     required: true,
@@ -16,23 +15,14 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(["update:selectedModel"]);
+const emit = defineEmits(["update:selectedModel", "deleteModel"]);
 const selectModel = (model: Model) => {
   emit("update:selectedModel", model);
 };
 
-const placeholder = () => {
-  console.log('Placeholder')
+const deleteModel = (model: Model) => {
+  emit("deleteModel", model)
 }
-
-onMounted(() => {
-  if(props.items.length === 0) return
-  // if(props.items[0].id === "Full Graph") return
-  // props.items.unshift({
-  //   id: "Full Graph",
-  //   nodes: props.items.flatMap((model) => model.nodes),
-  // })
-})
 </script>
 
 <template>
@@ -52,7 +42,7 @@ onMounted(() => {
                 </div>
               </div>
               <div :class="cn('ml-auto', selectedModel?.id === item.id ? 'visible' : 'invisible')" class="w-1/4">
-                <Button v-if="item.id !== 'Full Graph'" class="rounded-full" variant="destructive" size="icon" @click="placeholder">
+                <Button class="rounded-full" variant="destructive" size="icon" @click="deleteModel(item)">
                   <Trash />
                 </Button>
               </div>

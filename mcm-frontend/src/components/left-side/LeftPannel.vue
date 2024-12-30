@@ -12,6 +12,8 @@ import DialogSettings from "@/components/left-side/DialogSettings.vue";
 import {exportToUxf} from "@/api/files.ts";
 import DialogExport from "@/components/left-side/DialogExport.vue";
 import DialogUploadUXF from "@/components/left-side/DialogUploadUXF.vue";
+import AlertConfirmation from "@/components/left-side/AlertConfirmation.vue";
+import {deleteModelFromConfig} from "@/api/model.ts";
 
 // props related
 const props = defineProps({
@@ -27,7 +29,7 @@ const props = defineProps({
 
 // variables
 const emit = defineEmits(["update:selectedModel", "update:selectedConfiguration"]);
-const isDialogOpen = ref({merge: false, settings: false, export: false, upload: false, alertConfirmation: false})
+const isDialogOpen = ref({merge: false, settings: false, export: false, upload: false, confirmation: false})
 
 // functions
 const handleMerge = (mergedModel: Model) => {
@@ -46,6 +48,21 @@ const exportCurrentModel = async () => {
     await exportToUxf(props.selectedModel.id, props.selectedModel.id, "model");
   } catch (e) {
     console.error(e)
+  }
+}
+
+const confirmDeletion = async () => {
+  const index = props.selectedConfiguration.models.findIndex(model => model.id === props.selectedModel!.id)
+  if (index !== -1) {
+    try {
+      await deleteModelFromConfig(props.selectedModel!.id, props.selectedConfiguration.name)
+      props.selectedConfiguration.models.splice(index, 1)
+      emit('update:selectedModel', undefined)
+      isDialogOpen.value.confirmation = false
+    } catch (error: any) {
+      console.error(error)
+      isDialogOpen.value.confirmation = false
+    }
   }
 }
 
@@ -109,7 +126,9 @@ const exportCurrentModel = async () => {
       <ModelList
           :selected-model="selectedModel"
           :items="selectedConfiguration.models"
-          @update:selectedModel="emit('update:selectedModel', $event)"/>
+          @update:selectedModel="emit('update:selectedModel', $event)"
+          @deleteModel="isDialogOpen.confirmation = true"
+      />
     </div>
   </div>
 
@@ -133,4 +152,11 @@ const exportCurrentModel = async () => {
       @update:currentConfiguration="emit('update:selectedConfiguration', $event)"
       @update:currentModel="emit('update:selectedModel', $event)"
   />
+  <!-- Alert dialog to delete a model from configuration -->
+  <AlertConfirmation
+      :on-confirm="confirmDeletion"
+      dialog-title="Delete this model?"
+      dialog-description=""
+      dialog-content="Do you want to delete this model? This action cannot be undone."
+      v-model:isOpen="isDialogOpen.confirmation"/>
 </template>

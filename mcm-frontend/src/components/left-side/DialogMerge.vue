@@ -76,7 +76,7 @@ const closeDialog = () => {
       <DialogHeader>
         <DialogTitle>Merge Models</DialogTitle>
         <DialogDescription>
-          Merge multiple models together in a new model within configuration.
+          Merge multiple models together in a new model within this model configuration.
         </DialogDescription>
       </DialogHeader>
 

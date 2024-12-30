@@ -14,7 +14,7 @@ defineProps<{
   <div class="w-1/2 border-r border-gray-200 p-6">
     <h2 class="text-2xl font-semibold mb-4 flex items-center gap-2">
       <FolderIcon class="w-6 h-6" />
-      Configuration list
+      Model Configuration list
     </h2>
     <div class="space-y-2">
       <ScrollArea class="h-52 rounded-md border">

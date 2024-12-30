@@ -73,9 +73,9 @@ const saveChanges = async () => {
   <Dialog :open="isOpen" @update:open="closeDialog" >
     <DialogContent class="sm:max-w-[600px]">
       <DialogHeader>
-        <DialogTitle>Configuration Settings</DialogTitle>
+        <DialogTitle>Model configuration Settings</DialogTitle>
         <DialogDescription>
-          Manage the current configuration.
+          Manage the current model configuration.
         </DialogDescription>
       </DialogHeader>
 
@@ -83,13 +83,13 @@ const saveChanges = async () => {
         <Card>
           <CardContent class="p-4 space-y-4">
             <div class="space-y-2">
-              <label class="text-sm font-medium">Configuration Name</label>
-              <Input placeholder="Enter configuration name" v-model="nameInput"/>
+              <label class="text-sm font-medium">Model Configuration Name</label>
+              <Input placeholder="Enter name" v-model="nameInput"/>
             </div>
           </CardContent>
         </Card>
         <div class="flex flex-col items-center">
-          <Button variant="destructive" @click="isDialogOpen.confirmation = true">Delete Configuration</Button>
+          <Button variant="destructive" @click="isDialogOpen.confirmation = true">Delete Model Configuration</Button>
           <label v-if="errorMessage" class="text-sm font-medium text-red-500">{{errorMessage}}</label>
         </div>
       </div>
@@ -102,9 +102,9 @@ const saveChanges = async () => {
     <!-- Alert dialog to delete a configuration -->
     <AlertConfirmation
         :on-confirm="confirmDeletion"
-        dialog-title="Delete this configuration?"
+        dialog-title="Delete this model configuration?"
         dialog-description=""
-        dialog-content="Do you want to delete this configuration? This action cannot be undone."
+        dialog-content="Do you want to delete this model configuration? This action cannot be undone."
         v-model:isOpen="isDialogOpen.confirmation"/>
   </Dialog>
 </template>

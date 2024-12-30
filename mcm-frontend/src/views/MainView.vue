@@ -20,7 +20,7 @@ const getSelectedConfiguration = async () => {
   try {
     selectedConfiguration.value = await getConfigurationById({id: route.params.id as string});
   } catch (error) {
-    console.error("Error fetching configuration with id " + route.params.id, error);
+    console.error("Error fetching model configuration with id " + route.params.id, error);
   }
 };
 

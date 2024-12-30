@@ -69,9 +69,9 @@ const handleExport = async () => {
   <Dialog :open="isOpen" @update:open="closeDialog">
     <DialogContent class="sm:max-w-[800px]">
       <DialogHeader>
-        <DialogTitle>Export Configuration</DialogTitle>
+        <DialogTitle>Export Model Configuration</DialogTitle>
         <DialogDescription>
-          Export this configuration to a file.
+          Export this model configuration to a file.
         </DialogDescription>
       </DialogHeader>
 

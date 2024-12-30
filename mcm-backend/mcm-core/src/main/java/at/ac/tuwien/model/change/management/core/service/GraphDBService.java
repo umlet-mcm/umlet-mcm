@@ -120,9 +120,9 @@ public interface GraphDBService {
     /**
      * Executes a generic query on the graph database
      * @param query The query to execute
-     * @return The result of the query
+     * @return The result of the query in JSON format
      */
-    List<Map<String,Object>> executeQuery(String query);
+    String executeQuery(String query);
 
     /**
      * Generates a CSV file from the graph database

@@ -27,6 +27,6 @@ public class ElementAttributesAdapter extends XmlAdapter<String, ElementAttribut
 
     @Override
     public String marshal(ElementAttributesUxf v) {
-        return v.toString();
+        return v.toString().trim();
     }
 }

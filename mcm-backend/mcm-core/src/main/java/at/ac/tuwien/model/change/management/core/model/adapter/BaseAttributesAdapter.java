@@ -32,6 +32,6 @@ public class BaseAttributesAdapter extends XmlAdapter<String, BaseAttributesUxf>
 
     @Override
     public String marshal(BaseAttributesUxf v) {
-        return v.toString();
+        return v.toString().trim();
     }
 }

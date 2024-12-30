@@ -1,17 +1,16 @@
 package at.ac.tuwien.model.change.management.core.model;
 
-import at.ac.tuwien.model.change.management.core.model.utils.ParserUtils;
-import lombok.AllArgsConstructor;
-import at.ac.tuwien.model.change.management.core.model.attributes.ElementAttributes;
 import at.ac.tuwien.model.change.management.core.model.attributes.AttributeKeys;
+import at.ac.tuwien.model.change.management.core.model.attributes.ElementAttributes;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nullable;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -19,6 +18,9 @@ import java.util.ArrayList;
 @NoArgsConstructor
 @Slf4j
 public class Relation extends ElementAttributes {
+    public static int START_OFFSET_X_INDEX = 0;
+    public static int START_OFFSET_Y_INDEX = 1;
+
     private String type; // line type e.g. "<<-"
     @Nullable
     private Node target;
@@ -87,24 +89,21 @@ public class Relation extends ElementAttributes {
             return null;
         }
 
-        // normalize coordinates based on the zoom level
-        ArrayList<Integer> normalizedCoords = new ArrayList<>();
-        for (int x : source.getGeneratedAttributes()) {
-            normalizedCoords.add(ParserUtils.normalizeCoordinate(x, zoomLevel));
-        }
+        // Umlet only scales the umletPosition based on the zoom level, the coordinates stored in the generated
+        // attributes list are not modified, so we leave them as they are
 
         // The first 2 values are the start point of the line relative to the umletPosition
         r.setRelativeStartPoint(new RelativePosition(
-                normalizedCoords.get(0),
-                normalizedCoords.get(1),
+                source.getGeneratedAttributes().get(START_OFFSET_X_INDEX),
+                source.getGeneratedAttributes().get(START_OFFSET_Y_INDEX),
                 r.getUmletPosition().getX(),
                 r.getUmletPosition().getY()
         ));
 
         // The last 2 values are the end point of the line relative to the umletPosition
         r.setRelativeEndPoint(new RelativePosition(
-                normalizedCoords.get(pointCount - 2),
-                normalizedCoords.get(pointCount - 1),
+                source.getGeneratedAttributes().get(pointCount - 2),
+                source.getGeneratedAttributes().get(pointCount - 1),
                 r.getUmletPosition().getX(),
                 r.getUmletPosition().getY()
         ));
@@ -115,8 +114,8 @@ public class Relation extends ElementAttributes {
             // process i and i+1 at once so upper bound -1
             for (int i = 2; i < pointCount - 2 - 1; i += 2) {
                 r.getRelativeMidPoints().add(new RelativePosition(
-                        normalizedCoords.get(i),
-                        normalizedCoords.get(i + 1),
+                        source.getGeneratedAttributes().get(i),
+                        source.getGeneratedAttributes().get(i + 1),
                         r.getUmletPosition().getX(),
                         r.getUmletPosition().getY()
                 ));

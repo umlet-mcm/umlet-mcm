@@ -10,6 +10,7 @@ import java.util.Map;
 public class ParserUtils {
     public static final String ATTRIBUTE_VALUE_DELIM = ",";
     public static final int DEFAULT_ZOOM_LEVEL = 10;
+
     /**
      * Get MCM attributes from the commented out lines. Such lines start with "//" and each line
      * contains a "key: value" pair. Multiple values are parsed into lists, floats and ints are
@@ -181,11 +182,19 @@ public class ParserUtils {
         return textWithTitle;
     }
 
+    /**
+     * Normalize coordinates at a given zoom level to the {@link ParserUtils#DEFAULT_ZOOM_LEVEL}.
+     * Normally used on coordinates coming from uxf files.
+     */
     public static int normalizeCoordinate(int val, int zoomLevel) {
-        return Math.round(val * (zoomLevel / (float) DEFAULT_ZOOM_LEVEL));
+        return Math.round(val / (zoomLevel / (float) DEFAULT_ZOOM_LEVEL));
     }
 
+    /**
+     * Transform coordinates from the {@link ParserUtils#DEFAULT_ZOOM_LEVEL} to a target zoom level.
+     * Normally used on coordinates before exporting them to uxf.
+     */
     public static int denormalizeCoordinate(int val, int zoomLevel) {
-        return Math.round(val * (DEFAULT_ZOOM_LEVEL / (float) zoomLevel));
+        return Math.round(val / (DEFAULT_ZOOM_LEVEL / (float) zoomLevel));
     }
 }

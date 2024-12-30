@@ -7,16 +7,19 @@ import {Configuration} from "@/types/Configuration.ts";
 import {getAllConfigurations} from "@/api/configuration.ts";
 
 const configurations = ref<Configuration[]>([]);
+const errorMessage = ref<string | undefined>(undefined)
 
 const fetchConfigurations = async () => {
   try {
     configurations.value = await getAllConfigurations();
-  } catch (error) {
-    console.error('Error fetching configuration', error);
+    errorMessage.value = undefined
+  } catch (error: any) {
+    errorMessage.value = error.message
   }
 };
 
 onMounted(() => {
+  errorMessage.value = undefined
   fetchConfigurations();
 });
 </script>
@@ -27,6 +30,9 @@ onMounted(() => {
       UMLet MCM
     </h1>
     <div class="bg-white rounded-lg shadow-lg w-full max-w-4xl overflow-hidden">
+      <div class="flex justify-center p-2">
+        <label v-if="errorMessage" class="text-sm font-medium text-red-500">Error : {{errorMessage}}</label>
+      </div>
       <div class="flex">
         <ProjectList :configurations="configurations"/>
         <NewProjectForm/>

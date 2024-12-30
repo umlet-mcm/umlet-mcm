@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PlusCircleIcon, PlusIcon } from 'lucide-vue-next'
+import {LoaderCircleIcon, PlusCircleIcon, PlusIcon} from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {FormControl, FormField, FormItem, FormLabel, FormMessage} from '@/components/ui/form'
@@ -13,6 +13,7 @@ import {uploadUxfToModel} from "@/api/files.ts";
 
 const router = useRouter()
 const configFile = ref<File>()
+const isLoadingValidate = ref(false)
 
 const formSchema = toTypedSchema(z.object({
   configName: z.string().min(2).max(50),
@@ -25,10 +26,12 @@ const form = useForm({
 
 const createProject = async (data: { name: string }) => {
   try {
+    isLoadingValidate.value = true
     const createdConfig = await createConfiguration(data);
     if(configFile.value) {
       await uploadUxfToModel(configFile.value, createdConfig.name)
     }
+    isLoadingValidate.value = false
     await router.push({name: 'mainview', params: {id: createdConfig.name}})
   } catch (error) {
     form.setFieldError('configName', 'Error creating project');
@@ -81,7 +84,8 @@ const onSubmit = form.handleSubmit((values) => {
       </FormField>
 
       <Button type="submit" class="w-full flex items-center gap-2">
-        <PlusIcon class="w-5 h-5" />
+        <PlusIcon v-if="!isLoadingValidate" class="w-5 h-5" />
+        <LoaderCircleIcon v-else class="animate-spin"/>
         Create
       </Button>
     </form>

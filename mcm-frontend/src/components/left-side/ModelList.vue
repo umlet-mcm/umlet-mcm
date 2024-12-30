@@ -15,14 +15,7 @@ defineProps({
   }
 });
 
-const emit = defineEmits(["update:selectedModel", "deleteModel"]);
-const selectModel = (model: Model) => {
-  emit("update:selectedModel", model);
-};
-
-const deleteModel = (model: Model) => {
-  emit("deleteModel", model)
-}
+defineEmits(["update:selectedModel", "deleteModel"]);
 </script>
 
 <template>
@@ -33,7 +26,7 @@ const deleteModel = (model: Model) => {
             :key="item.id"
             :class="cn(
             'flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent bg-primary-light', selectedModel?.id === item.id && 'bg-muted')"
-            @click="selectModel(item)">
+            @click="$emit('update:selectedModel', item)">
           <div class="flex w-full flex-col gap-1">
             <div class="flex items-center w-full">
               <div class="flex items-center gap-2 w-4/5">
@@ -42,7 +35,7 @@ const deleteModel = (model: Model) => {
                 </div>
               </div>
               <div :class="cn('ml-auto', selectedModel?.id === item.id ? 'visible' : 'invisible')" class="w-1/4">
-                <Button class="rounded-full" variant="destructive" size="icon" @click="deleteModel(item)">
+                <Button class="rounded-full" variant="destructive" size="icon" @click="$emit('deleteModel')">
                   <Trash />
                 </Button>
               </div>

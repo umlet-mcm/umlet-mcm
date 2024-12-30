@@ -54,8 +54,6 @@ const initializeGraph = () => {
     color: generatePaleColorFromText(node.elementType),
   }));
 
-  if(nodes.length === 0 && active.value === "request") active.value = "full";
-
   const edges: Edge[] = []
   activeModel.value.nodes.forEach((node) => {
     node.relations.forEach((relation) => {
@@ -78,7 +76,10 @@ const initializeGraph = () => {
       }
     },
     edges: {
-      smooth: true,
+      smooth: {
+        type: 'curvedCW', // Donne une courbure aux liens
+        roundness: 0.1    // Ajuste la distance de courbure
+      },
       color: {
         color: '#848484',
         highlight: '#d9534f',
@@ -141,16 +142,19 @@ watch(active, async (newValue) => {
 });
 
 // on change of query response (new request)
-watch(() => props.queryResponse, async (newValue, oldValue) => {
-  if (newValue !== oldValue && newValue) {
-    if (newValue.length > 0) {
-      queryGraph.value = await parseResponseGraph(newValue);
-      if(active.value === 'request') {
-        activeModel.value = queryGraph.value;
-        initializeGraph();
-      }
-    }
+watch(() => props.queryResponse, async (newValue) => {
+  if (newValue?.length) {
+    queryGraph.value = await parseResponseGraph(newValue);
+    // if queryGraph is empty, then set the selected model as active model
+    activeModel.value = queryGraph.value?.nodes.length ? queryGraph.value : props.selectedModel;
+    active.value = queryGraph.value?.nodes.length ? 'request' : 'full';
+  } else {
+    // if queryGraph is empty, then set the selected model as active model
+    queryGraph.value = null;
+    activeModel.value = props.selectedModel;
+    active.value = 'full';
   }
+  initializeGraph();
 });
 
 // on mounted

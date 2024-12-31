@@ -138,4 +138,23 @@ public class GraphDBController {
                 .header("Content-Disposition", "attachment; filename=" + fileName + ".csv")
                 .body(resource);
     }
+
+    /**
+     * Exports a custom query to a CSV file
+     * @param fileName The name of the CSV file
+     * @param query The custom query which contains subgraph to export
+     * @return The CSV file
+     */
+    @PostMapping(path = "/csvExport")
+    public ResponseEntity<Resource> exportQueryToCSV(
+            @RequestParam String fileName,
+            @RequestBody QueryDTO query
+    ) {
+        ByteArrayResource resource = graphDBService.generateQueryCSV(fileName, query.query());
+        return ResponseEntity.ok()
+                .contentLength(resource.contentLength())
+                .contentType(MediaType.valueOf("application/CSV"))
+                .header("Content-Disposition", "attachment; filename=" + fileName + ".csv")
+                .body(resource);
+    }
 }

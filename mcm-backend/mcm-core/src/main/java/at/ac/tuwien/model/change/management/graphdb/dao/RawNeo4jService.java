@@ -62,6 +62,23 @@ public class RawNeo4jService {
     }
 
     /**
+     * Generates a CSV file from a custom query and stores it inside the database folder
+     * @param fileName The name of the CSV file
+     * @param query The custom query which contains subgraph to export
+     */
+    public void generateQueryCSV(String fileName, String query) {
+        try (Session session = neo4jDriver.session()) {
+            String command = "WITH \"" + query + "\" AS query\n" +
+                    "CALL apoc.export.csv.query(query, \"" + properties.getRelativeExportsPath().toString() + "/" + fileName + ".csv\", {})\n" +
+                    "YIELD file, source, format, nodes, relationships, properties, time, rows, batchSize, batches, done, data\n" +
+                    "RETURN file, source, format, nodes, relationships, properties, time, rows, batchSize, batches, done, data;";
+            session.run(command);
+        } catch (ClientException e) {
+            throw new InvalidQueryException("Error Exporting to CSV! " + e.getMessage());
+        }
+    }
+
+    /**
      * Downloads a CSV file from the Neo4j database folder
      * @param fileName The name of the CSV file
      * @return The CSV file as an InputStreamResource

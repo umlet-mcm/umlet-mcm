@@ -109,6 +109,30 @@ class RawNeo4jServiceTest {
     }
 
     @Test
+    void generateQueryCSVExecutesExportQuery() {
+        String fileName = "fileName";
+        String query = "MATCH(n:Node)-[r:RELATION]->(m:Node) RETURN n,r.Name,m.ID";
+        when(properties.getRelativeExportsPath()).thenReturn(Paths.get("exports"));
+
+        rawNeo4jService.generateQueryCSV(fileName, query);
+
+        verify(session).run("WITH \"MATCH(n:Node)-[r:RELATION]->(m:Node) RETURN n,r.Name,m.ID\" AS query\n" +
+                "CALL apoc.export.csv.query(query, \"exports/fileName.csv\", {})\n" +
+                "YIELD file, source, format, nodes, relationships, properties, time, rows, batchSize, batches, done, data\n" +
+                "RETURN file, source, format, nodes, relationships, properties, time, rows, batchSize, batches, done, data;");
+    }
+
+    @Test
+    void generateQueryCSVThrowsInvalidQueryExceptionForClientException() {
+        String fileName = "fileName";
+        String query = "MATCH(n:Node)-[r:RELATION]->(m:Node) RETURN n,r.Name,m.ID";
+        when(properties.getRelativeExportsPath()).thenReturn(Paths.get("exports"));
+        doThrow(new ClientException("Error Exporting to CSV! No access to DB!")).when(session).run(anyString());
+
+        assertThrows(InvalidQueryException.class, () -> rawNeo4jService.generateQueryCSV(fileName,query));
+    }
+
+    @Test
     void downloadCSVReturnsByteArrayResource() throws IOException {
         String fileName = "fileName";
 

@@ -132,6 +132,14 @@ public interface GraphDBService {
     ByteArrayResource generateCSV(String fileName);
 
     /**
+     * Generates a CSV file from a custom query
+     * @param fileName The name of the CSV file
+     * @param query The custom query which contains subgraph to export
+     * @return The CSV file as an InputStreamResource
+     */
+    ByteArrayResource generateQueryCSV(String fileName, String query);
+
+    /**
      * Clears the graph database, removing all nodes, relations and attributes
      */
     void clearDatabase();

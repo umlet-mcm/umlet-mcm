@@ -157,6 +157,11 @@ public class GraphDBServiceImpl implements GraphDBService {
         return rawNeo4jService.downloadCSV(fileName);
     }
 
+    public ByteArrayResource generateQueryCSV(String fileName, String query) {
+        rawNeo4jService.generateQueryCSV(fileName, query);
+        return rawNeo4jService.downloadCSV(fileName);
+    }
+
     @Override
     public void clearDatabase() {
         rawNeo4jService.clearDatabase();

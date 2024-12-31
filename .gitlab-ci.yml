@@ -1,0 +1,16 @@
+stages:
+  - build_components
+
+mcm-backend:
+  stage: build_components
+  trigger:
+    include:
+      - local: 'mcm-backend/.gitlab-ci.yml'
+    strategy: depend
+
+mcm-frontend:
+  stage: build_components
+  trigger:
+    include:
+      - local: 'mcm-frontend/.gitlab-ci.yml'
+    strategy: depend

@@ -1,0 +1,41 @@
+image: amazoncorretto:23-alpine3.20
+variables:
+  PROJECT_DIRECTORY: "${CI_PROJECT_DIR}/mcm-backend"
+  CORE_DIRECTORY: "${PROJECT_DIRECTORY}/mcm-core"
+  SERVER_DIRECTORY: "${PROJECT_DIRECTORY}/mcm-server"
+
+stages:
+  - build
+  - test
+
+default:
+  before_script:
+    - cd "${PROJECT_DIRECTORY}"
+
+build_core:
+  stage: build
+  script:
+    - ./gradlew :mcm-core:assemble
+
+build_server:
+  stage: build
+  script:
+    - ./gradlew :mcm-server:assemble
+
+test_core:
+  stage: test
+  script:
+    - ./gradlew :mcm-core:test
+  artifacts:
+    paths:
+      - "${CORE_DIRECTORY}/build/test-results"
+    expire_in: 7 days
+
+test_server:
+  stage: test
+  script:
+    - ./gradlew :mcm-server:test
+  artifacts:
+    paths:
+      - "${SERVER_DIRECTORY}/build/test-results"
+    expire_in: 7 days

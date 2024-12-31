@@ -1,0 +1,16 @@
+image: node:20.18.1-alpine
+variables:
+  PROJECT_DIRECTORY: "${CI_PROJECT_DIR}/mcm-frontend"
+
+stages:
+  - build
+
+default:
+  before_script:
+    - cd "${PROJECT_DIRECTORY}"
+
+build_frontend:
+  stage: build
+  script:
+    - npm ci
+    - npm run build

@@ -3,9 +3,8 @@ import { cn } from '@/lib/utils'
 import { Model } from '@/types/Model.ts'
 import {Button} from "@/components/ui/button";
 import {Trash} from "lucide-vue-next";
-import {onMounted} from "vue";
 
-const props = defineProps({
+defineProps({
   items: {
     type: Array as () => Model[],
     required: true,
@@ -16,23 +15,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(["update:selectedModel"]);
-const selectModel = (model: Model) => {
-  emit("update:selectedModel", model);
-};
-
-const placeholder = () => {
-  console.log('Placeholder')
-}
-
-onMounted(() => {
-  if(props.items.length === 0) return
-  // if(props.items[0].id === "Full Graph") return
-  // props.items.unshift({
-  //   id: "Full Graph",
-  //   nodes: props.items.flatMap((model) => model.nodes),
-  // })
-})
+defineEmits(["update:selectedModel", "deleteModel"]);
 </script>
 
 <template>
@@ -43,7 +26,7 @@ onMounted(() => {
             :key="item.id"
             :class="cn(
             'flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent bg-primary-light', selectedModel?.id === item.id && 'bg-muted')"
-            @click="selectModel(item)">
+            @click="$emit('update:selectedModel', item)">
           <div class="flex w-full flex-col gap-1">
             <div class="flex items-center w-full">
               <div class="flex items-center gap-2 w-4/5">
@@ -52,7 +35,7 @@ onMounted(() => {
                 </div>
               </div>
               <div :class="cn('ml-auto', selectedModel?.id === item.id ? 'visible' : 'invisible')" class="w-1/4">
-                <Button v-if="item.id !== 'Full Graph'" class="rounded-full" variant="destructive" size="icon" @click="placeholder">
+                <Button class="rounded-full" variant="destructive" size="icon" @click="$emit('deleteModel')">
                   <Trash />
                 </Button>
               </div>

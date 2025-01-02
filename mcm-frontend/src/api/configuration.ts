@@ -45,11 +45,7 @@ export const updateConfiguration = async (data: { name: string, models: Model[] 
     //todo read data from response instead
     try {
         const response = await apiClient.put(`/${data.name}`, data);
-        return {
-            name: data.name,
-            version: '',
-            models: data.models
-        };
+        return response.data;
     } catch (error) {
         throw error;
     }

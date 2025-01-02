@@ -8,7 +8,7 @@ const routes = [
         path: '/configuration/:id',
         name: "mainview",
         component: MainView,
-        props: route => ({
+        props: (route:any) => ({
             id: route.params.id
         }),
     }

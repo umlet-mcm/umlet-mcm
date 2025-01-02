@@ -7,7 +7,7 @@ const apiClient = axios.create({
     }
 });
 
-export const sendRequest = async (query: string): Promise<String> => {
+export const sendRequest = async (query: string): Promise<Record<string, any>[]> => {
     try {
         const response = await apiClient.post('/graphdb/query', {"query": query.trim()});
         return response.data;

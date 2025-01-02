@@ -99,6 +99,7 @@ const executeQuery = async () => {
         <GraphVisualisation
             class="h-full w-full"
             :selected-model="selectedModel"
+            :query-response="response"
             @update:selectedEntity="emit('update:selectedEntity', $event)"/>
       </div>
       <div v-else class="h-full w-full">

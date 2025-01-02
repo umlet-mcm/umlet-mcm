@@ -16,7 +16,7 @@ const fetchConfigurations = async () => {
     configurations.value = await getAllConfigurations();
     errorMessage.value = undefined
   } catch (error: any) {
-    errorMessage.value = error.message
+    errorMessage.value = "Unable to fetch configurations : " + error.message
   }
 };
 
@@ -34,7 +34,8 @@ onMounted(() => {
     </h1>
     <div class="bg-white rounded-lg shadow-lg w-full max-w-4xl overflow-hidden">
       <div class="flex justify-center p-2">
-        <label v-if="errorMessage" class="text-sm font-medium text-red-500">Error : {{errorMessage}}</label>
+        <label v-if="errorMessage" class="text-sm font-medium text-red-500">{{errorMessage}}</label>
+        <label v-else class="text-sm font-medium text-green-500">Database connection OK</label>
       </div>
       <div class="flex">
         <ProjectList :configurations="configurations"/>

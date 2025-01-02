@@ -5,6 +5,8 @@ import ProjectList from "@/components/open-create-configuration/ProjectList.vue"
 import {onMounted, ref} from "vue";
 import {Configuration} from "@/types/Configuration.ts";
 import {getAllConfigurations} from "@/api/configuration.ts";
+import {HelpCircle} from 'lucide-vue-next'
+import {Button} from "@/components/ui/button";
 
 const configurations = ref<Configuration[]>([]);
 const errorMessage = ref<string | undefined>(undefined)
@@ -39,6 +41,12 @@ onMounted(() => {
         <NewProjectForm/>
       </div>
     </div>
-    <img src="/tu_logo.svg" alt="TU Wien Logo" class="mt-3 w-12"/>
+    <div class="flex items-center mt-3">
+      <img src="/tu_logo.svg" alt="TU Wien Logo" class="w-12 m-2"/>
+      <Button @click="$router.push({ name: 'help'})" class="w-full flex items-center gap-2" variant="outline">
+        <HelpCircle/>
+        How to use
+      </Button>
+    </div>
   </div>
 </template>

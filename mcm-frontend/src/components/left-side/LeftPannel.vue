@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Configuration } from '@/types/Configuration.ts'
 import ModelList from "@/components/left-side/ModelList.vue"
-import { FileUp, Save, FileOutput, FileInput, FileStack, Settings } from 'lucide-vue-next'
+import {FileUp, Save, FileOutput, FileInput, FileStack, Settings, HelpCircle} from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
 import DialogMerge from "@/components/left-side/DialogMerge.vue";
 import {ref} from "vue";
@@ -63,9 +63,14 @@ const exportCurrentModel = async () => {
       </Button>
     </div>
     <Separator />
-    <div class="space-y-4">
+    <div class="space-y-2">
       <div>
-        <h2 class="text-sm font-semibold mb-2">Configuration Operations</h2>
+        <div class="flex justify-between items-center ">
+          <h2 class="text-sm font-semibold">Configuration Operations</h2>
+          <Button variant="ghost" size="icon" @click="placeholder">
+            <HelpCircle />
+          </Button>
+        </div>
         <div class="space-y-2">
           <Button variant="outline" class="w-full justify-start" @click="$router.push({name:'home'})">
             <FileUp class="mr-2" />
@@ -90,7 +95,12 @@ const exportCurrentModel = async () => {
         </div>
       </div>
       <div>
-        <h2 class="text-sm font-semibold mb-2">Model Operations</h2>
+        <div class="flex justify-between items-center ">
+          <h2 class="text-sm font-semibold">Model Operations</h2>
+          <Button variant="ghost" size="icon" @click="placeholder">
+            <HelpCircle />
+          </Button>
+        </div>
         <div class="space-y-2">
           <Button variant="outline" class="w-full justify-start" @click="isDialogOpen.merge = true">
             <FileStack class="mr-2" />

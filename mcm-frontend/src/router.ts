@@ -1,6 +1,7 @@
 import OpenCreateProjectView from "@/views/OpenCreateProjectView.vue";
 import MainView from "@/views/MainView.vue";
 import {createRouter, createWebHistory} from "vue-router";
+import HelpView from "@/views/HelpView.vue";
 
 const routes = [
     { path: '/', name: "home", component: OpenCreateProjectView },
@@ -11,7 +12,9 @@ const routes = [
         props: (route:any) => ({
             id: route.params.id
         }),
-    }
+    },
+    { path: '/help', name: "help", component: HelpView },
+    { path: '/:pathMatch(.*)*', redirect: { name: "home" } },
 ]
 
 export const router = createRouter({

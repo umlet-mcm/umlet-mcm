@@ -25,17 +25,17 @@ const form = useForm({
 })
 
 const createProject = async (data: { name: string }) => {
+  isLoadingValidate.value = true
   try {
-    isLoadingValidate.value = true
     const createdConfig = await createConfiguration(data);
     if(configFile.value) {
       await uploadUxfToModel(configFile.value, createdConfig.name)
     }
-    isLoadingValidate.value = false
     await router.push({name: 'mainview', params: {id: createdConfig.name}})
   } catch (error) {
     form.setFieldError('configName', 'Error creating project');
   }
+  isLoadingValidate.value = false
 }
 
 const handleFileChange = (event: Event) => {

@@ -2,14 +2,15 @@ import { Model } from "@/types/Model.ts";
 import { Node } from "@/types/Node.ts";
 import { sendRequest } from "@/api/graphDB.ts";
 
-export async function parseResponseGraph(response: Record<string, any>[]): Promise<Model> {
+export async function parseResponseGraph(response: Record<string, any>[], selectedModel: Model): Promise<Model> {
     // Detect nodes in the response
     const detectedNodes = detectNodes(response);
 
     const nodes: Node[] = [];
     detectedNodes.forEach((rawNode: any) => {
         if (nodes.some((n) => n.id === rawNode.elementId)) return;
-        nodes.push(createNodeFromResponse(rawNode));
+        if (selectedModel.nodes.some((n) => n.id === rawNode.properties.generatedID.val))
+            nodes.push(createNodeFromResponse(rawNode));
     });
 
     // Fetch relations for the retrieved nodes
@@ -75,7 +76,6 @@ function createRelationFromResponse(relation: any) {
 }
 
 function detectNodes(response: Record<string, any>[]): any[] {
-    //todo try with more complex queries, I doubt this will work for all cases
     const nodes: any[] = [];
     for (let item of response) {
         for (let key in item) {

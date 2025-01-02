@@ -77,8 +77,8 @@ const initializeGraph = () => {
     },
     edges: {
       smooth: {
-        type: 'curvedCW', // Donne une courbure aux liens
-        roundness: 0.1    // Ajuste la distance de courbure
+        type: 'curvedCW',
+        roundness: 0.1
       },
       color: {
         color: '#848484',
@@ -124,6 +124,7 @@ const initializeGraph = () => {
 watch(() => props.selectedModel, (newValue, oldValue) => {
   if (newValue !== oldValue) {
     activeModel.value = newValue;
+    active.value = 'full';
     initializeGraph();
   }
 });
@@ -144,7 +145,7 @@ watch(active, async (newValue) => {
 // on change of query response (new request)
 watch(() => props.queryResponse, async (newValue) => {
   if (newValue?.length) {
-    queryGraph.value = await parseResponseGraph(newValue);
+    queryGraph.value = await parseResponseGraph(newValue, props.selectedModel);
     // if queryGraph is empty, then set the selected model as active model
     activeModel.value = queryGraph.value?.nodes.length ? queryGraph.value : props.selectedModel;
     active.value = queryGraph.value?.nodes.length ? 'request' : 'full';

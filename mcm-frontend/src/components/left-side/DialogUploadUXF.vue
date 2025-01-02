@@ -113,7 +113,7 @@ const loadNewConfiguration = () => {
       <DialogHeader>
         <DialogTitle>Upload a new UXF</DialogTitle>
         <DialogDescription>
-          Upload a UXF file as a new configuration or a model within the current one.
+          Upload a UXF file as a new model configuration or a model within the current one.
         </DialogDescription>
       </DialogHeader>
 
@@ -162,7 +162,7 @@ const loadNewConfiguration = () => {
                   <RadioGroup v-model="uploadLocation">
                     <div class="flex items-center space-x-2">
                       <RadioGroupItem id="configuration" value="configuration" />
-                      <label for="configuration" class="text-sm">New configuration</label>
+                      <label for="configuration" class="text-sm">New model configuration</label>
                     </div>
                     <div class="flex items-center space-x-2">
                       <RadioGroupItem id="model" value="model" />

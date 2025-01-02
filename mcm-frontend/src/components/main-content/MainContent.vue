@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import QueryEditor from "@/components/main-content/QueryEditor.vue"
 import GraphVisualisation from "@/components/main-content/GraphVisualisation.vue"
 import {PropType, ref} from "vue"
-import { Play } from 'lucide-vue-next'
+import {HelpCircle, Play} from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
 import {Node, Relation} from "@/types/Node.ts";
 import {sendRequest} from "@/api/graphDB.ts";
@@ -71,7 +71,12 @@ const executeQuery = async () => {
 <template>
   <div class="flex-1 flex flex-col">
     <div class="p-4 space-y-4">
-      <h1 class="text-xl font-bold">Neo4J Query</h1>
+      <div class="flex items-center ">
+        <h2 class="text-xl font-semibold">Neo4J Query</h2>
+        <Button variant="ghost" size="icon" @click="console.log('help query')">
+          <HelpCircle />
+        </Button>
+      </div>
       <QueryEditor v-model="query" />
       <div class="flex gap-2">
         <Button @click="executeQuery" class="flex items-center">
@@ -86,12 +91,6 @@ const executeQuery = async () => {
       <h1 class="text-lg font-bold p-4">
         Current model : {{ selectedModel?.id }}
       </h1>
-<!--      <div class="flex p-4">-->
-<!--        <Button class="p-2 rounded-full" variant="destructive">-->
-<!--          <ArrowLeft class="h-5 w-5"/>-->
-<!--          Previous-->
-<!--        </Button>-->
-<!--      </div>-->
     </div>
 
     <div class="flex-1 p-2 overflow-hidden">

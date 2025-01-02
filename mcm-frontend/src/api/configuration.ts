@@ -40,16 +40,10 @@ export const createConfiguration = async (data: { name: string }): Promise<Confi
     }
 };
 
-export const updateConfiguration = async (data: { name: string, models: Model[] }): Promise<Configuration> => {
-    //todo need to check if name is unique
-    //todo read data from response instead
+export const updateConfiguration = async (data: { name: string, version: string, models: Model[] }): Promise<Configuration> => {
     try {
-        const response = await apiClient.put(`/${data.name}`, data);
-        return {
-            name: data.name,
-            version: '',
-            models: data.models
-        };
+        const response = await apiClient.put(``, data);
+        return response.data;
     } catch (error) {
         throw error;
     }

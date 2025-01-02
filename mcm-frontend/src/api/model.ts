@@ -18,9 +18,16 @@ export const mergeModels = async (models: Model[], outName: string): Promise<Mod
         // return response.data;
         return {
             id: outName,
+            description: "",
+            mcmAttributes: {},
+            originalText: "",
+            title: outName,
+            tags: [],
             nodes: models.flatMap(model => model.nodes)
         }
     } catch (error) {
+        // just to use apiClient before connecting it to the backend
+        console.log(apiClient);
         throw error;
     }
 };

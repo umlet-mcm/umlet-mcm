@@ -25,17 +25,17 @@ const form = useForm({
 })
 
 const createProject = async (data: { name: string }) => {
+  isLoadingValidate.value = true
   try {
-    isLoadingValidate.value = true
     const createdConfig = await createConfiguration(data);
     if(configFile.value) {
       await uploadUxfToModel(configFile.value, createdConfig.name)
     }
-    isLoadingValidate.value = false
     await router.push({name: 'mainview', params: {id: createdConfig.name}})
   } catch (error) {
     form.setFieldError('configName', 'Error creating project');
   }
+  isLoadingValidate.value = false
 }
 
 const handleFileChange = (event: Event) => {
@@ -55,12 +55,12 @@ const onSubmit = form.handleSubmit((values) => {
   <div class="w-1/2 p-6">
     <h2 class="text-2xl font-semibold mb-4 flex items-center gap-2">
       <PlusCircleIcon class="w-6 h-6" />
-      New Configuration
+      New Model Configuration
     </h2>
     <form @submit.prevent="onSubmit" class="space-y-4">
       <FormField v-slot="{ componentField, errorMessage }" name="configName">
         <FormItem>
-          <FormLabel>Configuration name</FormLabel>
+          <FormLabel>Model Configuration name</FormLabel>
           <FormControl>
             <Input type="text" required placeholder="Name" v-bind="componentField" />
           </FormControl>

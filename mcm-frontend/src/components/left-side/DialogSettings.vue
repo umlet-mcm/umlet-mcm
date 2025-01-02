@@ -8,6 +8,7 @@ import {Input} from "@/components/ui/input";
 import {useRouter} from "vue-router";
 import {ref} from "vue";
 import AlertConfirmation from "@/components/left-side/AlertConfirmation.vue";
+import {LoaderCircleIcon} from 'lucide-vue-next'
 
 //props related
 const props = defineProps({
@@ -28,6 +29,7 @@ const emit = defineEmits<{
 const nameInput = ref(props.currentConfiguration.name)
 const errorMessage = ref<string | undefined>(undefined)
 const router = useRouter()
+const isLoadingValidate = ref(false)
 
 // confirmation dialog
 const isDialogOpen = ref({confirmation: false})
@@ -49,14 +51,16 @@ const confirmDeletion = async () => {
     await router.push({name: 'home'})
   }
   catch (error : any) {
-    errorMessage.value = error.message
+    errorMessage.value = error.response?.data?.message || error.message
   }
 }
 
 const saveChanges = async () => {
+  isLoadingValidate.value = true
   try {
     const newConfig = await updateConfiguration({
       name: nameInput.value,
+      version: props.currentConfiguration.version,
       models: props.currentConfiguration.models
     })
     //todo may be a better idea to emit the new configuration and update it in the parent component
@@ -64,8 +68,9 @@ const saveChanges = async () => {
     props.currentConfiguration.models = newConfig.models
     emit('update:isOpen', false)
   } catch (error : any) {
-    errorMessage.value = error.message
+    errorMessage.value = error.response?.data?.message || error.message
   }
+  isLoadingValidate.value = false
 }
 </script>
 
@@ -95,7 +100,10 @@ const saveChanges = async () => {
       </div>
       <DialogFooter>
         <Button variant="outline" @click="closeDialog">Cancel</Button>
-        <Button @click="saveChanges" :disabled="!nameInput.length">Save Changes</Button>
+        <Button @click="saveChanges" :disabled="!nameInput.length">
+          <LoaderCircleIcon v-if="isLoadingValidate" class="animate-spin"/>
+          Save Changes
+        </Button>
       </DialogFooter>
     </DialogContent>
 

@@ -4,16 +4,18 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Configuration } from '@/types/Configuration.ts'
 import ModelList from "@/components/left-side/ModelList.vue"
-import {FileUp, Save, FileOutput, FileInput, FileStack, Settings, HelpCircle} from 'lucide-vue-next'
+import {FileUp, Save, FileOutput, FileInput, FileStack, Settings, HelpCircle, GitGraph} from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
 import DialogMerge from "@/components/left-side/DialogMerge.vue";
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 import DialogSettings from "@/components/left-side/DialogSettings.vue";
 import {exportToUxf} from "@/api/files.ts";
 import DialogExport from "@/components/left-side/DialogExport.vue";
 import DialogUploadUXF from "@/components/left-side/DialogUploadUXF.vue";
 import AlertConfirmation from "@/components/left-side/AlertConfirmation.vue";
 import {deleteModelFromConfig} from "@/api/model.ts";
+import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import {getConfigurationVersions} from "@/api/configuration.ts";
 
 // props related
 const props = defineProps({
@@ -30,6 +32,8 @@ const props = defineProps({
 // variables
 const emit = defineEmits(["update:selectedModel", "update:selectedConfiguration"]);
 const isDialogOpen = ref({merge: false, settings: false, export: false, upload: false, confirmation: false})
+const versionList = ref<string[]>([])
+const selectedVersion = ref<string | undefined>(undefined)
 
 // functions
 const handleMerge = (mergedModel: Model) => {
@@ -66,18 +70,47 @@ const confirmDeletion = async () => {
   }
 }
 
+onMounted(async () => {
+  try {
+    // todo the second argument will be deleted when the backend is ready
+    versionList.value = await getConfigurationVersions(props.selectedConfiguration.name, props.selectedConfiguration.version)
+    selectedVersion.value = props.selectedConfiguration.version
+  } catch (e) {
+    console.error(e)
+  }
+})
 </script>
 
 <template>
   <div class="w-64 border-r border-border p-4 flex flex-col gap-4 bg-primary-foreground">
     <div class="flex justify-between items-start">
-      <div class="max-w-[80%]">
-        <h1 class="text-xl font-bold truncate ">{{ selectedConfiguration.name }}</h1>
-        <p class="text-sm text-muted-foreground truncate">{{ selectedConfiguration.version }}</p>
+      <div class="flex-1 w-full">
+        <div class="flex items-center gap-2 w-full">
+          <h1 class="text-xl font-bold truncate">{{ selectedConfiguration.name }}</h1>
+          <Button variant="ghost" size="icon" class="w-1/4" @click="isDialogOpen.settings = true">
+            <Settings />
+          </Button>
+        </div>
+        <div class="flex items-center gap-2">
+          <Select v-model="selectedVersion">
+            <SelectTrigger>
+              <SelectValue placeholder="Select a version" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <div v-for="version in versionList.values()" :key="version">
+                  <SelectItem :value="version">
+                    {{ version }}
+                  </SelectItem>
+                </div>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          <Button v-if="selectedVersion !== selectedConfiguration.version" size="icon" class="w-1/4" v-tooltip="'Checkout'" @click="placeholder">
+            <GitGraph />
+          </Button>
+        </div>
       </div>
-      <Button variant="ghost" size="icon" @click="isDialogOpen.settings = true">
-        <Settings />
-      </Button>
     </div>
     <Separator />
     <div class="space-y-2">

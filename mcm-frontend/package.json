@@ -17,6 +17,7 @@
     "axios": "^1.7.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "floating-vue": "^5.2.2",
     "lucide-vue-next": "^0.460.0",
     "radix-vue": "^1.9.10",
     "tailwind-merge": "^2.5.4",

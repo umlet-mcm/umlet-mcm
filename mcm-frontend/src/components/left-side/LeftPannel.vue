@@ -4,17 +4,16 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Configuration } from '@/types/Configuration.ts'
 import ModelList from "@/components/left-side/ModelList.vue"
-import {FileUp, Save, FileOutput, FileInput, FileStack, Settings, HelpCircle, GitGraph} from 'lucide-vue-next'
+import {FileUp, Save, FileOutput, FileInput, FileStack, HelpCircle} from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
 import DialogMerge from "@/components/left-side/DialogMerge.vue";
 import {onMounted, ref} from "vue";
-import DialogSettings from "@/components/left-side/DialogSettings.vue";
 import {exportToUxf} from "@/api/files.ts";
 import DialogExport from "@/components/left-side/DialogExport.vue";
 import DialogUploadUXF from "@/components/left-side/DialogUploadUXF.vue";
+import TopLeftPannel from "@/components/left-side/TopLeftPannel.vue";
 import AlertConfirmation from "@/components/left-side/AlertConfirmation.vue";
 import {deleteModelFromConfig} from "@/api/model.ts";
-import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {getConfigurationVersions} from "@/api/configuration.ts";
 
 // props related
@@ -83,35 +82,7 @@ onMounted(async () => {
 
 <template>
   <div class="w-64 border-r border-border p-4 flex flex-col gap-4 bg-primary-foreground">
-    <div class="flex justify-between items-start">
-      <div class="flex-1 w-full">
-        <div class="flex items-center gap-2 w-full">
-          <h1 class="text-xl font-bold truncate">{{ selectedConfiguration.name }}</h1>
-          <Button variant="ghost" size="icon" class="w-1/4" @click="isDialogOpen.settings = true">
-            <Settings />
-          </Button>
-        </div>
-        <div class="flex items-center gap-2">
-          <Select v-model="selectedVersion">
-            <SelectTrigger>
-              <SelectValue placeholder="Select a version" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <div v-for="version in versionList.values()" :key="version">
-                  <SelectItem :value="version">
-                    {{ version }}
-                  </SelectItem>
-                </div>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          <Button v-if="selectedVersion !== selectedConfiguration.version" size="icon" class="w-1/4" v-tooltip="'Checkout'" @click="placeholder">
-            <GitGraph />
-          </Button>
-        </div>
-      </div>
-    </div>
+    <TopLeftPannel :selectedConfiguration="selectedConfiguration"/>
     <Separator />
     <div class="space-y-2">
       <div>
@@ -184,10 +155,6 @@ onMounted(async () => {
   <DialogExport
       v-model:isOpen="isDialogOpen.export"
       :configuration-name="selectedConfiguration.name"
-  />
-  <DialogSettings
-      v-model:isOpen="isDialogOpen.settings"
-      :currentConfiguration="selectedConfiguration"
   />
   <DialogUploadUXF
       v-model:isOpen="isDialogOpen.upload"

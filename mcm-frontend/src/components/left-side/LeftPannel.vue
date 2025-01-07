@@ -12,6 +12,7 @@ import {exportToUxf} from "@/api/files.ts";
 import DialogExport from "@/components/left-side/DialogExport.vue";
 import DialogUploadUXF from "@/components/left-side/DialogUploadUXF.vue";
 import TopLeftPannel from "@/components/left-side/TopLeftPannel.vue";
+import DialogVersionDiff from "@/components/left-side/DialogVersionDiff.vue";
 import AlertConfirmation from "@/components/left-side/AlertConfirmation.vue";
 import {deleteModelFromConfig} from "@/api/model.ts";
 import {getConfigurationVersions} from "@/api/configuration.ts";
@@ -30,7 +31,7 @@ const props = defineProps({
 
 // variables
 const emit = defineEmits(["update:selectedModel", "update:selectedConfiguration"]);
-const isDialogOpen = ref({merge: false, settings: false, export: false, upload: false, confirmation: false})
+const isDialogOpen = ref({merge: false, export: false, upload: false, confirmation: false, versionDiff: false})
 const versionList = ref<string[]>([])
 const selectedVersion = ref<string | undefined>(undefined)
 
@@ -112,9 +113,9 @@ onMounted(async () => {
             <FileOutput class="mr-2" />
             Export to UXF / CSV
           </Button>
-          <Button variant="outline" class="w-full justify-start" @click="placeholder">
+          <Button variant="outline" class="w-full justify-start" @click="isDialogOpen.versionDiff = true">
             <FileOutput class="mr-2" />
-            Version history
+            Version diff
           </Button>
         </div>
       </div>
@@ -165,6 +166,9 @@ onMounted(async () => {
       @update:currentConfiguration="emit('update:selectedConfiguration', $event)"
       @update:currentModel="emit('update:selectedModel', $event)"
   />
+  <DialogVersionDiff
+      v-model:isOpen="isDialogOpen.versionDiff"
+      :currentConfiguration="selectedConfiguration"/>
   <!-- Alert dialog to delete a model from configuration -->
   <AlertConfirmation
       :on-confirm="confirmDeletion"

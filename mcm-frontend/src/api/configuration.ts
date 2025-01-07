@@ -68,3 +68,20 @@ export const getConfigurationVersions = async (name: string, version: string): P
         throw error;
     }
 }
+
+/**
+ * Compare two versions of a configuration
+ * @param name the name of the configuration to compare
+ * @param version1 the first version to compare
+ * @param version2 the second version to compare
+ */
+export const compareTwoVersions = async (name: string, version1: string, version2: string): Promise<string> => {
+    try {
+        // const response = await apiClient.get(`/${name}/compare/${version1}/${version2}`);
+        // return response.data;
+        //todo use api to compare
+        return "The two versions are the same";
+    } catch (error) {
+        throw error;
+    }
+}

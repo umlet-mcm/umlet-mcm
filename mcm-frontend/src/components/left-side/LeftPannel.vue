@@ -82,7 +82,10 @@ onMounted(async () => {
 
 <template>
   <div class="w-64 border-r border-border p-4 flex flex-col gap-4 bg-primary-foreground">
-    <TopLeftPannel :selectedConfiguration="selectedConfiguration"/>
+    <TopLeftPannel
+        :selectedConfiguration="selectedConfiguration"
+        @update:selectedConfiguration="emit('update:selectedConfiguration', $event)"
+    />
     <Separator />
     <div class="space-y-2">
       <div>

@@ -42,8 +42,8 @@ export const createConfiguration = async (data: { name: string }): Promise<Confi
 
 export const updateConfiguration = async (data: { name: string, version: string, models: Model[] }): Promise<Configuration> => {
     try {
-        const response = await apiClient.put(``, data);
-        return response.data;
+        const response = await apiClient.put('', data);
+        return response.data
     } catch (error) {
         throw error;
     }

@@ -53,6 +53,8 @@ public class Neo4jValueConverter {
             return Values.value((Integer) object);
         } else if (object instanceof Double) {
             return Values.value((Double) object);
+        } else if (object instanceof Float) {
+            return Values.value((Float) object);
         } else if (object instanceof List) {
             List<Value> listValues = ((List<?>) object).stream()
                     .map(Neo4jValueConverter::convertObject)

@@ -32,11 +32,14 @@ public class ConfigurationServiceTest {
 
     private ConfigurationService configurationService;
 
+    @Mock
+    private GraphDBService graphDBService;
+
     @BeforeEach
     public void setup() {
         configurationRepository = new MockConfigurationRepository();
         annotations = MockitoAnnotations.openMocks(this);
-        configurationService = new ConfigurationServiceImpl(configurationRepository, versionControlRepository);
+        configurationService = new ConfigurationServiceImpl(configurationRepository, versionControlRepository, graphDBService);
     }
 
     @AfterEach

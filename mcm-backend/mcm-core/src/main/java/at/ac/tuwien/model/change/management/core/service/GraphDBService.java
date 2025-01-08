@@ -68,6 +68,14 @@ public interface GraphDBService {
     Configuration loadConfiguration(Configuration configuration);
 
     /**
+     * Loads a configuration to the graph database
+     * @param name The name of the configuration to load
+     * @return The loaded configuration
+     * @throws ConfigurationNotFoundException if the configuration does not exist
+     */
+    Configuration loadConfiguration(String name);
+
+    /**
      * Retrieves a configuration from the graph database
      * @param id The id of the configuration to retrieve
      * @return The retrieved configuration
@@ -79,6 +87,12 @@ public interface GraphDBService {
      * @return The list of all configurations
      */
     List<Configuration> getConfigurations();
+
+    /**
+     * Saves the graph database to the repository
+     * @return True if the save was successful, false otherwise
+     */
+    Boolean saveDBToRepository();
 
     /**
      * Deletes a configuration from the graph database

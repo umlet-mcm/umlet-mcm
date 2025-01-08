@@ -55,12 +55,12 @@ public class GraphDBController {
 
     /**
      * Loads a configuration into the graph database.
-     * @param configurationDTO the configuration data transfer object
+     * @param configurationID the ID of the configuration to load into the database
      * @return the loaded configuration as a data transfer object
      */
-    @PostMapping(path = "/configuration")
-    public ResponseEntity<ConfigurationDTO> loadConfiguration(@RequestBody ConfigurationDTO configurationDTO) {
-        var configuration = graphDBService.loadConfiguration(configurationDtoMapper.fromDto(configurationDTO));
+    @PostMapping(path = "/configuration/{configurationID}")
+    public ResponseEntity<ConfigurationDTO> loadConfiguration(@PathVariable("configurationID") String configurationID) {
+        var configuration = graphDBService.loadConfiguration(configurationID);
         return ResponseEntity.ok(configurationDtoMapper.toDto(configuration));
     }
 
@@ -72,6 +72,21 @@ public class GraphDBController {
     public ResponseEntity<Void> deleteConfiguration(@PathVariable("configurationID") String configurationID) {
         graphDBService.deleteConfiguration(configurationID);
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Saves the graph database to the repository.
+     * @return a response entity with a success message
+     */
+    @PostMapping(path = "/save")
+    public ResponseEntity<String> saveDatabase() {
+        val result = graphDBService.saveDBToRepository();
+
+        // Return the result
+        if(result)
+            return ResponseEntity.ok("Successfully saved the DB to the repository!");
+        else
+            return ResponseEntity.notFound().build();
     }
 
     /**

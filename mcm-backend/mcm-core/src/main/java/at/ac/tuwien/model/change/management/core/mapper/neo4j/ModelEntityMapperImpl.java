@@ -38,7 +38,8 @@ public class ModelEntityMapperImpl implements ModelEntityMapper {
         modelEntity.setNodes(model.getNodes().stream().map(node -> nodeMapper.toEntity(node)).collect(Collectors.toSet()));
 
         // Assign tags
-        modelEntity.setTags( new HashSet<>(model.getTags()));
+        if(model.getTags() != null)
+            modelEntity.setTags( new HashSet<>(model.getTags()));
 
         // Assign properties
         if(model.getMcmAttributes() != null) {

@@ -3,6 +3,7 @@ package at.ac.tuwien.model.change.management.server.exception;
 import at.ac.tuwien.model.change.management.core.exception.ConfigurationAlreadyExistsException;
 import at.ac.tuwien.model.change.management.core.exception.ConfigurationDoesNotExistException;
 import at.ac.tuwien.model.change.management.core.exception.ConfigurationValidationException;
+import at.ac.tuwien.model.change.management.core.exception.ModelNotFoundException;
 import at.ac.tuwien.model.change.management.core.service.ConfigurationNotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -37,5 +38,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler
     public ResponseEntity<Object> handleConfigurationValidationException(ConfigurationValidationException e, WebRequest request) {
         return defaultHandleExceptionInternal(e, HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<Object> handleModelNotFoundException(ModelNotFoundException e, WebRequest request) {
+        return defaultHandleExceptionInternal(e, HttpStatus.NOT_FOUND, request);
     }
 }

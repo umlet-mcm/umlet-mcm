@@ -63,6 +63,7 @@ export const getConfigurationVersions = async (name: string, version: string): P
         // const response = await apiClient.get(`/${name}/versions`);
         // return response.data;
         // todo retrieve using only the api. the second argument is just to avoid blank return
+        console.log("Getting versions for " + name + " " + version);
         return [version, "1.0.0", "1.0.1", "1.0.2"];
     } catch (error) {
         throw error;
@@ -80,6 +81,7 @@ export const compareTwoVersions = async (name: string, version1: string, version
         // const response = await apiClient.get(`/${name}/compare/${version1}/${version2}`);
         // return response.data;
         //todo use api to compare
+        console.log("Comparing " + name + " " + version1 + " " + version2);
         return "";
     } catch (error) {
         throw error;

@@ -185,7 +185,6 @@ onMounted(async () => {
       :currentConfiguration="selectedConfiguration"
       :versionList="versionList"
   />
-      :currentConfiguration="selectedConfiguration"/>
   <!-- Alert dialog to delete a model from configuration -->
   <AlertConfirmation
       :on-confirm="confirmDeletion"

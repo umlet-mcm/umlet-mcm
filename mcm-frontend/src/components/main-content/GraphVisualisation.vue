@@ -78,7 +78,8 @@ const initializeGraph = () => {
     edges: {
       smooth: {
         type: 'curvedCW',
-        roundness: 0.1
+        roundness: 0.1,
+        enabled:true
       },
       color: {
         color: '#848484',

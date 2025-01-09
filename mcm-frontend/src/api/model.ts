@@ -34,6 +34,7 @@ export const mergeModels = async (models: Model[], outName: string): Promise<Mod
 
 export const deleteModelFromConfig = async (modelId: string, configId: string): Promise<void> => {
     try {
+        console.log(`Deleting model ${modelId} from configuration ${configId}`);
         // await apiClient.delete(`/models/${modelId}`); //todo: use api
     } catch (error) {
         throw error

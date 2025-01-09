@@ -4,8 +4,7 @@ import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVal
 import {GitGraph, Settings} from "lucide-vue-next";
 import {Button} from "@/components/ui/button";
 import {Configuration} from "@/types/Configuration.ts";
-import {onMounted, ref, watch} from "vue";
-import {getConfigurationVersions} from "@/api/configuration.ts";
+import {ref, watch} from "vue";
 import AlertConfirmation from "@/components/left-side/AlertConfirmation.vue";
 import DialogSettings from "@/components/left-side/DialogSettings.vue";
 
@@ -14,14 +13,17 @@ const props = defineProps({
   selectedConfiguration: {
     type: Object as () => Configuration,
     required: true
+  },
+  versionList: {
+    type: Array as () => string[],
+    required: true
   }
 });
 const emit = defineEmits(["update:selectedConfiguration"]);
 
 // variables
 const isDialogOpen = ref({settings: false, confirmation: false})
-const versionList = ref<string[]>([])
-const selectedVersion = ref<string | undefined>(undefined)
+const selectedVersion = ref<string | undefined>(props.selectedConfiguration.version)
 
 // functions
 function confirmLoadVersion() {
@@ -30,25 +32,14 @@ function confirmLoadVersion() {
   // emit('update:selectedConfiguration', newConfiguration)
 }
 
-async function setVersionList() {
-  try {
-    // todo the second argument will be deleted when the backend is ready
-    versionList.value = await getConfigurationVersions(props.selectedConfiguration.name, props.selectedConfiguration.version)
-    selectedVersion.value = props.selectedConfiguration.version
-  } catch (e) {
-    console.error(e)
-  }
-}
-
-// watch for changes in the selected configuration version
+/*
+  * Watchers
+  * When the version change it means either the user selected a new version or a new configuration was loaded
+ */
 watch(() => props.selectedConfiguration.version, async (newVersion, oldVersion) => {
   if (newVersion !== oldVersion) {
-    await setVersionList()
+    selectedVersion.value = props.selectedConfiguration.version
   }
-})
-
-onMounted(async () => {
-  await setVersionList()
 })
 </script>
 

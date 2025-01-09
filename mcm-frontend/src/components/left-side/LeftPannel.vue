@@ -7,15 +7,15 @@ import ModelList from "@/components/left-side/ModelList.vue"
 import {FileUp, Save, FileOutput, FileInput, FileStack, HelpCircle} from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
 import DialogMerge from "@/components/left-side/DialogMerge.vue";
-import {onMounted, ref} from "vue";
+import {onMounted, ref, watch} from "vue";
 import {exportToUxf} from "@/api/files.ts";
 import DialogExport from "@/components/left-side/DialogExport.vue";
 import DialogUploadUXF from "@/components/left-side/DialogUploadUXF.vue";
 import TopLeftPannel from "@/components/left-side/TopLeftPannel.vue";
 import DialogVersionDiff from "@/components/left-side/DialogVersionDiff.vue";
+import {getConfigurationVersions} from "@/api/configuration.ts";
 import AlertConfirmation from "@/components/left-side/AlertConfirmation.vue";
 import {deleteModelFromConfig} from "@/api/model.ts";
-import {getConfigurationVersions} from "@/api/configuration.ts";
 
 // props related
 const props = defineProps({
@@ -31,9 +31,8 @@ const props = defineProps({
 
 // variables
 const emit = defineEmits(["update:selectedModel", "update:selectedConfiguration"]);
-const isDialogOpen = ref({merge: false, export: false, upload: false, confirmation: false, versionDiff: false})
+const isDialogOpen = ref({merge: false, export: false, upload: false, confirmation: false, versionDiff:false})
 const versionList = ref<string[]>([])
-const selectedVersion = ref<string | undefined>(undefined)
 
 // functions
 const handleMerge = (mergedModel: Model) => {
@@ -70,12 +69,26 @@ const confirmDeletion = async () => {
   }
 }
 
+/*
+  * Watchers
+  * When the version change it means either the user selected a new version or a new configuration was loaded
+ */
+watch(() => props.selectedConfiguration.version, async (newVersion, oldVersion) => {
+  if (newVersion !== oldVersion) {
+    versionList.value = await getConfigurationVersions(props.selectedConfiguration.name, props.selectedConfiguration.version)
+  }
+})
+
+/*
+  * Lifecycle
+  * When the component is mounted, we fetch the list of versions for the selected configuration
+ */
 onMounted(async () => {
   try {
     // todo the second argument will be deleted when the backend is ready
     versionList.value = await getConfigurationVersions(props.selectedConfiguration.name, props.selectedConfiguration.version)
-    selectedVersion.value = props.selectedConfiguration.version
   } catch (e) {
+    versionList.value = [props.selectedConfiguration.version]
     console.error(e)
   }
 })
@@ -86,6 +99,7 @@ onMounted(async () => {
     <TopLeftPannel
         :selectedConfiguration="selectedConfiguration"
         @update:selectedConfiguration="emit('update:selectedConfiguration', $event)"
+        :versionList="versionList"
     />
     <Separator />
     <div class="space-y-2">
@@ -168,6 +182,9 @@ onMounted(async () => {
   />
   <DialogVersionDiff
       v-model:isOpen="isDialogOpen.versionDiff"
+      :currentConfiguration="selectedConfiguration"
+      :versionList="versionList"
+  />
       :currentConfiguration="selectedConfiguration"/>
   <!-- Alert dialog to delete a model from configuration -->
   <AlertConfirmation

@@ -7,7 +7,7 @@ import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVal
 import {Button} from "@/components/ui/button";
 import {Diff, LoaderCircleIcon} from "lucide-vue-next";
 import {compareTwoVersions} from "@/api/configuration.ts";
-import { html as diff2html } from 'diff2html';
+import { html as diff2html, parse } from 'diff2html';
 import 'diff2html/bundles/css/diff2html.min.css';
 
 //props related
@@ -20,6 +20,10 @@ const props = defineProps({
     type: Object as () => Configuration,
     required: true
   },
+  versionList: {
+    type: Array as () => string[],
+    required: true
+  }
 });
 const emit = defineEmits<{
   'update:isOpen': [value: boolean]
@@ -28,7 +32,6 @@ const emit = defineEmits<{
 //variables
 const firstSelected = ref<string | undefined>(props.currentConfiguration.version)
 const secondSelected = ref<string | undefined>(undefined)
-const versionList = ref<string[]>([props.currentConfiguration.version, "fefopefopepofen"])
 const errorMessage = ref<string | undefined>(undefined)
 const isLoading = ref(false)
 const diffHtml = ref<string>('')
@@ -50,11 +53,18 @@ const compareVersions = async () => {
   isLoading.value = true
   try {
     const diffResult = await compareTwoVersions(props.currentConfiguration.name, firstSelected.value, secondSelected.value)
-    diffHtml.value = diff2html(diffResult, {
-      drawFileList: false,
-      matching: 'lines',
-      outputFormat: 'side-by-side'
-    });
+    const diffJson = parse(diffResult)
+
+    if(diffJson.length === 0) {
+      errorMessage.value = "No differences found between the two versions"
+    } else {
+      errorMessage.value = undefined
+      diffHtml.value = diff2html(diffJson, {
+        drawFileList: false,
+        matching: 'lines',
+        outputFormat: 'side-by-side'
+      });
+    }
   } catch (e: any) {
     errorMessage.value = e.message || "An error occurred while comparing the versions"
   }

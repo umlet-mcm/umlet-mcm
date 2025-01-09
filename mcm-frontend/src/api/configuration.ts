@@ -80,7 +80,7 @@ export const compareTwoVersions = async (name: string, version1: string, version
         // const response = await apiClient.get(`/${name}/compare/${version1}/${version2}`);
         // return response.data;
         //todo use api to compare
-        return "The two versions are the same";
+        return "";
     } catch (error) {
         throw error;
     }

@@ -8,6 +8,11 @@ const apiClient = axios.create({
     }
 });
 
+/**
+ * Upload uxf file to the server and create a new configuration
+ * @param file the uxf file to upload
+ * @return the newly created configuration
+ */
 export const uploadUxfToConfiguration = async (file: any): Promise<Configuration> => {
     try {
         let formData = new FormData();
@@ -23,6 +28,12 @@ export const uploadUxfToConfiguration = async (file: any): Promise<Configuration
     }
 };
 
+/**
+ * Upload uxf file to the server and add it to an existing configuration
+ * @param file the uxf file to upload
+ * @param configName the name of the configuration to add the file to
+ * @return the updated configuration
+ */
 export const uploadUxfToModel = async (file: any, configName: string) : Promise<Configuration> => {
     try {
         let formData = new FormData();
@@ -38,6 +49,13 @@ export const uploadUxfToModel = async (file: any, configName: string) : Promise<
     }
 };
 
+/**
+ * Export a configuration or a model to uxf file
+ * @param id the id of the configuration to export
+ * @param name the name of the configuration to export
+ * @param type "configuration" or "model"
+ * @return the uxf file to download
+ */
 export const exportToUxf = async (id: string, name: string, type: string) => {
     try {
         const response = await apiClient.get(`/files/uxf/export/${type}/${id}`, { responseType: 'blob' });

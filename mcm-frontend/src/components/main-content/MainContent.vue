@@ -2,36 +2,43 @@
 import { Button } from '@/components/ui/button'
 import QueryEditor from "@/components/main-content/QueryEditor.vue"
 import GraphVisualisation from "@/components/main-content/GraphVisualisation.vue"
-import {PropType, ref} from "vue"
+import {ref} from "vue"
 import {HelpCircle, Play} from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
 import {Node, Relation} from "@/types/Node.ts";
 import {sendRequest} from "@/api/graphDB.ts";
 
-// variables
-const query = ref('')
-const errorMessage = ref<string | undefined>(undefined)
-const queryMessage = ref<string | undefined>(undefined)
-const queryNum = ref(0)
-
-// props related
+/**
+ * @param {Model} selectedModel, model to display (optional)
+ */
 defineProps({
   selectedModel: {
     type: Object as () => Model,
     required: false
-  },
-  selectedEntity: {
-    type: Object as () => Node | Relation,
-    required: false
-  },
-  response: {
-    type: Array as PropType<Record<string, any>[]>,
-    required: false
   }
 });
-const emit = defineEmits(["update:selectedEntity", "update:response"]);
 
-// execute multiple queries
+/**
+ * @emits {Node | Relation} update:selectedEntity, selected entity
+ * @emits {Record<string, any>[]} update:response, response from the query
+ */
+const emit = defineEmits<{
+  'update:selectedEntity': [entity: Node | Relation],
+  'update:response': [response: Record<string, any>[]]
+}>()
+
+// variables
+const query = ref('')
+const queryResponse = ref<Record<string, any>[]>()
+const errorMessage = ref<string | undefined>(undefined)
+const queryMessage = ref<string | undefined>(undefined)
+const queryNum = ref(0)
+
+/**
+ * Execute multiple queries in a row
+ * Uses the sendRequest function from the graphDB API
+ * @param queries to execute
+ */
 const executeMultipleQuery = async (queries: string[]) => {
   let nbOk = 0, totalTime = 0, response
   errorMessage.value = undefined
@@ -48,18 +55,26 @@ const executeMultipleQuery = async (queries: string[]) => {
     }
   } catch (error: any) {
     // if an error occurs, display the error message and the number of queries executed successfully
-    queryMessage.value = nbOk ? `${nbOk} ${nbOk === 1 ? "query" : "queries"} executed successfully in ${totalTime} ms. Error on query ${nbOk + 1}` : undefined
+    queryMessage.value = nbOk ?
+        `${nbOk} ${nbOk === 1 ? "query" : "queries"} executed successfully in ${totalTime} ms. Error on query ${nbOk + 1}`
+        : undefined
     errorMessage.value = error.response?.data?.Message || error.message
   }
 
   // display the last response
-  if (response) emit('update:response', response)
+  if (response) {
+    queryResponse.value = response
+    emit('update:response', response)
+  }
   if (!errorMessage.value) {
     queryMessage.value = `${nbOk} ${nbOk === 1 ? "query" : "queries"} executed successfully in ${totalTime} ms.`
   }
 };
 
-// execute the query field
+/**
+ * Execute the query in the editor
+ * Split the query by ';' and execute each query
+ */
 const executeQuery = async () => {
   if (!query.value?.trim()) return
   query.value = query.value.trim().replace("/\n/g", "")
@@ -77,7 +92,7 @@ const executeQuery = async () => {
           <HelpCircle />
         </Button>
       </div>
-      <QueryEditor v-model="query" />
+      <QueryEditor v-model:query="query" />
       <div class="flex gap-2">
         <Button @click="executeQuery" class="flex items-center">
           <Play class="mr-2 h-4 w-4" />
@@ -98,7 +113,7 @@ const executeQuery = async () => {
         <GraphVisualisation
             class="h-full w-full"
             :selected-model="selectedModel"
-            :query-response="response"
+            :query-response="queryResponse"
             @update:selectedEntity="emit('update:selectedEntity', $event)"/>
       </div>
       <div v-else class="h-full w-full">

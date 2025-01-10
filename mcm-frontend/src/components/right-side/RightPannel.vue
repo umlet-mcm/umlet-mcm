@@ -1,16 +1,15 @@
 <script setup lang="ts">
 import { Separator } from '@/components/ui/separator'
-import {Model} from "@/types/Model.ts";
 import {Node, Relation} from "@/types/Node.ts";
 import QueryResult from "@/components/right-side/QueryResult.vue";
 import PropViewer from "@/components/right-side/PropViewer.vue";
 import {PropType} from "vue";
 
+/**
+ * @param {Node | Relation} selectedEntity, selected entity (optional)
+ * @param {Record<string, any>[]} queryResponse, response from the query (optional)
+ */
 defineProps({
-  selectedModel: {
-    type: Object as () => Model,
-    required: false
-  },
   selectedEntity: {
     type: Object as () => Node | Relation,
     required: false

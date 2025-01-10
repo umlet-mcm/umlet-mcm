@@ -6,11 +6,9 @@ import {ScrollArea} from "@/components/ui/scroll-area";
 import VueJsonPretty from 'vue-json-pretty';
 import 'vue-json-pretty/lib/styles.css';
 
-//variables
-const keys = ref<string[] | undefined>(undefined);
-const message = ref<string | undefined>("No result to display");
-
-//props
+/**
+ * @param {Record<string, any>[]} queryResponse, response from the query (optional)
+ */
 const props = defineProps({
   queryResponse: {
     type: Array as PropType<Record<string, any>[]>,
@@ -18,7 +16,15 @@ const props = defineProps({
   }
 });
 
+//variables
+const keys = ref<string[] | undefined>(undefined);
+const message = ref<string | undefined>("No result to display");
+
+
 //functions
+/**
+ * Watch the queryResponse and update when it changes
+ */
 watch(() => props.queryResponse, (newValue, oldValue) => {
   // update keys when queryResponse changes
   if (newValue !== oldValue && newValue !== undefined) {

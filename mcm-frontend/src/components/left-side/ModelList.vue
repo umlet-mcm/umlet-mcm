@@ -4,6 +4,10 @@ import { Model } from '@/types/Model.ts'
 import {Button} from "@/components/ui/button";
 import {Trash} from "lucide-vue-next";
 
+/**
+ * @param {Model[]} items, list of models
+ * @param {Model} selectedModel, selected model (optional)
+ */
 defineProps({
   items: {
     type: Array as () => Model[],
@@ -15,7 +19,14 @@ defineProps({
   }
 });
 
-defineEmits(["update:selectedModel", "deleteModel"]);
+/**
+ * @emits {Model} update:selectedModel, selected model
+ * @emits {void} deleteModel, send delete event to parent
+ */
+defineEmits<{
+  'update:selectedModel': [value: Model],
+  'deleteModel': []
+}>()
 </script>
 
 <template>

@@ -9,6 +9,14 @@ import {
 } from "@/components/ui/dialog";
 import {Button} from "@/components/ui/button";
 
+/**
+ * @param {Boolean} isOpen, dialog visibility
+ * @param {String} dialogTitle, dialog title
+ * @param {String} dialogDescription, dialog description
+ * @param {String} dialogContent, dialog content
+ * @param {Function} onConfirm, function to be called when confirm button is clicked
+ * @param {Function} onReject, function to be called when reject button is clicked (optional)
+ */
 const props = defineProps({
   isOpen: {
     type: Boolean,
@@ -36,6 +44,9 @@ const props = defineProps({
   }
 });
 
+/**
+ * @emits {Boolean} update:isOpen, dialog visibility
+ */
 const emit = defineEmits<{
   'update:isOpen': [value: boolean]
 }>()
@@ -50,7 +61,6 @@ const closeDialog = () => {
   if(props.onReject) props.onReject()
   emit('update:isOpen', false)
 }
-
 </script>
 
 <template>

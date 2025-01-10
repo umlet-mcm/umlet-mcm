@@ -16,7 +16,10 @@ import {RadioGroup, RadioGroupItem} from "@/components/ui/radio-group";
 import {exportToCsv} from "@/api/graphDB.ts";
 import {Label} from "@/components/ui/label";
 
-// props related
+/**
+ * @param {Boolean} isOpen, dialog visibility
+ * @param {String} configurationName, configuration name
+ */
 const props = defineProps({
   isOpen: {
     type: Boolean,
@@ -42,10 +45,17 @@ const closeDialog = () => {
   emit('update:isOpen', false)
 }
 
+/**
+ * Check if the export can be done
+ */
 const canExport = computed(() => {
   return exportName.value.trim().length > 0 && exportType.value.trim().length > 0
 })
 
+/**
+ * Handle the export of the configuration in the selected format (UXF or CSV)
+ * Uses the exportToUxf or exportToCsv functions from the api
+ */
 const handleExport = async () => {
   if(canExport.value) {
     try {

@@ -8,9 +8,15 @@ import {getAllConfigurations} from "@/api/configuration.ts";
 import {HelpCircle} from 'lucide-vue-next'
 import {Button} from "@/components/ui/button";
 
+// variables
 const configurations = ref<Configuration[]>([]);
 const errorMessage = ref<string | undefined>(undefined)
 
+// functions
+/**
+ * Fetch all configurations
+ * Uses the getAllConfigurations function from the configuration API
+ */
 const fetchConfigurations = async () => {
   try {
     configurations.value = await getAllConfigurations();
@@ -20,6 +26,10 @@ const fetchConfigurations = async () => {
   }
 };
 
+// lifecycle
+/**
+ * Fetch all configurations on mounted
+ */
 onMounted(() => {
   errorMessage.value = undefined
   fetchConfigurations();

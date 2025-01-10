@@ -9,13 +9,19 @@ import {Node, Relation} from "@/types/Node.ts";
 import {onMounted, ref} from "vue";
 import {Configuration} from "@/types/Configuration.ts";
 import {getConfigurationById} from "@/api/configuration.ts";
-const route = useRoute()
 
+// variables
+const route = useRoute()
 const selectedConfiguration = ref<Configuration>();
 const selectedModel = ref<Model | undefined>()
 const selectedEntity = ref<Node | Relation | undefined>()
 const queryResponse = ref<Record<string, any>[]>()
 
+// functions
+/**
+ * Fetch the selected configuration
+ * Uses the getConfigurationById function from the configuration API
+ */
 const getSelectedConfiguration = async () => {
   try {
     selectedConfiguration.value = await getConfigurationById({id: route.params.id as string});
@@ -24,6 +30,10 @@ const getSelectedConfiguration = async () => {
   }
 };
 
+// lifecycle
+/**
+ * Fetch the selected configuration on mounted
+ */
 onMounted(() => {
   getSelectedConfiguration();
 });
@@ -32,9 +42,19 @@ onMounted(() => {
 <template>
   <div v-if="selectedConfiguration">
     <div class="flex h-screen">
-      <LeftPannel v-model:selectedModel="selectedModel" v-model:selectedConfiguration="selectedConfiguration"/>
-      <MainContent :selectedModel="selectedModel" v-model:selectedEntity="selectedEntity" v-model:response="queryResponse"/>
-      <RightPannel :selectedModel="selectedModel" :selectedEntity="selectedEntity" :queryResponse="queryResponse"/>
+      <LeftPannel
+          v-model:selectedModel="selectedModel"
+          v-model:selectedConfiguration="selectedConfiguration"
+      />
+      <MainContent
+          :selectedModel="selectedModel"
+          @update:selectedEntity="selectedEntity = $event"
+          @update:response="queryResponse = $event"
+      />
+      <RightPannel
+          :selectedEntity="selectedEntity"
+          :queryResponse="queryResponse"
+      />
     </div>
   </div>
 </template>

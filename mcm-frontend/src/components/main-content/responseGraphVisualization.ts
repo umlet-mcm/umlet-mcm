@@ -14,7 +14,7 @@ export async function parseResponseGraph(response: Record<string, any>[], select
     });
 
     // Fetch relations for the retrieved nodes
-    await addRelationsToNodes(nodes);
+    if(nodes.length) await addRelationsToNodes(nodes);
     return {
         id: "RequestModel",
         nodes: nodes,
@@ -30,7 +30,7 @@ function createNodeFromResponse(rawNode: any): Node {
     return {
         id: rawNode.elementId,
         title: rawNode.properties.name,
-        elementType: "Node",
+        elementType: "UMLClass",
         tags: rawNode.properties.tags.values,
         originalText: rawNode.properties.name,
         description: rawNode.properties.description,
@@ -39,6 +39,12 @@ function createNodeFromResponse(rawNode: any): Node {
         mcmModel: "",
         mcmModelId: "",
         relations: [],
+        umletPosition: {
+            x: rawNode.properties["position.x"],
+            y: rawNode.properties["position.y"],
+            width: rawNode.properties["position.width"],
+            height: rawNode.properties["position.height"],
+        },
         umletAttributes: extractAttributes(rawNode.properties, "umletProperties"),
         mcmAttributes: extractAttributes(rawNode.properties, "properties"),
     };
@@ -59,9 +65,10 @@ async function addRelationsToNodes(nodes: Node[]) {
 }
 
 function createRelationFromResponse(relation: any) {
+    console.log(relation);
     return {
         id: relation.elementId,
-        type: relation.type,
+        type: relation.properties.type,
         title: relation.properties.name,
         target: relation.endElementId,
         description: relation.properties.description,

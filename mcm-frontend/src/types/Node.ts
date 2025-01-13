@@ -12,6 +12,12 @@ export type Node = {
     pprType: string
     generatedAttributes: number[]
     relations: Relation[]
+    umletPosition: {
+        x: number
+        y: number
+        width: number
+        height: number
+    }
 }
 
 export type Relation = {

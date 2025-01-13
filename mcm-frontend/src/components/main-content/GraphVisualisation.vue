@@ -42,7 +42,10 @@ const initializeGraph = () => {
   const nodes = props.modelToDisplay.nodes.map((node) => ({
     id: node.id,
     label: node.title.replace("\n"," ").trim(),
-    color: generatePaleColorFromText(node.elementType),
+    color: node.umletAttributes.bg || generatePaleColorFromText(node.elementType),
+    x: node.umletPosition.x,
+    y: node.umletPosition.y,
+    widthConstraint: node.umletPosition.width - 10 // reducing overlap by minus 10
   }));
 
   const edges: Edge[] = []
@@ -54,6 +57,7 @@ const initializeGraph = () => {
         to: relation.target,
         label: relation.title.replace("\n"," ").trim(),
         arrows: 'to',
+        dashes: relation.type.includes('.'),
       });
     });
   })
@@ -62,7 +66,7 @@ const initializeGraph = () => {
     nodes: {
       shape: 'box',
       font: {
-        size: 16,
+        size: 12,
         align: 'center'
       }
     },
@@ -78,25 +82,11 @@ const initializeGraph = () => {
       },
       font: {
         size: 12,
-        align: 'middle',
       }
     },
     physics: {
-      enabled: true,
-      solver: 'barnesHut',
-      barnesHut: {
-        avoidOverlap: 1,
-      },
+      enabled: false,
     },
-    layout: {
-      hierarchical: {
-        direction: 'UD',
-        sortMethod: 'hubsize',
-        parentCentralization: true,
-        edgeMinimization: true,
-        blockShifting: true,
-      }
-    }
   };
   if (network) {
     network.destroy();

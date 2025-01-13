@@ -65,9 +65,10 @@ async function addRelationsToNodes(nodes: Node[]) {
 }
 
 function createRelationFromResponse(relation: any) {
+    console.log(relation);
     return {
         id: relation.elementId,
-        type: relation.type,
+        type: relation.properties.type,
         title: relation.properties.name,
         target: relation.endElementId,
         description: relation.properties.description,

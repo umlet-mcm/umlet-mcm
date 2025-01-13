@@ -25,6 +25,7 @@ const queryResponse = ref<Record<string, any>[]>()
 const getSelectedConfiguration = async () => {
   try {
     selectedConfiguration.value = await getConfigurationById({id: route.params.id as string});
+    selectedModel.value = selectedConfiguration.value.models[0] || undefined;
   } catch (error) {
     console.error("Error fetching model configuration with id " + route.params.id, error);
   }

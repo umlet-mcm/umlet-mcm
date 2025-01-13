@@ -1,19 +1,27 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button'
+import {Button} from '@/components/ui/button'
 import QueryEditor from "@/components/main-content/QueryEditor.vue"
 import GraphVisualisation from "@/components/main-content/GraphVisualisation.vue"
-import {ref} from "vue"
+import {PropType, ref, watch} from "vue"
 import {HelpCircle, Play} from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
 import {Node, Relation} from "@/types/Node.ts";
 import {sendRequest} from "@/api/graphDB.ts";
+import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
+import QueryResult from "@/components/right-side/QueryResult.vue";
+import {parseResponseGraph} from "@/components/main-content/responseGraphVisualization.ts";
 
 /**
  * @param {Model} selectedModel, model to display (optional)
  */
-defineProps({
+const props = defineProps({
   selectedModel: {
     type: Object as () => Model,
+    required: false
+  },
+  response: {
+    type: Array as PropType<Record<string, any>[]>,
     required: false
   }
 });
@@ -29,11 +37,15 @@ const emit = defineEmits<{
 
 // variables
 const query = ref('')
-const queryResponse = ref<Record<string, any>[]>()
 const errorMessage = ref<string | undefined>(undefined)
 const queryMessage = ref<string | undefined>(undefined)
+const queryGraph = ref<Model | undefined>(undefined);
 const queryNum = ref(0)
+const activeTab = ref('full')
+const messageGraph = ref<string | undefined>("Query result cannot be displayed as a Model")
+let queryExecutionTimestamp: string | undefined;
 
+// functions
 /**
  * Execute multiple queries in a row
  * Uses the sendRequest function from the graphDB API
@@ -53,6 +65,7 @@ const executeMultipleQuery = async (queries: string[]) => {
       nbOk++
       queryNum.value++
     }
+    queryExecutionTimestamp = new Date().toLocaleString("de-AT");
   } catch (error: any) {
     // if an error occurs, display the error message and the number of queries executed successfully
     queryMessage.value = nbOk ?
@@ -62,10 +75,7 @@ const executeMultipleQuery = async (queries: string[]) => {
   }
 
   // display the last response
-  if (response) {
-    queryResponse.value = response
-    emit('update:response', response)
-  }
+  if (response) emit('update:response', response)
   if (!errorMessage.value) {
     queryMessage.value = `${nbOk} ${nbOk === 1 ? "query" : "queries"} executed successfully in ${totalTime} ms.`
   }
@@ -81,6 +91,38 @@ const executeQuery = async () => {
   const formattedQuery = query.value.endsWith(";") ? query.value : `${query.value};`
   await executeMultipleQuery(formattedQuery.split(";").filter(Boolean))
 };
+
+const getColumns = (queryResponse: Record<string, any>[]): string[] => {
+  const keys:string[] = []
+  for(let i = 0; i < queryResponse.length; i++) {
+    for (const key in queryResponse[i]) {
+      if (!keys.includes(key)) {
+        keys.push(key)
+      }
+    }
+  }
+  return keys;
+}
+
+const removeLabel = (json: any) => {
+  const { labels, ...withoutLabels } = json;
+  return withoutLabels;
+}
+
+// when the response changes, parse it to a graph
+watch(() => props.response, async (newValue) => {
+  if (newValue?.length) {
+    if(props.selectedModel) {
+      queryGraph.value = await parseResponseGraph(newValue, props.selectedModel);
+      if(queryGraph.value.nodes.length === 0) {
+        queryGraph.value = undefined
+        messageGraph.value = "Response model is empty"
+      }
+    }
+  } else {
+    queryGraph.value = undefined;
+  }
+});
 </script>
 
 <template>
@@ -108,19 +150,75 @@ const executeQuery = async () => {
       </h1>
     </div>
 
-    <div class="flex-1 p-2 overflow-hidden">
-      <div v-if="selectedModel" class="h-full w-full">
-        <GraphVisualisation
-            class="h-full w-full"
-            :selected-model="selectedModel"
-            :query-response="queryResponse"
-            @update:selectedEntity="emit('update:selectedEntity', $event)"/>
-      </div>
-      <div v-else class="h-full w-full">
-        <div class="flex-1 flex justify-center">
-          <p class="text-muted-foreground">No model selected</p>
+    <Tabs default-value="full" v-model:model-value="activeTab" class="h-full w-full overflow-hidden p-2">
+      <TabsList>
+        <TabsTrigger value="full">Current Model</TabsTrigger>
+        <TabsTrigger value="request">Response as model</TabsTrigger>
+        <TabsTrigger value="table">Response as table</TabsTrigger>
+        <TabsTrigger value="json">Response as JSON</TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="full" class="h-[95%]">
+        <div v-if="selectedModel" class="h-full w-full">
+            <GraphVisualisation
+                :model-to-display="selectedModel"
+                @update:selectedEntity="emit('update:selectedEntity', $event)"/>
         </div>
-      </div>
-    </div>
+        <div v-else class="h-full w-full">
+          <div class="flex-1 flex justify-center h-full">
+            <p class="text-muted-foreground self-center">No model selected</p>
+          </div>
+        </div>
+      </TabsContent>
+      <TabsContent value="request" class="h-[95%]">
+        <div v-if="queryGraph" class="h-full w-full">
+          <GraphVisualisation
+              :model-to-display="queryGraph"
+              @update:selectedEntity="emit('update:selectedEntity', $event)"/>
+        </div>
+        <div v-else class="h-full w-full">
+          <div class="flex-1 flex justify-center h-full">
+            <p class="text-muted-foreground self-center">{{messageGraph}}</p>
+          </div>
+        </div>
+      </TabsContent>
+      <TabsContent value="table" class="h-[95%] overflow-scroll">
+          <Table v-if="props.response?.[0] && getColumns(props.response).length !== 0" ref="responseTable">
+            <TableHeader>
+              <TableRow>
+                <TableHead v-for="columnName in getColumns(props.response)" :key="columnName">{{ columnName }}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow v-for="(value, index) in response" :key="index" class="even:bg-gray-300">
+
+                <TableCell v-for="columnName in getColumns(props.response)">
+                  <span v-if="value[columnName] && value[columnName].labels?.[0]">
+                    {{ value[columnName].labels?.[0] }}&nbsp;{{ removeLabel(value[columnName]) }}
+                  </span>
+                  <span v-else>
+                    {{ value[columnName] }}
+                  </span>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        <div v-else class="h-full w-full">
+          <div class="flex-1 flex justify-center h-full">
+            <p class="text-muted-foreground self-center">
+              Query {{ queryNum ? "[" + queryNum + "]" : "" }} response was empty
+              {{
+                queryExecutionTimestamp ?
+                    "(executed at " + queryExecutionTimestamp + ")" :
+                    "(no query has been executed yet)"
+              }}
+            </p>
+          </div>
+        </div>
+      </TabsContent>
+      <TabsContent value="json" class="h-[95%] overflow-scroll">
+        <QueryResult :queryResponse="response"/>
+      </TabsContent>
+    </Tabs>
   </div>
 </template>

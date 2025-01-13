@@ -29,7 +29,8 @@ const props = defineProps({
  * @emits {Boolean} update:isOpen, dialog visibility
  */
 const emit = defineEmits<{
-  'update:isOpen': [value: boolean]
+  'update:isOpen': [value: boolean],
+  'update:currentConfiguration': [value: Configuration]
 }>()
 
 //variables
@@ -78,9 +79,7 @@ const saveChanges = async () => {
       version: props.currentConfiguration.version,
       models: props.currentConfiguration.models
     })
-    //todo may be a better idea to emit the new configuration and update it in the parent component
-    props.currentConfiguration.name = newConfig.name
-    props.currentConfiguration.models = newConfig.models
+    emit('update:currentConfiguration', newConfig)
     emit('update:isOpen', false)
   } catch (error : any) {
     errorMessage.value = error.response?.data?.message || error.message

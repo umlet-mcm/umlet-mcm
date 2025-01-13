@@ -54,10 +54,7 @@ const initializeGraph = () => {
     color: node.umletAttributes.bg || generatePaleColorFromText(node.elementType),
     x: node.umletPosition.x,
     y: node.umletPosition.y,
-    widthConstraint: {
-      minimum: node.umletPosition.width - 10,
-      maximum: node.umletPosition.width - 10,
-    }
+    widthConstraint: node.umletPosition.width - 10 // reducing overlap by minus 10
   }));
 
   const edges: Edge[] = []

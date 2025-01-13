@@ -41,8 +41,9 @@ export const createConfiguration = async (data: { name: string }): Promise<Confi
 };
 
 export const updateConfiguration = async (data: { name: string, version: string, models: Model[] }): Promise<Configuration> => {
+    //todo need to check if name is unique
     try {
-        const response = await apiClient.put(``, data);
+        const response = await apiClient.put('', data);
         return response.data;
     } catch (error) {
         throw error;
@@ -56,3 +57,33 @@ export const deleteConfiguration = async (data: { name: string }): Promise<void>
         throw error;
     }
 };
+
+export const getConfigurationVersions = async (name: string, version: string): Promise<string[]> => {
+    try {
+        // const response = await apiClient.get(`/${name}/versions`);
+        // return response.data;
+        // todo retrieve using only the api. the second argument is just to avoid blank return
+        console.log("Getting versions for " + name + " " + version);
+        return [version, "1.0.0", "1.0.1", "1.0.2"];
+    } catch (error) {
+        throw error;
+    }
+}
+
+/**
+ * Compare two versions of a configuration
+ * @param name the name of the configuration to compare
+ * @param version1 the first version to compare
+ * @param version2 the second version to compare
+ */
+export const compareTwoVersions = async (name: string, version1: string, version2: string): Promise<string> => {
+    try {
+        // const response = await apiClient.get(`/${name}/compare/${version1}/${version2}`);
+        // return response.data;
+        //todo use api to compare
+        console.log("Comparing " + name + " " + version1 + " " + version2);
+        return "";
+    } catch (error) {
+        throw error;
+    }
+}

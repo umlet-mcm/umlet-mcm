@@ -71,7 +71,7 @@ const confirmDeletion = async () => {
 
 /*
   * Watchers
-  * When the version change it means either the user selected a new version or a new configuration was loaded
+  * When the version changes it means either the user selected a new version or a new configuration was loaded
  */
 watch(() => props.selectedConfiguration.version, async (newVersion, oldVersion) => {
   if (newVersion !== oldVersion) {

@@ -4,14 +4,16 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Configuration } from '@/types/Configuration.ts'
 import ModelList from "@/components/left-side/ModelList.vue"
-import {FileUp, Save, FileOutput, FileInput, FileStack, Settings, HelpCircle} from 'lucide-vue-next'
+import {FileUp, Save, FileOutput, FileInput, FileStack, HelpCircle} from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
 import DialogMerge from "@/components/left-side/DialogMerge.vue";
-import {ref} from "vue";
-import DialogSettings from "@/components/left-side/DialogSettings.vue";
+import {onMounted, ref, watch} from "vue";
 import {exportToUxf} from "@/api/files.ts";
 import DialogExport from "@/components/left-side/DialogExport.vue";
 import DialogUploadUXF from "@/components/left-side/DialogUploadUXF.vue";
+import TopLeftPannel from "@/components/left-side/TopLeftPannel.vue";
+import DialogVersionDiff from "@/components/left-side/DialogVersionDiff.vue";
+import {getConfigurationVersions} from "@/api/configuration.ts";
 import AlertConfirmation from "@/components/left-side/AlertConfirmation.vue";
 import {deleteModelFromConfig} from "@/api/model.ts";
 
@@ -29,7 +31,8 @@ const props = defineProps({
 
 // variables
 const emit = defineEmits(["update:selectedModel", "update:selectedConfiguration"]);
-const isDialogOpen = ref({merge: false, settings: false, export: false, upload: false, confirmation: false})
+const isDialogOpen = ref({merge: false, export: false, upload: false, confirmation: false, versionDiff:false})
+const versionList = ref<string[]>([])
 
 // functions
 const handleMerge = (mergedModel: Model) => {
@@ -66,19 +69,38 @@ const confirmDeletion = async () => {
   }
 }
 
+/*
+  * Watchers
+  * When the version changes it means either the user selected a new version or a new configuration was loaded
+ */
+watch(() => props.selectedConfiguration.version, async (newVersion, oldVersion) => {
+  if (newVersion !== oldVersion) {
+    versionList.value = await getConfigurationVersions(props.selectedConfiguration.name, props.selectedConfiguration.version)
+  }
+})
+
+/*
+  * Lifecycle
+  * When the component is mounted, we fetch the list of versions for the selected configuration
+ */
+onMounted(async () => {
+  try {
+    // todo the second argument will be deleted when the backend is ready
+    versionList.value = await getConfigurationVersions(props.selectedConfiguration.name, props.selectedConfiguration.version)
+  } catch (e) {
+    versionList.value = [props.selectedConfiguration.version]
+    console.error(e)
+  }
+})
 </script>
 
 <template>
   <div class="w-64 border-r border-border p-4 flex flex-col gap-4 bg-primary-foreground">
-    <div class="flex justify-between items-start">
-      <div class="max-w-[80%]">
-        <h1 class="text-xl font-bold truncate ">{{ selectedConfiguration.name }}</h1>
-        <p class="text-sm text-muted-foreground truncate">{{ selectedConfiguration.version }}</p>
-      </div>
-      <Button variant="ghost" size="icon" @click="isDialogOpen.settings = true">
-        <Settings />
-      </Button>
-    </div>
+    <TopLeftPannel
+        :selectedConfiguration="selectedConfiguration"
+        @update:selectedConfiguration="emit('update:selectedConfiguration', $event)"
+        :versionList="versionList"
+    />
     <Separator />
     <div class="space-y-2">
       <div>
@@ -105,9 +127,9 @@ const confirmDeletion = async () => {
             <FileOutput class="mr-2" />
             Export to UXF / CSV
           </Button>
-          <Button variant="outline" class="w-full justify-start" @click="placeholder">
+          <Button variant="outline" class="w-full justify-start" @click="isDialogOpen.versionDiff = true">
             <FileOutput class="mr-2" />
-            Version history
+            Version diff
           </Button>
         </div>
       </div>
@@ -152,15 +174,16 @@ const confirmDeletion = async () => {
       v-model:isOpen="isDialogOpen.export"
       :configuration-name="selectedConfiguration.name"
   />
-  <DialogSettings
-      v-model:isOpen="isDialogOpen.settings"
-      :currentConfiguration="selectedConfiguration"
-  />
   <DialogUploadUXF
       v-model:isOpen="isDialogOpen.upload"
       :currentConfiguration="selectedConfiguration"
       @update:currentConfiguration="emit('update:selectedConfiguration', $event)"
       @update:currentModel="emit('update:selectedModel', $event)"
+  />
+  <DialogVersionDiff
+      v-model:isOpen="isDialogOpen.versionDiff"
+      :currentConfiguration="selectedConfiguration"
+      :versionList="versionList"
   />
   <!-- Alert dialog to delete a model from configuration -->
   <AlertConfirmation

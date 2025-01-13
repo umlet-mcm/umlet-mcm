@@ -50,7 +50,7 @@ class RelationEntityMapperImplTest {
 
         RelationEntity result = relationEntityMapper.toEntity(relation);
 
-        assertEquals("1", result.getGraphId());
+        assertEquals("1", result.getId());
         assertEquals("Affected by", result.getName());
         assertEquals("Relation description", result.getDescription());
         assertEquals("CEN", result.getType());
@@ -70,7 +70,7 @@ class RelationEntityMapperImplTest {
     @Test
     void fromEntity_withValidRelationEntity_returnsCorrectRelation() {
         RelationEntity relationEntity = new RelationEntity();
-        relationEntity.setGraphId("1");
+        relationEntity.setId("1");
         relationEntity.setName("Causes");
         relationEntity.setDescription("Relation description");
         relationEntity.setType("PAN");

@@ -1,29 +1,20 @@
 <script setup lang="ts">
-import {ref, onMounted, watch, PropType} from 'vue'
-import { Network, Edge } from 'vis-network'
+import {onMounted, ref, watch} from 'vue'
+import {Edge, Network} from 'vis-network'
 import {Model} from "@/types/Model.ts";
-import {Tabs, TabsList, TabsTrigger} from "@/components/ui/tabs";
-import {Relation, Node} from "@/types/Node.ts";
-import {parseResponseGraph} from "@/components/main-content/responseGraphVisualization.ts";
+import {Node, Relation} from "@/types/Node.ts";
 
 // props related
 const emit = defineEmits(["update:selectedEntity"]);
 const props = defineProps({
-  selectedModel: {
+  modelToDisplay: {
     type: Object as () => Model,
     required: true
   },
-  queryResponse: {
-    type: Array as PropType<Record<string, any>[]>,
-    required: false
-  }
 })
 
 // variables
 const container = ref<HTMLElement | null>(null)
-const active = ref('full')
-const activeModel = ref<Model>(props.selectedModel);
-const queryGraph = ref<Model | null>(null);
 let network: Network | null = null;
 
 // functions
@@ -38,9 +29,9 @@ const generatePaleColorFromText = (text: string) => {
 const selectedEntity = (id: string, type: string) => {
   let entity;
   if (type === 'relation') {
-    entity = activeModel.value.nodes.flatMap(node => node.relations).find(relation => relation.id === id) as Relation;
+    entity = props.modelToDisplay.nodes.flatMap(node => node.relations).find(relation => relation.id === id) as Relation;
   } else {
-    entity = activeModel.value.nodes.find(node => node.id === id) as Node;
+    entity = props.modelToDisplay.nodes.find(node => node.id === id) as Node;
   }
   if(entity) emit("update:selectedEntity", entity);
 };
@@ -48,7 +39,7 @@ const selectedEntity = (id: string, type: string) => {
 const initializeGraph = () => {
   if (!container.value) return;
 
-  const nodes = activeModel.value.nodes.map((node) => ({
+  const nodes = props.modelToDisplay.nodes.map((node) => ({
     id: node.id,
     label: node.title.replace("\n"," ").trim(),
     color: node.umletAttributes.bg || generatePaleColorFromText(node.elementType),
@@ -58,7 +49,7 @@ const initializeGraph = () => {
   }));
 
   const edges: Edge[] = []
-  activeModel.value.nodes.forEach((node) => {
+  props.modelToDisplay.nodes.forEach((node) => {
     node.relations.forEach((relation) => {
       edges.push({
         id: relation.id,
@@ -83,7 +74,7 @@ const initializeGraph = () => {
       smooth: {
         enabled: true,
         type: 'curvedCW',
-        roundness: 0.1
+        roundness: 0.1,
       },
       color: {
         color: '#848484',
@@ -112,56 +103,18 @@ const initializeGraph = () => {
 };
 
 // on change of selected model (left side)
-watch(() => props.selectedModel, (newValue, oldValue) => {
+watch(() => props.modelToDisplay, (newValue, oldValue) => {
   if (newValue !== oldValue) {
-    activeModel.value = newValue;
-    active.value = 'full';
     initializeGraph();
   }
-});
-
-// on change of active tab
-watch(active, async (newValue) => {
-  if (newValue === 'full') {
-    activeModel.value = props.selectedModel
-    initializeGraph();
-  } else {
-    if(queryGraph.value) {
-      activeModel.value = queryGraph.value;
-      initializeGraph();
-    }
-  }
-});
-
-// on change of query response (new request)
-watch(() => props.queryResponse, async (newValue) => {
-  if (newValue?.length) {
-    queryGraph.value = await parseResponseGraph(newValue, props.selectedModel);
-    // if queryGraph is empty, then set the selected model as active model
-    activeModel.value = queryGraph.value?.nodes.length ? queryGraph.value : props.selectedModel;
-    active.value = queryGraph.value?.nodes.length ? 'request' : 'full';
-  } else {
-    // if queryGraph is empty, then set the selected model as active model
-    queryGraph.value = null;
-    activeModel.value = props.selectedModel;
-    active.value = 'full';
-  }
-  initializeGraph();
 });
 
 // on mounted
 onMounted(() => {
-  activeModel.value = props.selectedModel
   initializeGraph();
 });
 </script>
 
 <template>
-  <Tabs default-value="full" v-model:model-value="active">
-    <TabsList class="h-[5%]">
-      <TabsTrigger value="full">Full Model</TabsTrigger>
-      <TabsTrigger v-if="queryGraph && queryGraph.nodes.length > 0" value="request">Request Model</TabsTrigger>
-    </TabsList>
-    <div ref="container" class="h-[95%] border border-border rounded-md bg-background"/>
-  </Tabs>
+  <div ref="container" class="h-full border border-border rounded-md bg-background"/>
 </template>

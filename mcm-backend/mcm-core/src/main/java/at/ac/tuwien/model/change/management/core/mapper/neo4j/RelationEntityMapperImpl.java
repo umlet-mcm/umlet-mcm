@@ -28,7 +28,7 @@ public class RelationEntityMapperImpl implements RelationEntityMapper {
         RelationEntity relationEntity = new RelationEntity();
 
         if(relation.getId() != null) {
-            relationEntity.setGraphId( relation.getId() );
+            relationEntity.setId( relation.getId() );
         }
         relationEntity.setName( relation.getTitle() );
         relationEntity.setDescription( relation.getDescription() );
@@ -40,7 +40,8 @@ public class RelationEntityMapperImpl implements RelationEntityMapper {
             relationEntity.setProperties( mcmAttributes );
         }
         relationEntity.setUmletProperties( relation.getUmletAttributes() );
-        relationEntity.setTags( new HashSet<>(relation.getTags()));
+        if(relation.getTags() != null)
+            relationEntity.setTags( new HashSet<>(relation.getTags()));
         relationEntity.setTarget( nodeMapper.toEntity( relation.getTarget() ) );
 
         return relationEntity;
@@ -54,8 +55,8 @@ public class RelationEntityMapperImpl implements RelationEntityMapper {
 
         Relation relation = new Relation();
 
-        if(relationEntity.getGraphId() != null) {
-            relation.setId( relationEntity.getGraphId() );
+        if(relationEntity.getId() != null) {
+            relation.setId( relationEntity.getId() );
         }
         relation.setTitle( relationEntity.getName() );
         relation.setDescription( relationEntity.getDescription() );

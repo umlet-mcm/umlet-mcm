@@ -78,7 +78,8 @@ public class NodeEntityMapperImpl implements NodeEntityMapper {
         nodeEntity.setUmletProperties(node.getUmletAttributes());
 
         // Set the tags of the node
-        nodeEntity.setTags(new HashSet<>(node.getTags()));
+        if(node.getTags() != null)
+            nodeEntity.setTags(new HashSet<>(node.getTags()));
 
         // Set the position of the node
         nodeEntity.setPosition(positionMapper.toGraphProperties(node.getUmletPosition()));

@@ -85,7 +85,7 @@ public class RawNeo4jService {
      */
     public ByteArrayResource downloadCSV(String fileName) {
         try {
-            ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(Paths.get(properties.getExportsPath().toString() + "\\" + fileName + ".csv")));
+            ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(Paths.get(properties.getExportsPath().toString() + "/" + fileName + ".csv")));
             return resource;
         } catch (IOException e) {
             throw new InvalidQueryException("Error downloading CSV! " + e.getMessage());

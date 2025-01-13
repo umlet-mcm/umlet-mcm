@@ -19,6 +19,9 @@ public class RelationEntity {
     @RelationshipId
     private String graphId;
 
+    /* The id of the relation within GIT repository, null when new relation */
+    private String id;
+
     /* The name of the relation in UMLet Diagram */
     private String name;
 

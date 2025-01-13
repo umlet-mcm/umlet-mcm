@@ -1,6 +1,7 @@
 package at.ac.tuwien.model.change.management.core.service;
 
 import at.ac.tuwien.model.change.management.core.mapper.neo4j.*;
+import at.ac.tuwien.model.change.management.core.mapper.neo4j.updater.ConfigurationUpdater;
 import at.ac.tuwien.model.change.management.core.model.Configuration;
 import at.ac.tuwien.model.change.management.core.model.Model;
 import at.ac.tuwien.model.change.management.core.model.Node;
@@ -13,12 +14,15 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.neo4j.driver.Value;
 import org.neo4j.driver.internal.value.FloatValue;
 import org.neo4j.driver.internal.value.IntegerValue;
 import org.neo4j.driver.internal.value.ListValue;
 import org.neo4j.driver.internal.value.StringValue;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +30,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class GraphDBServiceImpl implements GraphDBService {
 
     /* DAOs */
@@ -38,7 +43,13 @@ public class GraphDBServiceImpl implements GraphDBService {
     private final ConfigurationEntityMapper configurationEntityMapper;
     private final ModelEntityMapper modelEntityMapper;
 
+    /* Updater */
+    private final ConfigurationUpdater configurationUpdater;
+
     private final RawNeo4jService rawNeo4jService;
+
+    @Lazy @Autowired
+    private ConfigurationService configurationService;
 
     @Override
     public Node loadNode(@NonNull Node node) {
@@ -103,6 +114,23 @@ public class GraphDBServiceImpl implements GraphDBService {
     }
 
     @Override
+    public Configuration loadConfiguration(String name) {
+        // Get the configuration else throw an ConfigurationNotFoundException
+        val configuration = configurationService.getConfigurationByName(name);
+
+        // Clear the database
+        clearDatabase();
+
+        // Save the configuration
+        configurationEntityDAO.save(configurationEntityMapper.toEntity(configuration));
+
+        log.info("Loaded configuration '{}' into graph database.", configuration.getName());
+
+        // Return the configuration
+        return configuration;
+    }
+
+    @Override
     public Configuration getConfiguration(@NonNull String id) {
         val configuration = configurationEntityDAO.findById(id).orElse(null);
         return configurationEntityMapper.fromEntity(configuration);
@@ -111,6 +139,30 @@ public class GraphDBServiceImpl implements GraphDBService {
     @Override
     public List<Configuration> getConfigurations() {
         return configurationEntityDAO.findAll().stream().map(configurationEntityMapper::fromEntity).toList();
+    }
+
+    @Override
+    public Boolean saveDBToRepository() {
+        // Obtain configurations
+        val configurations = getConfigurations();
+
+        // No configuration is loaded
+        if(configurations.isEmpty()) {
+            return false;
+        }
+
+        // Get the first configuration - should be just one
+        val configuration = configurations.get(0);
+
+        // Update the configuration
+        val oldConfiguration = configurationService.getConfigurationByName(configuration.getName());
+        configurationUpdater.updateConfiguration(configuration, oldConfiguration);
+
+        // Update the configuration
+        // The old configuration is now updated
+        configurationService.updateConfiguration(oldConfiguration);
+
+        return true;
     }
 
     @Override
@@ -165,5 +217,6 @@ public class GraphDBServiceImpl implements GraphDBService {
     @Override
     public void clearDatabase() {
         rawNeo4jService.clearDatabase();
+        log.info("Cleared the graph database.");
     }
 }

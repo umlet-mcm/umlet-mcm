@@ -9,7 +9,7 @@ export async function parseResponseGraph(response: Record<string, any>[], select
     const nodes: Node[] = [];
     detectedNodes.forEach((rawNode: any) => {
         if (nodes.some((n) => n.id === rawNode.elementId)) return;
-        if (selectedModel.nodes.some((n) => n.id === rawNode.properties.generatedID.val))
+        if (selectedModel.nodes.some((n) => n.id === rawNode.properties.generatedID))
             nodes.push(createNodeFromResponse(rawNode));
     });
 
@@ -29,21 +29,21 @@ export async function parseResponseGraph(response: Record<string, any>[], select
 function createNodeFromResponse(rawNode: any): Node {
     return {
         id: rawNode.elementId,
-        title: rawNode.properties.name.val,
+        title: rawNode.properties.name,
         elementType: "UMLClass",
         tags: rawNode.properties.tags.values,
-        originalText: rawNode.properties.name.val,
-        description: rawNode.properties.description.val,
+        originalText: rawNode.properties.name,
+        description: rawNode.properties.description,
         generatedAttributes: [],
         pprType: "",
         mcmModel: "",
         mcmModelId: "",
         relations: [],
         umletPosition: {
-            x: rawNode.properties["position.x"].val,
-            y: rawNode.properties["position.y"].val,
-            width: rawNode.properties["position.width"].val,
-            height: rawNode.properties["position.height"].val,
+            x: rawNode.properties["position.x"],
+            y: rawNode.properties["position.y"],
+            width: rawNode.properties["position.width"],
+            height: rawNode.properties["position.height"],
         },
         umletAttributes: extractAttributes(rawNode.properties, "umletProperties"),
         mcmAttributes: extractAttributes(rawNode.properties, "properties"),
@@ -68,11 +68,11 @@ function createRelationFromResponse(relation: any) {
     return {
         id: relation.elementId,
         type: relation.type,
-        title: relation.properties.name.val,
+        title: relation.properties.name,
         target: relation.endElementId,
-        description: relation.properties.description.val,
+        description: relation.properties.description,
         tags: relation.properties.tags.values,
-        originalText: relation.properties.name.val,
+        originalText: relation.properties.name,
         pprType: "",
         mcmModel: "",
         mcmModelId: "",
@@ -105,7 +105,7 @@ function extractAttributes(obj: Record<string, any>, prefix: string): Record<str
         .filter(([key]) => key.startsWith(prefix))
         .reduce((result, [key, value]) => {
             const keyWithoutPrefix = key.split('.')[1];
-            result[keyWithoutPrefix] = value.val;
+            result[keyWithoutPrefix] = value;
             return result;
         }, {} as Record<string, any>);
 }

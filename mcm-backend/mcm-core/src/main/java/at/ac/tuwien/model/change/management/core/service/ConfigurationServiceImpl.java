@@ -22,6 +22,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     private final ConfigurationRepository configurationRepository;
     private final VersionControlRepository versionControlRepository;
+    private final GraphDBService graphDBService;
 
     @Override
     public Configuration createConfiguration(@NonNull Configuration configuration) {
@@ -32,6 +33,12 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             configurationRepository.createConfiguration(configuration.getName());
             var savedConfiguration = configurationRepository.saveConfiguration(configuration);
             log.info("Created configuration '{}'.", configuration.getName());
+
+            // Load the configuration into the graph database
+            graphDBService.clearDatabase();
+            graphDBService.loadConfiguration(savedConfiguration);
+            log.info("Loaded configuration '{}' into graph database.", configuration.getName());
+
             return savedConfiguration;
         } catch (RepositoryAlreadyExistsException e) {
             throw new ConfigurationAlreadyExistsException("Configuration with name '" + configuration.getName() + "' already exists.", e);
@@ -57,6 +64,12 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             }
             var savedConfiguration = configurationRepository.saveConfiguration(configuration);
             log.info("Updated configuration '{}'.", configuration.getName());
+
+            // Load the configuration into the graph database
+            graphDBService.clearDatabase();
+            graphDBService.loadConfiguration(savedConfiguration);
+            log.info("Loaded configuration '{}' into graph database.", configuration.getName());
+
             return savedConfiguration;
         } catch (RepositoryDoesNotExistException e) {
             throw new ConfigurationDoesNotExistException("Configuration '" + configuration.getName() + "' does not exist.", e);

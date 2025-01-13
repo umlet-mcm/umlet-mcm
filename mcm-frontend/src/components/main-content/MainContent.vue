@@ -2,7 +2,7 @@
 import {Button} from '@/components/ui/button'
 import QueryEditor from "@/components/main-content/QueryEditor.vue"
 import GraphVisualisation from "@/components/main-content/GraphVisualisation.vue"
-import {PropType, ref, watch} from "vue"
+import {ref, watch} from "vue"
 import {HelpCircle, Play} from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
 import {Node, Relation} from "@/types/Node.ts";
@@ -19,10 +19,6 @@ const props = defineProps({
   selectedModel: {
     type: Object as () => Model,
     required: false
-  },
-  response: {
-    type: Array as PropType<Record<string, any>[]>,
-    required: false
   }
 });
 
@@ -37,6 +33,7 @@ const emit = defineEmits<{
 
 // variables
 const query = ref('')
+const queryResponse = ref<Record<string, any>[]>([])
 const errorMessage = ref<string | undefined>(undefined)
 const queryMessage = ref<string | undefined>(undefined)
 const queryGraph = ref<Model | undefined>(undefined);
@@ -75,7 +72,10 @@ const executeMultipleQuery = async (queries: string[]) => {
   }
 
   // display the last response
-  if (response) emit('update:response', response)
+  if (response) {
+    queryResponse.value = response
+    emit('update:response', response)
+  }
   if (!errorMessage.value) {
     queryMessage.value = `${nbOk} ${nbOk === 1 ? "query" : "queries"} executed successfully in ${totalTime} ms.`
   }
@@ -92,6 +92,11 @@ const executeQuery = async () => {
   await executeMultipleQuery(formattedQuery.split(";").filter(Boolean))
 };
 
+/**
+ * Get the columns from the query response
+ * @param queryResponse
+ * @returns the columns as an array of strings
+ */
 const getColumns = (queryResponse: Record<string, any>[]): string[] => {
   const keys:string[] = []
   for(let i = 0; i < queryResponse.length; i++) {
@@ -104,16 +109,21 @@ const getColumns = (queryResponse: Record<string, any>[]): string[] => {
   return keys;
 }
 
+/**
+ * Remove the labels from the json
+ * @param json
+ * @returns the json without the labels
+ */
 const removeLabel = (json: any) => {
   const { labels, ...withoutLabels } = json;
   return withoutLabels;
 }
 
 // when the response changes, parse it to a graph
-watch(() => props.response, async (newValue) => {
-  if (newValue?.length) {
+watch(() => queryResponse.value, async (newValue) => {
+  if (newValue.length > 0) {
     if(props.selectedModel) {
-      queryGraph.value = await parseResponseGraph(newValue, props.selectedModel);
+      queryGraph.value = await parseResponseGraph(newValue, props.selectedModel)
       if(queryGraph.value.nodes.length === 0) {
         queryGraph.value = undefined
         messageGraph.value = "Response model is empty"
@@ -121,6 +131,7 @@ watch(() => props.response, async (newValue) => {
     }
   } else {
     queryGraph.value = undefined;
+    messageGraph.value = "Response model is empty"
   }
 });
 </script>
@@ -183,16 +194,15 @@ watch(() => props.response, async (newValue) => {
         </div>
       </TabsContent>
       <TabsContent value="table" class="h-[95%] overflow-scroll">
-          <Table v-if="props.response?.[0] && getColumns(props.response).length !== 0" ref="responseTable">
+          <Table v-if="queryResponse?.[0] && getColumns(queryResponse).length !== 0" ref="responseTable">
             <TableHeader>
               <TableRow>
-                <TableHead v-for="columnName in getColumns(props.response)" :key="columnName">{{ columnName }}</TableHead>
+                <TableHead v-for="columnName in getColumns(queryResponse)" :key="columnName">{{ columnName }}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TableRow v-for="(value, index) in response" :key="index" class="even:bg-gray-300">
-
-                <TableCell v-for="columnName in getColumns(props.response)">
+              <TableRow v-for="(value, index) in queryResponse" :key="index" class="even:bg-gray-300">
+                <TableCell v-for="columnName in getColumns(queryResponse)">
                   <span v-if="value[columnName] && value[columnName].labels?.[0]">
                     {{ value[columnName].labels?.[0] }}&nbsp;{{ removeLabel(value[columnName]) }}
                   </span>
@@ -217,7 +227,7 @@ watch(() => props.response, async (newValue) => {
         </div>
       </TabsContent>
       <TabsContent value="json" class="h-[95%] overflow-scroll">
-        <QueryResult :queryResponse="response"/>
+        <QueryResult :queryResponse="queryResponse"/>
       </TabsContent>
     </Tabs>
   </div>

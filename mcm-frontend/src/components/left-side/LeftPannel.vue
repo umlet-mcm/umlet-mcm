@@ -42,7 +42,6 @@ const emit = defineEmits<{
 }>()
 
 // variables
-const emit = defineEmits(["update:selectedModel", "update:selectedConfiguration"]);
 const isDialogOpen = ref({merge: false, settings: false, export: false, upload: false, confirmation: false, versionDiff:false})
 const versionList = ref<string[]>([])
 

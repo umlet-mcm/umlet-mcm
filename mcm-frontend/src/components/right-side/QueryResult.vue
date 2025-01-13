@@ -1,8 +1,6 @@
 <script setup lang="ts">
 
-import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {PropType, ref, watch} from "vue";
-import {ScrollArea} from "@/components/ui/scroll-area";
 import VueJsonPretty from 'vue-json-pretty';
 import 'vue-json-pretty/lib/styles.css';
 
@@ -18,15 +16,27 @@ const props = defineProps({
   }
 });
 
+const getKeys = (queryResponse: Record<string, any>[]): string[] => {
+  const keys:string[] = []
+  for(let i = 0; i < queryResponse.length; i++) {
+    for (const key in queryResponse[i]) {
+      if (!keys.includes(key)) {
+        keys.push(key)
+      }
+    }
+  }
+  return keys;
+}
+
 //functions
 watch(() => props.queryResponse, (newValue, oldValue) => {
   // update keys when queryResponse changes
   if (newValue !== oldValue && newValue !== undefined) {
-    if(props.queryResponse!.length === 0 || Object.keys(props.queryResponse![0]).length === 0) {
-      keys.value = undefined
+    keys.value = getKeys(newValue)
+    if(keys.value.length === 0) {
       message.value = "Query result is empty"
     } else {
-      keys.value = Object.keys(props.queryResponse![0]);
+      message.value = undefined
     }
   }
 });
@@ -34,28 +44,16 @@ watch(() => props.queryResponse, (newValue, oldValue) => {
 
 <template>
   <div class="flex flex-col h-full">
-    <h2 class="text-lg font-semibold mb-4">Query Results</h2>
-    <div v-if="queryResponse && keys" class="flex-1 min-h-0">
-      <Tabs :default-value="keys[0]" class="flex flex-col h-full">
-        <TabsList>
-          <TabsTrigger v-for="key in keys" :key="key" :value="key">{{key}}</TabsTrigger>
-        </TabsList>
-        <div class="flex-1 min-h-0">
-          <TabsContent v-for="key in keys" :key="key" :value="key" class="h-full">
-            <ScrollArea class="h-full rounded-md">
-              <div class="p-2">
-                <div v-for="(obj, index) in queryResponse" :key="index">
-                  <vue-json-pretty class="bg-muted rounded-md p-2 mb-2 overflow-x-auto" :data="obj[key]"/>
-                </div>
-              </div>
-            </ScrollArea>
-          </TabsContent>
+    <div v-if="queryResponse?.length" class="flex-1 min-h-0">
+      <div class="p-2">
+        <div v-for="(obj, index) in queryResponse" :key="index">
+          <vue-json-pretty class="bg-muted rounded-md p-2 mb-2 overflow-x-auto" :data="obj"/>
         </div>
-      </Tabs>
+      </div>
     </div>
     <div v-else class="flex-1 flex items-center justify-center">
       <p class="text-muted-foreground">
-        {{ message }}
+        {{message}}
       </p>
     </div>
   </div>

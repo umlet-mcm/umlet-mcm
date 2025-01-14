@@ -13,9 +13,9 @@ import at.ac.tuwien.model.change.management.core.model.intermediary.ModelUxf;
 import at.ac.tuwien.model.change.management.core.model.utils.RelationUtils;
 import at.ac.tuwien.model.change.management.core.transformer.XMLTransformer;
 import jakarta.xml.bind.JAXBException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.factory.Mappers;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.stereotype.Service;
 
@@ -26,13 +26,12 @@ import java.util.UUID;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class UxfServiceImpl implements UxfService {
 
-    @Autowired
-    private ConfigurationService configurationService;
+    private final ConfigurationService configurationService;
 
-    @Autowired
-    private XMLTransformer xmlTransformer;
+    private final XMLTransformer xmlTransformer;
 
     @Override
     public Configuration createConfigurationFromUxf(InputStreamSource file) throws UxfException {

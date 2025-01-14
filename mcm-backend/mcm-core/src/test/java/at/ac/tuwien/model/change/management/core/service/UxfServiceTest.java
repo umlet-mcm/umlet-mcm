@@ -1,23 +1,59 @@
 package at.ac.tuwien.model.change.management.core.service;
 
+import at.ac.tuwien.model.change.management.core.configuration.JaxbConfig;
 import at.ac.tuwien.model.change.management.core.exception.ConfigurationException;
 import at.ac.tuwien.model.change.management.core.exception.ModelNotFoundException;
 import at.ac.tuwien.model.change.management.core.exception.UxfException;
 import at.ac.tuwien.model.change.management.core.model.Configuration;
-import at.ac.tuwien.model.change.management.server.ModelChangeManagementServer;
+import at.ac.tuwien.model.change.management.core.transformer.XMLTransformerImpl;
+import at.ac.tuwien.model.change.management.git.repository.ConfigurationRepository;
+import at.ac.tuwien.model.change.management.git.repository.VersionControlRepository;
+import at.ac.tuwien.model.change.management.testutil.MockConfigurationRepository;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.core.io.InputStreamResource;
 
 import java.io.InputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
-@SpringBootTest(classes = {ModelChangeManagementServer.class})
 public class UxfServiceTest {
-    @Autowired
+    private ConfigurationRepository configurationRepository;
+    private AutoCloseable annotations;
+
+    @Mock
+    private VersionControlRepository versionControlRepository;
+
+    private ConfigurationService configurationService;
+
+    @Mock
+    private GraphDBService graphDBService;
+
     private UxfServiceImpl service;
+
+    @BeforeEach
+    public void setup() throws JAXBException {
+        configurationRepository = new MockConfigurationRepository();
+        annotations = MockitoAnnotations.openMocks(this);
+        configurationService = new ConfigurationServiceImpl(configurationRepository, versionControlRepository, graphDBService);
+
+        JAXBContext jaxbContext = new JaxbConfig().jaxbContext();
+
+        var xmlTransformer = new XMLTransformerImpl(jaxbContext);
+        service = new UxfServiceImpl(configurationService, xmlTransformer);
+    }
+
+    @AfterEach
+    public void teardown() throws Exception {
+        annotations.close();
+    }
 
     @Test
     void testCreateConfigurationFromUxf() throws UxfException {
@@ -33,6 +69,9 @@ public class UxfServiceTest {
 
     @Test
     void testAddUxfToConfiguration() throws UxfException {
+        when(versionControlRepository.getCurrentVersion(anyString())).thenAnswer(invocation ->
+                findVersionByName(invocation.getArgument(0)));
+
         String in1 = "uxf/frag1_cost_updated.uxf";
         Configuration target = service.createConfigurationFromUxf(getStream(in1));
 
@@ -75,5 +114,9 @@ public class UxfServiceTest {
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
         InputStream is = classloader.getResourceAsStream(filename);
         return new InputStreamResource(is);
+    }
+
+    private String findVersionByName(String name) {
+        return configurationRepository.findConfigurationByName(name).orElseThrow().getVersion();
     }
 }

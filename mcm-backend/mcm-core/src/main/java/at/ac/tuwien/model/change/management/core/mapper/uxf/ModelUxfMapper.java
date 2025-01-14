@@ -15,6 +15,7 @@ import org.mapstruct.factory.Mappers;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 
 @Mapper(uses = {ElementUxfMapper.class})
 public interface ModelUxfMapper {
@@ -87,7 +88,8 @@ public interface ModelUxfMapper {
         for (ElementUxf r : convertedRelations) {
             ElementUxf mergeWith = mergedList.stream()
                     .filter(o -> o.getUmletPosition().equals(r.getUmletPosition()) &&
-                            o.getAttributes().getMcmAttributes().get(AttributeKeys.ID).equals(
+                            Objects.equals(
+                                    o.getAttributes().getMcmAttributes().get(AttributeKeys.ID),
                                     r.getAttributes().getMcmAttributes().get(AttributeKeys.ID)
                             ))
                     .findFirst()

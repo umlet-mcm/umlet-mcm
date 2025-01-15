@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(classes = {ModelDSL.class, XMLTransformerImpl.class, JaxbConfig.class})
 public class ModelDSLTest {
 
-    @Value("classpath:/dsl/model_dsl_representation.xml")
+    @Value("classpath:/transformer/model_dsl_representation.xml")
     private Resource modelResource;
 
     @Autowired

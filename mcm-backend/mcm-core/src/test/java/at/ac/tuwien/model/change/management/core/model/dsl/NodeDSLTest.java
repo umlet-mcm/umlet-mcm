@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(classes = {NodeDSL.class, XMLTransformerImpl.class, JaxbConfig.class})
 public class NodeDSLTest {
 
-    @Value("classpath:/dsl/node_dsl_representation.xml")
+    @Value("classpath:/transformer/node_dsl_representation.xml")
     private Resource nodeResource;
 
     @Autowired

@@ -172,4 +172,21 @@ public class GraphDBController {
                 .header("Content-Disposition", "attachment; filename=" + fileName + ".csv")
                 .body(resource);
     }
+
+    /**
+     * Exports the query made on the graph database to a UXF file
+     * @param fileName The name of the UXF file
+     * @return The UXF file
+     */
+    @PostMapping(path = "/queryExport")
+    public ResponseEntity<Resource> exportQueryToUXF(
+            @RequestParam String fileName,
+            @RequestBody QueryDTO query
+    ) {
+        val uxfFile = graphDBService.generateQueryUXF(query.query());
+        return ResponseEntity.ok()
+                .contentType(MediaType.valueOf("application/XML"))
+                .header("Content-Disposition", "attachment; filename=" + fileName + ".uxf")
+                .body(uxfFile);
+    }
 }

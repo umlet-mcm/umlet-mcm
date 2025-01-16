@@ -1,10 +1,9 @@
 package at.ac.tuwien.model.change.management.graphdb.dao;
 
 import at.ac.tuwien.model.change.management.graphdb.config.Neo4JProperties;
+import at.ac.tuwien.model.change.management.graphdb.entities.NodeEntity;
 import at.ac.tuwien.model.change.management.graphdb.exceptions.InvalidQueryException;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.Session;
-import org.neo4j.driver.Result;
+import org.neo4j.driver.*;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.exceptions.ClientException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +16,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Service for executing raw queries on the Neo4j database
@@ -101,6 +101,53 @@ public class RawNeo4jService {
             session.run(query);
         } catch (ClientException e) {
             throw new InvalidQueryException("Error clearing database! " + e.getMessage());
+        }
+    }
+
+    /**
+     * Deletes all nodes except those that are part of the subgraph returned by the query.
+     * The query must return a column of type Node or Element ID.
+     * @param query The query containing the subgraph to keep
+     */
+    public void getOnlyQuerySubgraph(String query) {
+        try (Session session = neo4jDriver.session()) {
+            // Step 1: Execute the query to get the IDs of the nodes to keep
+            Result result = session.run(query);
+            List<String> idsToKeep = new ArrayList<>();
+            while (result.hasNext()) {
+                Record record = result.next();
+                // Check if there is at least one column
+                if (record.size() == 0) {
+                    throw new InvalidQueryException("Query must return at least one column!");
+                }
+                // Check whether the value in a column is String (elementId) or Entity (Node)
+                if(record.get(0).type().name().equals("NODE"))
+                    idsToKeep.add(record.get(0).asEntity().elementId());
+                else if (record.get(0).type().name().equals("STRING")) {
+                    try {
+                        // Check if the string is a valid UUID
+                        String regex = ".*:(.*):.*";
+                        String type = record.get(0).asString().replaceAll(regex, "$1");
+                        UUID.fromString(type);
+                        idsToKeep.add(record.get(0).asString());
+                    } catch (IllegalArgumentException e) {
+                        throw new InvalidQueryException("Query must return a column of type Node or Element ID! The column contains String but not an Element ID!");
+                    }
+                }
+
+                else
+                    throw new InvalidQueryException("Query must return a column of type Node or Element ID!");
+            }
+
+            // Needs at least one row to be kept
+            if(idsToKeep.size() == 0)
+                throw new InvalidQueryException("Query must return at least one row!");
+
+            // Step 2: Delete all nodes except those with the IDs in idsToKeep
+            String deleteQuery = "MATCH (n) WHERE NOT elementId(n) IN $idsToKeep DETACH DELETE n";
+            session.run(deleteQuery, Map.of("idsToKeep", idsToKeep));
+        } catch (ClientException e) {
+            throw new InvalidQueryException("Error performing query! " + e.getMessage());
         }
     }
 }

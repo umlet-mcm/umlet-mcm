@@ -4,6 +4,7 @@ import at.ac.tuwien.model.change.management.core.exception.ConfigurationExceptio
 import at.ac.tuwien.model.change.management.core.exception.ModelNotFoundException;
 import at.ac.tuwien.model.change.management.core.exception.UxfException;
 import at.ac.tuwien.model.change.management.core.model.Configuration;
+import at.ac.tuwien.model.change.management.core.model.Model;
 import org.springframework.core.io.InputStreamSource;
 
 public interface UxfService {
@@ -13,6 +14,8 @@ public interface UxfService {
     Configuration addUxfToConfiguration(InputStreamSource file, String configurationUUID) throws UxfException, ConfigurationException;
 
     String exportModel(String modelUuid) throws ModelNotFoundException, UxfException;
+
+    String exportModel(Model model) throws UxfException;
 
     String exportConfiguration(String configurationUuid) throws UxfException;
 }

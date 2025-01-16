@@ -1,15 +1,19 @@
 package at.ac.tuwien.model.change.management.core.service;
 
+import at.ac.tuwien.model.change.management.core.exception.UxfException;
 import at.ac.tuwien.model.change.management.core.mapper.neo4j.*;
 import at.ac.tuwien.model.change.management.core.mapper.neo4j.updater.ConfigurationUpdater;
+import at.ac.tuwien.model.change.management.core.mapper.neo4j.updater.NodeUpdater;
 import at.ac.tuwien.model.change.management.core.model.Configuration;
 import at.ac.tuwien.model.change.management.core.model.Model;
 import at.ac.tuwien.model.change.management.core.model.Node;
+import at.ac.tuwien.model.change.management.core.model.Relation;
 import at.ac.tuwien.model.change.management.graphdb.dao.ConfigurationEntityDAO;
 import at.ac.tuwien.model.change.management.graphdb.dao.ModelEntityDAO;
 import at.ac.tuwien.model.change.management.graphdb.dao.NodeEntityDAO;
 import at.ac.tuwien.model.change.management.graphdb.dao.RawNeo4jService;
 import at.ac.tuwien.model.change.management.graphdb.entities.NodeEntity;
+import at.ac.tuwien.model.change.management.graphdb.exceptions.InvalidQueryException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.NonNull;
@@ -17,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.neo4j.driver.Value;
+import org.neo4j.driver.internal.InternalNode;
 import org.neo4j.driver.internal.value.FloatValue;
 import org.neo4j.driver.internal.value.IntegerValue;
 import org.neo4j.driver.internal.value.ListValue;
@@ -26,6 +31,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Service
@@ -45,11 +51,14 @@ public class GraphDBServiceImpl implements GraphDBService {
 
     /* Updater */
     private final ConfigurationUpdater configurationUpdater;
+    private final NodeUpdater nodeUpdater;
 
     private final RawNeo4jService rawNeo4jService;
 
     @Lazy @Autowired
     private ConfigurationService configurationService;
+    @Lazy @Autowired
+    private UxfService uxfService;
 
     @Override
     public Node loadNode(@NonNull Node node) {
@@ -212,6 +221,86 @@ public class GraphDBServiceImpl implements GraphDBService {
     public ByteArrayResource generateQueryCSV(String fileName, String query) {
         rawNeo4jService.generateQueryCSV(fileName, query);
         return rawNeo4jService.downloadCSV(fileName);
+    }
+
+    @Override
+    public ByteArrayResource generateQueryUXF(String query) {
+        // Save the database temporarily
+        val configurations = getConfigurations();
+        if(configurations.isEmpty()) {
+            throw new InvalidQueryException("No configuration is loaded in the DB!");
+        }
+        val configuration = configurations.get(0);
+
+        String uxfFile;
+
+        try{
+            // Convert the database to contain only the subgraph
+            rawNeo4jService.getOnlyQuerySubgraph(query);
+            log.info("Successfully converted the database to contain only the subgraph.");
+
+            // Get the nodes that remain
+            val nodes = getNodes();
+
+            // Update the nodes from repository
+            val updatedNodes = updateNodes(nodes, configuration.getName());
+
+            // Create a new model out of them
+            val model = new Model();
+            val nodesSet = new HashSet<Node>(updatedNodes);
+            model.setNodes(nodesSet);
+
+            // Export the nodes to a file
+            uxfFile = uxfService.exportModel(model);
+            log.info("Successfully exported the subgraph to a UXF file.");
+        } catch (UxfException e) {
+            throw new InvalidQueryException(e.getMessage());
+        } finally {
+            // Restore the database even if error occurs
+            clearDatabase();
+            loadConfiguration(configuration);
+            log.info("Successfully restored the database.");
+        }
+        return new ByteArrayResource(uxfFile.getBytes(StandardCharsets.UTF_8));
+    }
+
+    /**
+     * Updates the nodes with the ones from the repository
+     * @param nodes The nodes to update
+     * @param configName The name of the configuration to get the nodes from
+     * @return The updated nodes
+     */
+    private List<Node> updateNodes(List<Node> nodes, String configName) {
+        // Get the configuration
+        val configuration = configurationService.getConfigurationByName(configName);
+
+        // Get all nodes to a hash map
+        val nodesMap = new HashMap<String, Node>();
+        for(Model model : configuration.getModels()) {
+            for(Node repositoryNode : model.getNodes()) {
+                nodesMap.put(repositoryNode.getId(), repositoryNode);
+            }
+        }
+
+        // Update the nodes
+        val updatedNodes = new ArrayList<Node>();
+        for (Node node : nodes) {
+            if(nodesMap.containsKey(node.getId())) {
+                // Update the node
+                val repositoryNode = nodesMap.get(node.getId());
+                nodeUpdater.updateNode(node, repositoryNode);
+                repositoryNode.setId(null);
+                repositoryNode.setMcmModelId(null);
+                updatedNodes.add(repositoryNode);
+
+                // Delete relation IDs
+                for (Relation relation : repositoryNode.getRelations()) {
+                    relation.setId(null);
+                    relation.setMcmModelId(null);
+                }
+            }
+        }
+        return updatedNodes;
     }
 
     @Override

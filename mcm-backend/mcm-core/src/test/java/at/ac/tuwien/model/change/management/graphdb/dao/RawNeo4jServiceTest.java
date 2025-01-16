@@ -6,10 +6,9 @@ import lombok.val;
 import org.junit.jupiter.api.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.Session;
-import org.neo4j.driver.Result;
+import org.neo4j.driver.*;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.exceptions.ClientException;
 import org.springframework.core.io.ByteArrayResource;
@@ -165,4 +164,80 @@ class RawNeo4jServiceTest {
 
         assertThrows(InvalidQueryException.class, () -> rawNeo4jService.clearDatabase());
     }
+
+    @Test
+    void getOnlyQuerySubgraphKeepsSpecifiedNodes() {
+        String query = "MATCH (n:Node) RETURN n";
+        Value value = mock(Value.class, RETURNS_DEEP_STUBS);
+        when(session.run(query)).thenReturn(result);
+        when(result.hasNext()).thenReturn(true, false);
+        when(result.next()).thenReturn(record);
+        when(record.size()).thenReturn(1);
+        when(record.get(0)).thenReturn(value);
+        when(record.get(0).type().name()).thenReturn("NODE");
+        when(record.get(0).asEntity().elementId()).thenReturn("123");
+
+        rawNeo4jService.getOnlyQuerySubgraph(query);
+
+        verify(session).run("MATCH (n) WHERE NOT elementId(n) IN $idsToKeep DETACH DELETE n", Map.of("idsToKeep", List.of("123")));
+    }
+
+    @Test
+    void getOnlyQuerySubgraphWithUUIDKeepsSpecifiedNodes() {
+        String query = "MATCH (n:Node) RETURN n";
+        Value value = mock(Value.class, RETURNS_DEEP_STUBS);
+        val uuid = UUID.randomUUID().toString();
+        when(session.run(query)).thenReturn(result);
+        when(result.hasNext()).thenReturn(true, false);
+        when(result.next()).thenReturn(record);
+        when(record.size()).thenReturn(1);
+        when(record.get(0)).thenReturn(value);
+        when(record.get(0).type().name()).thenReturn("STRING");
+        when(record.get(0).asString()).thenReturn("4:" + uuid + ":11");
+
+        rawNeo4jService.getOnlyQuerySubgraph(query);
+
+        verify(session).run("MATCH (n) WHERE NOT elementId(n) IN $idsToKeep DETACH DELETE n", Map.of("idsToKeep", List.of("4:" + uuid + ":11")));
+    }
+
+    @Test
+    void getOnlyQuerySubgraphThrowsInvalidQueryExceptionForEmptyResult() {
+        String query = "MATCH (n:Node) RETURN n";
+        when(session.run(query)).thenReturn(result);
+        when(result.hasNext()).thenReturn(false);
+
+        assertThrows(InvalidQueryException.class, () -> rawNeo4jService.getOnlyQuerySubgraph(query));
+    }
+
+    @Test
+    void getOnlyQuerySubgraphThrowsInvalidQueryExceptionForInvalidColumnType() {
+        String query = "MATCH (n:Node) RETURN n";
+        Value value = mock(Value.class, RETURNS_DEEP_STUBS);
+
+        when(session.run(query)).thenReturn(result);
+        when(result.hasNext()).thenReturn(true, false);
+        when(result.next()).thenReturn(record);
+        when(record.size()).thenReturn(1);
+        when(record.get(0)).thenReturn(value);
+        when(record.get(0).type().name()).thenReturn("INTEGER");
+
+        assertThrows(InvalidQueryException.class, () -> rawNeo4jService.getOnlyQuerySubgraph(query));
+    }
+
+    @Test
+    void getOnlyQuerySubgraphThrowsInvalidQueryExceptionForInvalidUUIDString() {
+        String query = "MATCH (n:Node) RETURN 'invalid-uuid'";
+        Value value = mock(Value.class, RETURNS_DEEP_STUBS);
+
+        when(session.run(query)).thenReturn(result);
+        when(result.hasNext()).thenReturn(true, false);
+        when(result.next()).thenReturn(record);
+        when(record.size()).thenReturn(1);
+        when(record.get(0)).thenReturn(value);
+        when(record.get(0).type().name()).thenReturn("STRING");
+        when(record.get(0).asString()).thenReturn("4:invalid-uuid:11");
+
+        assertThrows(InvalidQueryException.class, () -> rawNeo4jService.getOnlyQuerySubgraph(query));
+    }
+
 }

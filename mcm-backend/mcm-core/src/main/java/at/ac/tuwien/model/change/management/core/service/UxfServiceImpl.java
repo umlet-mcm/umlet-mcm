@@ -82,6 +82,18 @@ public class UxfServiceImpl implements UxfService {
     }
 
     @Override
+    public String exportModel(Model model) throws UxfException {
+        ModelUxfMapper modelUxfMapper = Mappers.getMapper(ModelUxfMapper.class);
+        ModelUxf modelUxf = modelUxfMapper.fromModel(model);
+
+        try {
+            return xmlTransformer.marshalUxf(modelUxf);
+        } catch (JAXBException e) {
+            throw new UxfException("Could not marshal model to XML", e);
+        }
+    }
+
+    @Override
     public String exportConfiguration(String configurationUuid) throws ConfigurationException, UxfException {
         Configuration target;
         try {

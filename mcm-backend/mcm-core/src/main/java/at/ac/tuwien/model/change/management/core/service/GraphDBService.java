@@ -154,6 +154,13 @@ public interface GraphDBService {
     ByteArrayResource generateQueryCSV(String fileName, String query);
 
     /**
+     * Generates a UXF file from a custom query. Creates a new model that is exported to a UXF file.
+     * @param query The custom query which contains subgraph to export
+     * @return The UXF file as an InputStreamResource
+     */
+    ByteArrayResource generateQueryUXF(String query);
+
+    /**
      * Clears the graph database, removing all nodes, relations and attributes
      */
     void clearDatabase();

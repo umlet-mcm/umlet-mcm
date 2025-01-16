@@ -10,7 +10,10 @@ import {ref} from "vue";
 import AlertConfirmation from "@/components/left-side/AlertConfirmation.vue";
 import {LoaderCircleIcon} from 'lucide-vue-next'
 
-//props related
+/**
+ * @param {Boolean} isOpen, dialog visibility
+ * @param {Configuration} currentConfiguration, current configuration to edit
+ */
 const props = defineProps({
   isOpen: {
     type: Boolean,
@@ -21,6 +24,10 @@ const props = defineProps({
     required: true
   },
 });
+
+/**
+ * @emits {Boolean} update:isOpen, dialog visibility
+ */
 const emit = defineEmits<{
   'update:isOpen': [value: boolean],
   'update:currentConfiguration': [value: Configuration]
@@ -31,9 +38,7 @@ const nameInput = ref(props.currentConfiguration.name)
 const errorMessage = ref<string | undefined>(undefined)
 const router = useRouter()
 const isLoadingValidate = ref(false)
-
-// confirmation dialog
-const isDialogOpen = ref({confirmation: false})
+const isDialogOpen = ref({confirmation: false}) // confirmation dialog for deletion
 
 //functions
 const closeDialog = () => {
@@ -43,6 +48,11 @@ const closeDialog = () => {
   emit('update:isOpen', false)
 }
 
+/**
+ * Confirm the deletion of the current configuration
+ * Called when the user confirms the deletion in the confirmation dialog
+ * Uses the deleteConfiguration API call
+ */
 const confirmDeletion = async () => {
   try {
     // the name of a configuration is it's id
@@ -56,6 +66,11 @@ const confirmDeletion = async () => {
   }
 }
 
+/**
+ * Save the changes made to the current configuration
+ * Called when the user clicks the save button
+ * Uses the updateConfiguration API call
+ */
 const saveChanges = async () => {
   isLoadingValidate.value = true
   try {

@@ -4,11 +4,9 @@ import {PropType, ref, watch} from "vue";
 import VueJsonPretty from 'vue-json-pretty';
 import 'vue-json-pretty/lib/styles.css';
 
-//variables
-const keys = ref<string[] | undefined>(undefined);
-const message = ref<string | undefined>("No result to display");
-
-//props
+/**
+ * @param {Record<string, any>[]} queryResponse, response from the query (optional)
+ */
 const props = defineProps({
   queryResponse: {
     type: Array as PropType<Record<string, any>[]>,
@@ -16,6 +14,11 @@ const props = defineProps({
   }
 });
 
+//variables
+const keys = ref<string[] | undefined>(undefined);
+const message = ref<string | undefined>("No result to display");
+
+// functions
 const getKeys = (queryResponse: Record<string, any>[]): string[] => {
   const keys:string[] = []
   for(let i = 0; i < queryResponse.length; i++) {
@@ -28,7 +31,9 @@ const getKeys = (queryResponse: Record<string, any>[]): string[] => {
   return keys;
 }
 
-//functions
+/**
+ * Watch the queryResponse and update when it changes
+ */
 watch(() => props.queryResponse, (newValue, oldValue) => {
   // update keys when queryResponse changes
   if (newValue !== oldValue && newValue !== undefined) {

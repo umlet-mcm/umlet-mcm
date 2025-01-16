@@ -4,8 +4,10 @@ import {Edge, Network} from 'vis-network'
 import {Model} from "@/types/Model.ts";
 import {Node, Relation} from "@/types/Node.ts";
 
-// props related
-const emit = defineEmits(["update:selectedEntity"]);
+/**
+ * @param {Model} selectedModel, model to display
+ * @param {Record<string, any>[]} queryResponse, response from the query, used to filter the model (optional)
+ */
 const props = defineProps({
   modelToDisplay: {
     type: Object as () => Model,
@@ -13,11 +15,23 @@ const props = defineProps({
   },
 })
 
+/**
+ * @emits {Node | Relation} update:selectedEntity, selected entity
+ */
+const emit = defineEmits<{
+  'update:selectedEntity': [entity: Node | Relation]
+}>()
+
 // variables
 const container = ref<HTMLElement | null>(null)
 let network: Network | null = null;
 
 // functions
+/**
+ * Generate a pale color from a text
+ * @param text to generate the color from
+ * @returns rgb color
+ */
 const generatePaleColorFromText = (text: string) => {
   const hash = [...text].reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const red = (hash * 137) % 128 + 127;
@@ -26,6 +40,11 @@ const generatePaleColorFromText = (text: string) => {
   return `rgb(${red}, ${green}, ${blue})`;
 }
 
+/**
+ * Select an entity on the graph
+ * @param id of the entity
+ * @param type of the entity (node or relation)
+ */
 const selectedEntity = (id: string, type: string) => {
   let entity;
   if (type === 'relation') {
@@ -36,6 +55,11 @@ const selectedEntity = (id: string, type: string) => {
   if(entity) emit("update:selectedEntity", entity);
 };
 
+/**
+ * Initialize the graph
+ * Create the nodes and edges from the active model
+ * Add the events on the graph
+ */
 const initializeGraph = () => {
   if (!container.value) return;
 

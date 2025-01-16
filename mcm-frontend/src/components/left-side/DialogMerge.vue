@@ -9,12 +9,10 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Model } from '@/types/Model'
 import {mergeModels} from "@/api/model.ts";
 
-// variables
-const selectedModelsId = ref<string[]>([])
-const newModelName = ref('')
-const errorMessage = ref<string | undefined>(undefined)
-
-// props related
+/**
+ * @param {Boolean} isOpen, dialog visibility
+ * @param {Model[]} models, list of models to merge
+ */
 const props = defineProps({
   isOpen: {
     type: Boolean,
@@ -25,16 +23,30 @@ const props = defineProps({
     required: true
   }
 });
+
+/**
+ * @emits {Boolean} update:isOpen, dialog visibility
+ * @emits {Model} merge, merged model newly created
+ */
 const emit = defineEmits<{
   'update:isOpen': [value: boolean],
   merge: [mergedModel: Model]
 }>()
+
+// variables
+const selectedModelsId = ref<string[]>([])
+const newModelName = ref('')
+const errorMessage = ref<string | undefined>(undefined)
 
 /* functions */
 const canMerge = computed(() => {
   return selectedModelsId.value.length >= 2 && newModelName.value.trim().length > 0
 })
 
+/**
+ * Toggle the selection of a model
+ * @param modelId
+ */
 const toggleModel = (modelId: string) => {
   // find the index of the model in the selectedModelsId array
   const index = selectedModelsId.value.indexOf(modelId)
@@ -47,6 +59,10 @@ const toggleModel = (modelId: string) => {
   }
 }
 
+/**
+ * Merge the selected models together and emit the new model
+ * @emits {Model} merge, merged model newly created
+ */
 const handleMerge = async () => {
   if (canMerge.value) {
     try {

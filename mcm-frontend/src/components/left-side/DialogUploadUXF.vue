@@ -12,8 +12,12 @@ import {uploadUxfToConfiguration, uploadUxfToModel} from "@/api/files.ts";
 import AlertConfirmation from "@/components/left-side/AlertConfirmation.vue";
 import {ScrollArea} from "@/components/ui/scroll-area";
 import { LoaderCircleIcon } from 'lucide-vue-next'
+import {Model} from "@/types/Model.ts";
 
-//props related
+/**
+ * @param {Boolean} isOpen, dialog visibility
+ * @param {Configuration} currentConfiguration, current configuration to edit
+ */
 const props = defineProps({
   isOpen: {
     type: Boolean,
@@ -24,26 +28,36 @@ const props = defineProps({
     required: true
   },
 });
-const emit = defineEmits(['update:isOpen', 'update:currentConfiguration', 'update:currentModel']);
+
+/**
+ * @emits {Boolean} update:isOpen, dialog visibility
+ * @emits {Configuration} update:currentConfiguration, configuration to display
+ * @emits {Model} update:currentModel, model to display
+ */
+const emit = defineEmits<{
+  'update:isOpen': [value: boolean],
+  'update:currentConfiguration': [value: Configuration],
+  'update:currentModel': [value: Model]
+}>()
 
 //variables
 const router = useRouter()
-
 const errorMessage = ref<string | undefined>(undefined)
 const selectedFile = ref(undefined)
 const uploadLocation = ref(undefined)
 const uploadedConfig = ref<Configuration | undefined>(undefined)
 const newConfig = ref<Configuration | undefined>(undefined)
-
 const uploadedName = ref("")
 const warnings = ref<string[]>([])
 const isLoadingUpload = ref(false)
 const isLoadingValidate = ref(false)
-
-// confirmation dialog
-const isDialogOpen = ref({confirmation: false})
+const isDialogOpen = ref({confirmation: false}) // confirmation dialog for deletion
 
 //functions
+/**
+ * Upload the selected file to the server and retrieve the warnings
+ * Called when the user clicks on the upload button after selecting a file
+ */
 const upload = async () => {
   try {
     //todo upload uxf without database storing and retrieve the warnings
@@ -58,6 +72,9 @@ const upload = async () => {
   }
 }
 
+/**
+ * Close the dialog and reset all the values
+ */
 const closeDialog = () => {
   errorMessage.value = undefined
   selectedFile.value = undefined
@@ -70,27 +87,34 @@ const closeDialog = () => {
   emit('update:isOpen', false)
 }
 
+/**
+ * Select the file to upload and check if it is a valid UXF file
+ * @param event the event triggered by the file selection
+ */
 const fileSelected = (event: any) => {
   const file = event.target.files[0]
   selectedFile.value = (file && file.name.endsWith('.uxf')) ? file : undefined
 }
 
+/**
+ * Validate the upload and create a new configuration or model
+ * Called when the user clicks on the OK button
+ * Uses the uploadUxfToConfiguration or uploadUxfToModel API call
+ */
 const validateButton = async () => {
+  isLoadingValidate.value = true
   try {
     if(uploadLocation.value === "configuration") {
       // create a new configuration and open the alert dialog
-      isLoadingValidate.value = true
       newConfig.value = await uploadUxfToConfiguration(selectedFile.value)
       isDialogOpen.value.confirmation = true
     } else {
       // upload uxf to current configuration
-      isLoadingValidate.value = true
       newConfig.value = await uploadUxfToModel(selectedFile.value, props.currentConfiguration.name)
-
       // find the first model that is not in the current configuration (newly created model)
       const newModel = newConfig.value.models.find(m => !props.currentConfiguration.models.map(m => m.id).includes(m.id))
       emit('update:currentConfiguration', newConfig.value)
-      emit('update:currentModel', newModel)
+      if(newModel) emit('update:currentModel', newModel)
     }
     closeDialog()
   } catch (error: any) {
@@ -99,8 +123,11 @@ const validateButton = async () => {
   }
 }
 
+/**
+ * Load the newly created configuration
+ * Called when the user confirms the alert dialog
+ */
 const loadNewConfiguration = () => {
-  // called when the user confirms the alert dialog
   router.push({name: 'mainview', params: {id: newConfig.value!.name}})
   emit('update:currentConfiguration', newConfig.value!)
   emit('update:currentModel', newConfig.value!.models[0])

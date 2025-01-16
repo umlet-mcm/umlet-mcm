@@ -6,26 +6,31 @@ import {StreamLanguage} from "@codemirror/language"
 import { autocompletion } from '@codemirror/autocomplete'
 import {cypherCompletion} from "@/components/main-content/cypherCompletion.ts";
 
-defineProps<{
-  modelValue: string
-}>()
+/**
+ * @param {string} query, the query string
+ */
+defineProps({
+  query: {
+    type: String,
+    required: true
+  }
+})
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: string): void
+/**
+ * @emits {string} update:query, the query string
+ */
+defineEmits<{
+  'update:query': [value: string]
 }>()
 
 const extensions = [StreamLanguage.define(cypher), oneDark, autocompletion({override: [cypherCompletion]})]
-
-const onChange = (value: string) => {
-  emit('update:modelValue', value)
-}
 </script>
 
 <template>
   <div class="border border-border rounded-md overflow-hidden">
     <Codemirror
         :extensions="extensions"
-        @update:modelValue="onChange"
+        @update:modelValue="$emit('update:query', $event)"
         placeholder="Enter your Neo4j query here..."
         :indent-with-tab="true"
         :tab-size="2"

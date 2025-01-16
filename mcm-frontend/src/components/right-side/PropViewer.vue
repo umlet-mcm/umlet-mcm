@@ -2,6 +2,9 @@
 import {Node, Relation} from "@/types/Node.ts";
 import {TableBody, TableCell, TableHead, TableHeader, TableRow, Table} from "@/components/ui/table";
 
+/**
+ * @param {Node | Relation} selectedEntity, selected entity (optional)
+ */
 defineProps({
   selectedEntity: {
     type: Object as () => Node | Relation,

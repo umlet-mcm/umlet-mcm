@@ -11,19 +11,25 @@ import { useRouter } from 'vue-router'
 import {ref} from "vue";
 import {uploadUxfToModel} from "@/api/files.ts";
 
+// variables
 const router = useRouter()
 const configFile = ref<File>()
 const isLoadingValidate = ref(false)
 
+// form validation
 const formSchema = toTypedSchema(z.object({
   configName: z.string().min(2).max(50),
   configFile: z.string().optional()
 }))
-
 const form = useForm({
   validationSchema: formSchema,
 })
 
+/**
+ * Create a new configuration
+ * Upload the UXF file if provided and redirect to the new configuration
+ * @param data the name of the configuration to create
+ */
 const createProject = async (data: { name: string }) => {
   isLoadingValidate.value = true
   try {
@@ -38,6 +44,10 @@ const createProject = async (data: { name: string }) => {
   isLoadingValidate.value = false
 }
 
+/**
+ * Handle the file change event and update the selected file
+ * @param event the file change event
+ */
 const handleFileChange = (event: Event) => {
   const input = event.target as HTMLInputElement
   if (input.files && input.files.length) {
@@ -45,6 +55,9 @@ const handleFileChange = (event: Event) => {
   }
 }
 
+/**
+ * Submit the form and create the configuration
+ */
 const onSubmit = form.handleSubmit((values) => {
   createProject({ name: values.configName })
 })

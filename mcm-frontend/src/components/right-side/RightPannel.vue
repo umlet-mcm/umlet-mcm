@@ -1,20 +1,14 @@
 <script setup lang="ts">
-import {Model} from "@/types/Model.ts";
 import {Node, Relation} from "@/types/Node.ts";
 import PropViewer from "@/components/right-side/PropViewer.vue";
-import {PropType} from "vue";
 
+/**
+ * @param {Node | Relation} selectedEntity, selected entity (optional)
+ * @param {Record<string, any>[]} queryResponse, response from the query (optional)
+ */
 defineProps({
-  selectedModel: {
-    type: Object as () => Model,
-    required: false
-  },
   selectedEntity: {
     type: Object as () => Node | Relation,
-    required: false
-  },
-  queryResponse: {
-    type: Array as PropType<Record<string, any>[]>,
     required: false
   }
 });

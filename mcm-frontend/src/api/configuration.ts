@@ -83,7 +83,7 @@ export const deleteConfiguration = async (data: { name: string }): Promise<void>
 /**
  * Get all versions of a configuration
  * @param name the name of the configuration to retrieve versions for
- * @param version todo need to be removed after api is implemented
+ * @param version //todo need to be removed after api is implemented
  * @return a list of all versions of the configuration
  */
 export const getConfigurationVersions = async (name: string, version: string): Promise<string[]> => {

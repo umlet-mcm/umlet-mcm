@@ -120,7 +120,7 @@ const compareVersions = async () => {
               </Select>
             </div>
             <div class="flex flex-col items-center">
-              <Button :disabled="!firstSelected || !secondSelected || (firstSelected === secondSelected)" @click="compareVersions">
+              <Button :disabled="!firstSelected || !secondSelected || (firstSelected === secondSelected) || isLoading" @click="compareVersions">
                 <LoaderCircleIcon v-if="isLoading" class="animate-spin"/>
                 <Diff v-else class="mr-2" />
                 Compare

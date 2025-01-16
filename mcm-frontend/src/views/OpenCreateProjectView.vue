@@ -30,7 +30,7 @@ onMounted(() => {
   <div class="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
     <img src="/mcm.svg" alt="TU Wien Logo" class="mb-3 w-48"/>
     <h1 class="text-4xl font-semibold text-gray-800 mb-4">
-      UMLet MCM
+      UMLet Model Change Management
     </h1>
     <div class="bg-white rounded-lg shadow-lg w-full max-w-4xl overflow-hidden">
       <div class="flex justify-center p-2">

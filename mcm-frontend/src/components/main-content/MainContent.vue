@@ -3,7 +3,7 @@ import {Button} from '@/components/ui/button'
 import QueryEditor from "@/components/main-content/QueryEditor.vue"
 import GraphVisualisation from "@/components/main-content/GraphVisualisation.vue"
 import {PropType, ref, watch} from "vue"
-import {HelpCircle, Play} from 'lucide-vue-next'
+import {HelpCircle, LoaderCircleIcon, Play} from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
 import {Node, Relation} from "@/types/Node.ts";
 import {sendRequest} from "@/api/graphDB.ts";
@@ -36,6 +36,7 @@ const queryGraph = ref<Model | undefined>(undefined);
 const queryNum = ref(0)
 const activeTab = ref('full')
 const messageGraph = ref<string | undefined>("Query result cannot be displayed as a Model")
+const isLoadingQuery = ref(false)
 
 const emit = defineEmits(["update:selectedEntity", "update:response"]);
 let queryExecutionTimestamp: string | undefined;
@@ -74,9 +75,11 @@ const executeMultipleQuery = async (queries: string[]) => {
 // execute the query field
 const executeQuery = async () => {
   if (!query.value?.trim()) return
+  isLoadingQuery.value = true
   query.value = query.value.trim().replace("/\n/g", "")
   const formattedQuery = query.value.endsWith(";") ? query.value : `${query.value};`
   await executeMultipleQuery(formattedQuery.split(";").filter(Boolean))
+  isLoadingQuery.value = false
 };
 
 const getColumns = (queryResponse: Record<string, any>[]): string[] => {
@@ -123,8 +126,9 @@ watch(() => props.response, async (newValue) => {
       </div>
       <QueryEditor v-model="query" />
       <div class="flex gap-2">
-        <Button @click="executeQuery" class="flex items-center">
-          <Play class="mr-2 h-4 w-4" />
+        <Button @click="executeQuery" class="flex items-center" :disabled="isLoadingQuery">
+          <Play v-if="!isLoadingQuery" class="mr-2 h-4 w-4" />
+          <LoaderCircleIcon v-else class="animate-spin"/>
           Execute Query
         </Button>
         <label v-if="queryMessage" class="text-sm text-green-500 content-center">{{ "["+queryNum+"] " + queryMessage }}</label>

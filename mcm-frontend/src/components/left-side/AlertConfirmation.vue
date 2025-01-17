@@ -11,6 +11,14 @@ import {Button} from "@/components/ui/button";
 import {ref} from "vue";
 import {LoaderCircleIcon} from 'lucide-vue-next'
 
+/**
+ * @param {Boolean} isOpen, dialog visibility
+ * @param {String} dialogTitle, dialog title
+ * @param {String} dialogDescription, dialog description
+ * @param {String} dialogContent, dialog content
+ * @param {Function} onConfirm, function to be called when confirm button is clicked
+ * @param {Function} onReject, function to be called when reject button is clicked (optional)
+ */
 const props = defineProps({
   isOpen: {
     type: Boolean,
@@ -42,6 +50,9 @@ const props = defineProps({
   }
 });
 
+/**
+ * @emits {Boolean} update:isOpen, dialog visibility
+ */
 const emit = defineEmits<{
   'update:isOpen': [value: boolean]
 }>()
@@ -61,7 +72,6 @@ const closeDialog = () => {
   isLoadingValidate.value = false
   emit('update:isOpen', false)
 }
-
 </script>
 
 <template>

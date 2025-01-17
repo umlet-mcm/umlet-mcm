@@ -17,7 +17,10 @@ import {getConfigurationVersions} from "@/api/configuration.ts";
 import AlertConfirmation from "@/components/left-side/AlertConfirmation.vue";
 import {deleteModelFromConfig} from "@/api/model.ts";
 
-// props related
+/**
+ * @param {Model} selectedModel, selected model to display (if any)
+ * @param {Configuration} selectedConfiguration, selected configuration to display
+ */
 const props = defineProps({
   selectedModel: {
     type: Object as () => Model,
@@ -29,18 +32,40 @@ const props = defineProps({
   }
 });
 
+/**
+ * @emits {Model} update:selectedModel, selected model to display, or undefined if none
+ * @emits {Configuration} update:selectedConfiguration, selected configuration to display
+ */
+const emit = defineEmits<{
+  'update:selectedModel': [value: Model | undefined],
+  'update:selectedConfiguration': [value: Configuration]
+}>()
+
 // variables
-const emit = defineEmits(["update:selectedModel", "update:selectedConfiguration"]);
 const isDialogOpen = ref({merge: false, export: false, upload: false, confirmation: false, versionDiff:false})
 const errorDelete = ref<string | undefined>(undefined)
 const versionList = ref<string[]>([])
 
 // functions
+/**
+ * Add the merged model to the models of the configuration
+ * @param mergedModel the model to add to the configuration
+ */
+const handleMerge = (mergedModel: Model) => {
+  props.selectedConfiguration.models.push(mergedModel)
+  emit('update:selectedModel', mergedModel)
+}
+
 const placeholder = () => {
   console.log('Placeholder');
   //todo: replace all usages with functional code
 };
 
+/**
+ * Export the current model to UXF
+ * Called when the user clicks on the export button
+ * Uses the exportToUxf function from the api
+ */
 const exportCurrentModel = async () => {
   if(!props.selectedModel) return;
   try {
@@ -50,6 +75,11 @@ const exportCurrentModel = async () => {
   }
 }
 
+/**
+ * Confirm the deletion of the selected model
+ * Called when the user confirms the deletion in the confirmation dialog
+ * Uses the deleteModelFromConfig function from the api
+ */
 const confirmDeletion = async () => {
   const index = props.selectedConfiguration.models.findIndex(model => model.id === props.selectedModel!.id)
   if (index !== -1) {

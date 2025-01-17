@@ -7,6 +7,11 @@ const apiClient = axios.create({
     }
 });
 
+/**
+ * Send a query to the graph database
+ * @param query the query to send
+ * @return the results of the query
+ */
 export const sendRequest = async (query: string): Promise<Record<string, any>[]> => {
     try {
         const response = await apiClient.post('/graphdb/query', {"query": query.trim()});
@@ -16,6 +21,10 @@ export const sendRequest = async (query: string): Promise<Record<string, any>[]>
     }
 }
 
+/**
+ * Export the graph database to a csv file
+ * @param filename the name of the file to export
+ */
 export const exportToCsv = async (filename: string) => {
     try {
         const response = await apiClient.get('/graphdb/csvExport', {params: {fileName: filename}});

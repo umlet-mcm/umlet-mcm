@@ -4,10 +4,15 @@ import {Configuration} from "@/types/Configuration";
 import ProjectListView from "@/components/open-create-configuration/ProjectListView.vue";
 import {ScrollArea} from "@/components/ui/scroll-area";
 
-defineProps<{
-  configurations: Configuration[]
-}>()
-
+/**
+ * @param {Configuration[]} configurations, list of configurations to display
+ */
+defineProps({
+  configurations: {
+    type: Array as () => Configuration[],
+    required: true
+  }
+})
 </script>
 
 <template>

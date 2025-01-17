@@ -11,13 +11,10 @@ import {updateConfiguration} from "@/api/configuration.ts";
 import {Model} from "@/types/Model.ts";
 import {LoaderCircleIcon} from "lucide-vue-next";
 
-// variables
-const selectedModelsId = ref<string[]>([])
-const newModelName = ref('')
-const errorMessage = ref<string | undefined>(undefined)
-const isLoadingValidate = ref(false)
-
-// props related
+/**
+ * @param {Boolean} isOpen, dialog visibility
+ * @param {Model[]} models, list of models to merge
+ */
 const props = defineProps({
   isOpen: {
     type: Boolean,
@@ -28,16 +25,31 @@ const props = defineProps({
     required: true
   }
 });
+
+/**
+ * @emits {Boolean} update:isOpen, dialog visibility
+ * @emits {Model} merge, merged model newly created
+ */
 const emit = defineEmits<{
   'update:isOpen': [value: boolean],
   'update:configuration': [value: Configuration],
 }>()
+
+// variables
+const selectedModelsId = ref<string[]>([])
+const newModelName = ref('')
+const errorMessage = ref<string | undefined>(undefined)
+const isLoadingValidate = ref(false)
 
 /* functions */
 const canMerge = computed(() => {
   return selectedModelsId.value.length >= 2 && newModelName.value.trim().length > 0
 })
 
+/**
+ * Toggle the selection of a model
+ * @param modelId
+ */
 const toggleModel = (modelId: string) => {
   // find the index of the model in the selectedModelsId array
   const index = selectedModelsId.value.indexOf(modelId)
@@ -88,6 +100,10 @@ function combine(selectedModels: Model[]): Model {
   };
 }
 
+/**
+ * Merge the selected models together and emit the new model
+ * @emits {Model} merge, merged model newly created
+ */
 const handleMerge = async () => {
   if (canMerge.value) {
     isLoadingValidate.value = true

@@ -2,12 +2,21 @@
 import { FileIcon } from 'lucide-vue-next'
 import {Configuration} from "@/types/Configuration";
 
-defineProps<{
-  configuration: Configuration
-}>()
+/**
+ * @param {Configuration} configuration, configuration to display
+ */
+defineProps({
+  configuration: {
+    type: Object as () => Configuration,
+    required: true
+  }
+})
 
+/**
+ * @emits {Configuration} select, selected configuration
+ */
 defineEmits<{
-  (e: 'select', configuration: Configuration): void
+  'select': [configuration: Configuration]
 }>()
 </script>
 

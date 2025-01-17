@@ -47,15 +47,6 @@ const errorDelete = ref<string | undefined>(undefined)
 const versionList = ref<string[]>([])
 
 // functions
-/**
- * Add the merged model to the models of the configuration
- * @param mergedModel the model to add to the configuration
- */
-const handleMerge = (mergedModel: Model) => {
-  props.selectedConfiguration.models.push(mergedModel)
-  emit('update:selectedModel', mergedModel)
-}
-
 const placeholder = () => {
   console.log('Placeholder');
   //todo: replace all usages with functional code

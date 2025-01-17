@@ -56,6 +56,7 @@ const closeDialog = () => {
 const fileSelected = (event: any) => {
   const file = event.target.files[0]
   selectedFile.value = (file && file.name.endsWith('.uxf')) ? file : undefined
+  if(selectedFile) uploadedName.value = file.name.replace('.uxf', '')
 }
 
 const validateButton = async () => {

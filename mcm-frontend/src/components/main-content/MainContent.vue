@@ -3,7 +3,7 @@ import {Button} from '@/components/ui/button'
 import QueryEditor from "@/components/main-content/QueryEditor.vue"
 import GraphVisualisation from "@/components/main-content/GraphVisualisation.vue"
 import {onMounted, ref, watch} from "vue"
-import {HelpCircle, Play, RotateCcw} from 'lucide-vue-next'
+import {HelpCircle, LoaderCircleIcon, Play, RotateCcw} from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
 import {Node, Relation} from "@/types/Node.ts";
 import {loadConfigurationDatabase, sendRequest} from "@/api/graphDB.ts";
@@ -47,8 +47,8 @@ const queryNum = ref(0)
 const activeTab = ref('full')
 const messageGraph = ref<string | undefined>("Query result cannot be displayed as a Model")
 let queryExecutionTimestamp: string | undefined;
-const errorLoadDatabase = ref(true)
 const reasonLoadDatabase = ref<string | undefined>(undefined)
+const isLoadingNeo4j = ref(false);
 
 // functions
 /**
@@ -149,17 +149,17 @@ watch(() => queryResponse.value, async (newValue) => {
  * Uses the sendRequest function from the graphDB API to check if the database is loaded
  */
 const loadNeo4JDatabase = async () => {
+  isLoadingNeo4j.value = true;
   try {
     await loadConfigurationDatabase(props.selectedConfiguration);
     const checkID = await sendRequest("MATCH (c:Configuration) RETURN c");
-    errorLoadDatabase.value = checkID.length !== 1 || checkID[0].c.properties.name !== props.selectedConfiguration.name;
-    if(errorLoadDatabase.value)
+    if(checkID.length !== 1 || checkID[0].c.properties.name !== props.selectedConfiguration.name)
       reasonLoadDatabase.value = checkID.length !== 1 ? "No or multiple configuration found" : "Configuration name doesn't match";
     else reasonLoadDatabase.value = undefined;
   } catch(error: any) {
-    errorLoadDatabase.value = true;
     reasonLoadDatabase.value = error.response?.data?.error || error.message;
   }
+  isLoadingNeo4j.value = false;
 };
 
 onMounted(() => {
@@ -176,11 +176,16 @@ onMounted(() => {
           <HelpCircle />
         </Button>
         <div class="ml-auto text-right">
-          <label v-if="errorLoadDatabase" class="text-sm content-center text-red-500">Neo4J doesn't match current configuration:{{reasonLoadDatabase}}</label>
-          <label v-else class="text-sm content-center text-green-500">Neo4J data loaded</label>
-          <Button v-if="errorLoadDatabase" variant="outline" size="icon" class="ml-2" @click="loadNeo4JDatabase">
-            <RotateCcw/>
-          </Button>
+          <div v-if="isLoadingNeo4j">
+            <LoaderCircleIcon class="animate-spin"/>
+          </div>
+          <div v-else>
+            <label v-if="reasonLoadDatabase" class="text-sm content-center text-red-500">Neo4J doesn't match current configuration:{{reasonLoadDatabase}}</label>
+            <label v-else class="text-sm content-center text-green-500">Neo4J data loaded</label>
+            <Button v-if="reasonLoadDatabase" variant="outline" size="icon" class="ml-2" @click="loadNeo4JDatabase">
+              <RotateCcw/>
+            </Button>
+          </div>
         </div>
       </div>
       <QueryEditor v-model:query="query" />

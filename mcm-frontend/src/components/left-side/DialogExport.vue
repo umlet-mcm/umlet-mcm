@@ -59,7 +59,7 @@ const handleExport = async () => {
       }
       emit('update:isOpen', false)
     } catch (error: any) {
-      errorMessage.value = 'An error occurred while exporting the configuration : ' + error.message
+      errorMessage.value = 'An error occurred while exporting the configuration: ' + error.message
     }
   }
 }

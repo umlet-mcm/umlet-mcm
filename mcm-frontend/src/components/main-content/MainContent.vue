@@ -119,7 +119,7 @@ watch(() => props.response, async (newValue) => {
     </div>
     <div class="flex items-center justify-between">
       <h1 class="text-lg font-bold p-4">
-        Current model : {{ selectedModel?.id }}
+        Current model: {{ selectedModel?.id }}
       </h1>
     </div>
 

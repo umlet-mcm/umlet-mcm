@@ -76,7 +76,7 @@ const validateButton = async () => {
     }
     closeDialog()
   } catch (error: any) {
-    errorMessage.value = "ERROR : " + (error.response?.data?.message ?? error.message)
+    errorMessage.value = "ERROR: " + (error.response?.data?.message ?? error.message)
   }
   isLoadingValidate.value = false
 }
@@ -84,7 +84,7 @@ const validateButton = async () => {
 const loadNewConfiguration = () => {
   // called when the user confirms the alert dialog
   if(!newConfig.value) {
-    errorMessage.value = "ERROR : No configuration to load"
+    errorMessage.value = "ERROR: No configuration to load"
     return
   }
   router.push({name: 'mainview', params: {id: newConfig.value!.name}})

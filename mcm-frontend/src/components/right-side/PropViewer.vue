@@ -14,7 +14,7 @@ defineProps({
   <div class="space-y-2 p-2 h-full flex flex-col">
     <div class="flex items-center justify-between space-y-2">
       <h2 class="text-lg font-semibold">
-        Properties {{ selectedEntity?.title ? `: ${selectedEntity.title}` : '' }}
+        Properties{{ selectedEntity?.title ? `: ${selectedEntity.title}` : '' }}
       </h2>
     </div>
     <div v-if="selectedEntity" class="rounded-md border">

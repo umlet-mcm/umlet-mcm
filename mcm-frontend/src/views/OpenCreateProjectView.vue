@@ -16,7 +16,7 @@ const fetchConfigurations = async () => {
     configurations.value = await getAllConfigurations();
     errorMessage.value = undefined
   } catch (error: any) {
-    errorMessage.value = "Unable to fetch configurations : " + error.message
+    errorMessage.value = "Unable to fetch configurations: " + error.message
   }
 };
 

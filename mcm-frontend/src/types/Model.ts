@@ -8,4 +8,5 @@ export type Model = {
     title: string
     description: string
     mcmAttributes: Record<string, object>
+    zoomLevel: 10 | number
 }

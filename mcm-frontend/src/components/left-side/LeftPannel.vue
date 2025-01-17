@@ -35,11 +35,6 @@ const isDialogOpen = ref({merge: false, export: false, upload: false, confirmati
 const versionList = ref<string[]>([])
 
 // functions
-const handleMerge = (mergedModel: Model) => {
-  props.selectedConfiguration.models.push(mergedModel)
-  emit('update:selectedModel', mergedModel)
-}
-
 const placeholder = () => {
   console.log('Placeholder');
   //todo: replace all usages with functional code
@@ -113,7 +108,7 @@ onMounted(async () => {
         <div class="space-y-2">
           <Button variant="outline" class="w-full justify-start" @click="$router.push({name:'home'})">
             <FileUp class="mr-2" />
-            Open new configuration
+            Select configuration
           </Button>
           <Button variant="outline" class="w-full justify-start" @click="placeholder">
             <Save class="mr-2" />
@@ -143,7 +138,7 @@ onMounted(async () => {
         <div class="space-y-2">
           <Button variant="outline" class="w-full justify-start" @click="isDialogOpen.merge = true">
             <FileStack class="mr-2" />
-            Merge Models
+            Combine Models
           </Button>
           <Button variant="outline" class="w-full justify-start" @click="exportCurrentModel()">
             <FileOutput class="mr-2" />
@@ -167,8 +162,8 @@ onMounted(async () => {
   <!-- dialogs -->
   <DialogMerge
       v-model:isOpen="isDialogOpen.merge"
-      :models="selectedConfiguration.models"
-      @merge="handleMerge"
+      :configuration="selectedConfiguration"
+      @update:configuration="emit('update:selectedConfiguration', $event)"
   />
   <DialogExport
       v-model:isOpen="isDialogOpen.export"

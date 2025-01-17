@@ -23,13 +23,21 @@ defineProps({
     <div v-if="selectedEntity" class="rounded-md border">
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead class="w-1/3">Properties</TableHead>
-            <TableHead class="w-2/3">Value</TableHead>
+          <TableRow class="table-head">
+            <TableHead class="w-1/3">properties</TableHead>
+            <TableHead class="w-2/3">value</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow v-for="[key, value] in Object.entries({...selectedEntity.mcmAttributes, ...selectedEntity.umletAttributes})">
+          <TableRow v-for="[key, value] in Object.entries({...selectedEntity.mcmAttributes})">
+            <TableCell class="font-medium w-1/3">{{ key }}</TableCell>
+            <TableCell class="w-2/3">{{ value }}</TableCell>
+          </TableRow>
+          <TableRow class="table-head">
+            <TableHead class="w-1/3">umletProperties</TableHead>
+            <TableHead class="w-2/3">value</TableHead>
+          </TableRow>
+          <TableRow v-for="[key, value] in Object.entries({...selectedEntity.umletAttributes})">
             <TableCell class="font-medium w-1/3">{{ key }}</TableCell>
             <TableCell class="w-2/3">{{ value }}</TableCell>
           </TableRow>
@@ -44,5 +52,10 @@ defineProps({
         </div>
     </div>
   </div>
-
 </template>
+
+<style scoped>
+  .table-head {
+    background-color: hsl(var(--accent));
+  }
+</style>

@@ -49,6 +49,7 @@ onMounted(() => {
       />
       <MainContent
           :selectedModel="selectedModel"
+          :selected-configuration="selectedConfiguration"
           @update:selectedEntity="selectedEntity = $event"
           @update:response="queryResponse = $event"
       />

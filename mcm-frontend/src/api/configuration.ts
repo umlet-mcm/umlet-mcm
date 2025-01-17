@@ -1,6 +1,7 @@
 import axios from "axios"
 import {Configuration} from "@/types/Configuration";
 import {Model} from "@/types/Model.ts";
+import {DiffObject} from "@/types/DiffObject.ts";
 
 const apiClient = axios.create({
     baseURL: '/api/v1/configurations',
@@ -83,16 +84,12 @@ export const deleteConfiguration = async (data: { name: string }): Promise<void>
 /**
  * Get all versions of a configuration
  * @param name the name of the configuration to retrieve versions for
- * @param version //todo need to be removed after api is implemented
  * @return a list of all versions of the configuration
  */
-export const getConfigurationVersions = async (name: string, version: string): Promise<string[]> => {
+export const listConfigurationVersions = async (name: string): Promise<string[]> => {
     try {
-        // const response = await apiClient.get(`/${name}/versions`);
-        // return response.data;
-        // todo retrieve using only the api. the second argument is just to avoid blank return
-        console.log("Getting versions for " + name + " " + version);
-        return [version, "1.0.0", "1.0.1", "1.0.2"];
+        const response = await apiClient.get(`/${name}/versions`);
+        return response.data;
     } catch (error) {
         throw error;
     }
@@ -104,13 +101,52 @@ export const getConfigurationVersions = async (name: string, version: string): P
  * @param version1 the first version to compare
  * @param version2 the second version to compare
  */
-export const compareTwoVersions = async (name: string, version1: string, version2: string): Promise<string> => {
+export const compareTwoVersions = async (name: string, version1: string, version2: string): Promise<DiffObject[]> => {
     try {
-        // const response = await apiClient.get(`/${name}/compare/${version1}/${version2}`);
-        // return response.data;
-        //todo use api to compare
-        console.log("Comparing " + name + " " + version1 + " " + version2);
-        return "";
+        const response = await apiClient.get(`/${name}/versions/${version1}/compare/${version2}`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+/**
+ * Get a specific configuration by its name and version
+ * @param name
+ * @param version
+ */
+export const getConfigurationVersion = async (name: string, version: string): Promise<Configuration> => {
+    try {
+        const response = await apiClient.get(`/${name}/versions/${version}`);
+        return response.data
+    } catch(error) {
+        throw error;
+    }
+}
+
+/**
+ * Checkout a specific configuration by its name and version
+ * @param name
+ * @param version
+ */
+export const checkoutConfiguration = async (name: string, version: string): Promise<Configuration> => {
+    try {
+        const response = await apiClient.post(`/${name}/versions/${version}/checkout`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+/**
+ * Reset a specific configuration by its name and version
+ * @param name
+ * @param version
+ */
+export const resetConfiguration = async (name: string, version: string): Promise<Configuration> => {
+    try {
+        const response = await apiClient.post(`/${name}/versions/${version}/reset`);
+        return response.data;
     } catch (error) {
         throw error;
     }

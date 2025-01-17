@@ -7,6 +7,7 @@ import {Configuration} from "@/types/Configuration.ts";
 import {ref, watch} from "vue";
 import AlertConfirmation from "@/components/left-side/AlertConfirmation.vue";
 import DialogSettings from "@/components/left-side/DialogSettings.vue";
+import {checkoutConfiguration} from "@/api/configuration.ts";
 
 // props related
 const props = defineProps({
@@ -26,10 +27,15 @@ const isDialogOpen = ref({settings: false, confirmation: false})
 const selectedVersion = ref<string | undefined>(props.selectedConfiguration.version)
 
 // functions
-function confirmLoadVersion() {
-  isDialogOpen.value.confirmation = false
-  //todo load the selected version
-  // emit('update:selectedConfiguration', newConfiguration)
+async function confirmLoadVersion() {
+  if(!selectedVersion.value) return
+  try{
+    const newConfiguration = await checkoutConfiguration(props.selectedConfiguration.name, selectedVersion.value)
+    isDialogOpen.value.confirmation = false
+    emit('update:selectedConfiguration', newConfiguration)
+  } catch(error: any) {
+    console.log(error.response?.data?.message || error.message)
+  }
 }
 
 /*

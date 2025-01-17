@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Configuration } from '@/types/Configuration.ts'
 import ModelList from "@/components/left-side/ModelList.vue"
-import {FileUp, Save, FileOutput, FileInput, FileStack, HelpCircle} from 'lucide-vue-next'
+import {FileUp, FileOutput, FileInput, FileStack, HelpCircle} from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
 import DialogMerge from "@/components/left-side/DialogMerge.vue";
 import {onMounted, ref, watch} from "vue";
@@ -13,9 +13,10 @@ import DialogExport from "@/components/left-side/DialogExport.vue";
 import DialogUploadUXF from "@/components/left-side/DialogUploadUXF.vue";
 import TopLeftPannel from "@/components/left-side/TopLeftPannel.vue";
 import DialogVersionDiff from "@/components/left-side/DialogVersionDiff.vue";
-import {getConfigurationVersions} from "@/api/configuration.ts";
+import {listConfigurationVersions} from "@/api/configuration.ts";
 import AlertConfirmation from "@/components/left-side/AlertConfirmation.vue";
 import {deleteModelFromConfig} from "@/api/model.ts";
+import SaveButton from "@/components/left-side/SaveButton.vue";
 
 /**
  * @param {Model} selectedModel, selected model to display (if any)
@@ -100,7 +101,7 @@ const confirmDeletion = async () => {
  */
 watch(() => props.selectedConfiguration.version, async (newVersion, oldVersion) => {
   if (newVersion !== oldVersion) {
-    versionList.value = await getConfigurationVersions(props.selectedConfiguration.name, props.selectedConfiguration.version)
+    versionList.value = await listConfigurationVersions(props.selectedConfiguration.name)
   }
 })
 
@@ -110,8 +111,7 @@ watch(() => props.selectedConfiguration.version, async (newVersion, oldVersion) 
  */
 onMounted(async () => {
   try {
-    // todo the second argument will be deleted when the backend is ready
-    versionList.value = await getConfigurationVersions(props.selectedConfiguration.name, props.selectedConfiguration.version)
+    versionList.value = await listConfigurationVersions(props.selectedConfiguration.name)
   } catch (e) {
     versionList.value = [props.selectedConfiguration.version]
     console.error(e)
@@ -140,10 +140,10 @@ onMounted(async () => {
             <FileUp class="mr-2" />
             Open new configuration
           </Button>
-          <Button variant="outline" class="w-full justify-start" @click="placeholder">
-            <Save class="mr-2" />
-            Save configuration
-          </Button>
+          <SaveButton
+              :selectedConfiguration="selectedConfiguration"
+              :selected-model="selectedModel"
+          />
           <Button variant="outline" class="w-full justify-start" @click="isDialogOpen.upload = true">
             <FileInput class="mr-2" />
             Import UXF file

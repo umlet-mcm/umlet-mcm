@@ -50,7 +50,7 @@ export const loadConfigurationDatabase = async (configuration: Configuration) =>
     try {
         //reset the database first
         await apiClient.delete('/graphdb')
-        const response = await apiClient.post('/graphdb/configuration', configuration);
+        const response = await apiClient.post('/graphdb/configuration/' + configuration.name);
         return response.data;
     } catch (error) {
         throw error;

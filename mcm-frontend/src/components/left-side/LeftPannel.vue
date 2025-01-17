@@ -101,7 +101,12 @@ const confirmDeletion = async () => {
  */
 watch(() => props.selectedConfiguration.version, async (newVersion, oldVersion) => {
   if (newVersion !== oldVersion) {
-    versionList.value = await listConfigurationVersions(props.selectedConfiguration.name)
+    try {
+      versionList.value = await listConfigurationVersions(props.selectedConfiguration.name)
+    } catch (e) {
+      versionList.value = [props.selectedConfiguration.version]
+      console.error(e)
+    }
   }
 })
 
@@ -142,7 +147,9 @@ onMounted(async () => {
           </Button>
           <SaveButton
               :selectedConfiguration="selectedConfiguration"
+              @update:selectedConfiguration="emit('update:selectedConfiguration', $event)"
               :selected-model="selectedModel"
+              @update:selectedModel="emit('update:selectedModel', $event)"
           />
           <Button variant="outline" class="w-full justify-start" @click="isDialogOpen.upload = true">
             <FileInput class="mr-2" />

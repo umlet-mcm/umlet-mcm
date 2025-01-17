@@ -38,8 +38,8 @@ const createProject = async (data: { name: string }) => {
       await uploadUxfToModel(configFile.value, createdConfig.name)
     }
     await router.push({name: 'mainview', params: {id: createdConfig.name}})
-  } catch (error) {
-    form.setFieldError('configName', 'Error creating project');
+  } catch (error:any) {
+    form.setFieldError('configName', 'Error creating project: ' + error.response?.data?.message || error.message);
   }
   isLoadingValidate.value = false
 }

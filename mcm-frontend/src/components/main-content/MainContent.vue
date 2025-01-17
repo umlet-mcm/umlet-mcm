@@ -69,7 +69,7 @@ const executeMultipleQuery = async (queries: string[]) => {
     queryMessage.value = nbOk ?
         `${nbOk} ${nbOk === 1 ? "query" : "queries"} executed successfully in ${totalTime} ms. Error on query ${nbOk + 1}`
         : undefined
-    errorMessage.value = error.response?.data?.Message || error.message
+    errorMessage.value = error.response?.data?.message || error.message
   }
 
   // display the last response

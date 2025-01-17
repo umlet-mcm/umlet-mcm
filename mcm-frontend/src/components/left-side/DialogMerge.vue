@@ -9,8 +9,7 @@ import {Checkbox} from '@/components/ui/checkbox'
 import {Configuration} from '@/types/Configuration.ts'
 import {updateConfiguration} from "@/api/configuration.ts";
 import {Model} from "@/types/Model.ts";
-import {v4 as uuidv4} from 'uuid'
-import {PlusIcon} from "lucide-vue-next";
+import {LoaderCircleIcon} from "lucide-vue-next";
 
 // variables
 const selectedModelsId = ref<string[]>([])
@@ -57,10 +56,10 @@ const toggleModel = (modelId: string) => {
  * @param selectedModels
  */
 function combine(selectedModels: Model[]): Model {
-  const generatedUUID = uuidv4();
+  const generatedUUID = crypto.randomUUID()
   const nodesNewId = selectedModels.flatMap(model => model.nodes).map(node => ({
     oldId: node.id,
-    newId: uuidv4()
+    newId: crypto.randomUUID()
   }));
 
   const nodes = selectedModels.flatMap(model => model.nodes).map(node => ({
@@ -71,7 +70,7 @@ function combine(selectedModels: Model[]): Model {
     relations: node.relations.map(relation => ({
       // get all the properties of the relation and add the new mcmModelId, id and updated target
       ...relation,
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       mcmModelId: generatedUUID,
       target: nodesNewId.find(n => n.oldId === relation.target)?.newId || ""
     }))
@@ -105,7 +104,7 @@ const handleMerge = async () => {
       emit('update:configuration', newConfig)
       closeDialog()
     } catch (error:any) {
-      errorMessage.value = 'An error occurred while combining the models : ' + (error.response?.data?.message || error.message)
+      errorMessage.value = 'An error occurred while combining the models: ' + (error.response?.data?.message || error.message)
     }
     isLoadingValidate.value = false
   }
@@ -186,7 +185,7 @@ const closeDialog = () => {
       <DialogFooter>
         <Button variant="outline" @click="closeDialog">Cancel</Button>
         <Button @click="handleMerge" :disabled="!canMerge || isLoadingValidate">
-          <PlusIcon v-if="!isLoadingValidate" class="w-5 h-5" />
+          <LoaderCircleIcon v-if="isLoadingValidate" class="w-5 h-5" />
           Combine Models
         </Button>
       </DialogFooter>

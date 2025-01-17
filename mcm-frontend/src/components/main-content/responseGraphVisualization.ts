@@ -23,6 +23,7 @@ export async function parseResponseGraph(response: Record<string, any>[], select
         tags: [],
         title: "",
         mcmAttributes: {},
+        zoomLevel: 10,
     };
 }
 

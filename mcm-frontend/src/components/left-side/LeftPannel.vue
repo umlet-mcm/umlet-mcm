@@ -32,6 +32,7 @@ const props = defineProps({
 // variables
 const emit = defineEmits(["update:selectedModel", "update:selectedConfiguration"]);
 const isDialogOpen = ref({merge: false, export: false, upload: false, confirmation: false, versionDiff:false})
+const errorDelete = ref<string | undefined>(undefined)
 const versionList = ref<string[]>([])
 
 // functions
@@ -53,13 +54,12 @@ const confirmDeletion = async () => {
   const index = props.selectedConfiguration.models.findIndex(model => model.id === props.selectedModel!.id)
   if (index !== -1) {
     try {
-      await deleteModelFromConfig(props.selectedModel!.id, props.selectedConfiguration.name)
+      await deleteModelFromConfig(props.selectedModel!.id)
       props.selectedConfiguration.models.splice(index, 1)
       emit('update:selectedModel', undefined)
-      isDialogOpen.value.confirmation = false
+      errorDelete.value = undefined
     } catch (error: any) {
-      console.error(error)
-      isDialogOpen.value.confirmation = false
+      errorDelete.value = error.response?.data?.message || error.message
     }
   }
 }
@@ -183,8 +183,10 @@ onMounted(async () => {
   <!-- Alert dialog to delete a model from configuration -->
   <AlertConfirmation
       :on-confirm="confirmDeletion"
+      :on-reject="() => {errorDelete = undefined}"
       dialog-title="Delete this model?"
       dialog-description=""
       dialog-content="Do you want to delete this model? This action cannot be undone."
+      :error-content="errorDelete"
       v-model:isOpen="isDialogOpen.confirmation"/>
 </template>

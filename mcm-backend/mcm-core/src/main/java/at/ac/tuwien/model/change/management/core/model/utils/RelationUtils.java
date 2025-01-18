@@ -90,7 +90,7 @@ public class RelationUtils {
 
             // check if the relation is bidirectional
             // a relation is bidirectional if it can bit split into three parts: end cap, line, end cap
-            String lineType = relationNode.getUmletAttributes().get(AttributeKeys.LINE_TYPE);
+            String lineType = newRelation.getType();
             boolean bidirectional = false;
             String[] splitLineType = splitLineType(lineType);
 

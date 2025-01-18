@@ -9,6 +9,7 @@ import {useRouter} from "vue-router";
 import {ref} from "vue";
 import AlertConfirmation from "@/components/left-side/AlertConfirmation.vue";
 import {LoaderCircleIcon} from 'lucide-vue-next'
+import { useToast } from '@/components/ui/toast/use-toast'
 
 /**
  * @param {Boolean} isOpen, dialog visibility
@@ -39,6 +40,7 @@ const errorMessage = ref<string | undefined>(undefined)
 const router = useRouter()
 const isLoadingValidate = ref(false)
 const isDialogOpen = ref({confirmation: false}) // confirmation dialog for deletion
+const { toast } = useToast()
 
 //functions
 const closeDialog = () => {
@@ -60,6 +62,11 @@ const confirmDeletion = async () => {
     emit('update:isOpen', false)
     // redirect to home to select a new configuration
     await router.push({name: 'home'})
+
+    toast({
+      title: 'Configuration has been deleted',
+      duration: 3000,
+    });
   }
   catch (error : any) {
     errorMessage.value = error.response?.data?.message || error.message
@@ -81,6 +88,12 @@ const saveChanges = async () => {
     })
     emit('update:currentConfiguration', newConfig)
     emit('update:isOpen', false)
+
+    toast({
+      title: 'New version has been created',
+      duration: 3000,
+    });
+
   } catch (error : any) {
     errorMessage.value = error.response?.data?.message || error.message
   }

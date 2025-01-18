@@ -9,6 +9,7 @@ import {ref, watch} from "vue";
 import AlertConfirmation from "@/components/left-side/AlertConfirmation.vue";
 import DialogSettings from "@/components/left-side/DialogSettings.vue";
 import {checkoutConfiguration} from "@/api/configuration.ts";
+import { useToast } from '@/components/ui/toast/use-toast'
 
 // props related
 const props = defineProps({
@@ -38,6 +39,7 @@ const emit = defineEmits<{
 // variables
 const isDialogOpen = ref({settings: false, confirmation: false})
 const selectedVersion = ref<string | undefined>(props.selectedConfiguration.version)
+const { toast } = useToast()
 
 // functions
 async function confirmLoadVersion() {
@@ -56,6 +58,11 @@ async function confirmLoadVersion() {
         emit('update:selectedModel', undefined)
       }
     }
+
+    toast({
+      title: 'Successfully loaded the new version',
+      duration: 3000,
+    });
   } catch(error: any) {
     console.log(error.response?.data?.message || error.message)
   }

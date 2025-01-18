@@ -7,6 +7,7 @@ import {Model} from "@/types/Model.ts";
 import {ref} from "vue";
 import {getConfigurationById} from "@/api/configuration.ts";
 import {saveNeo4JToRepository} from "@/api/graphDB.ts";
+import { useToast } from '@/components/ui/toast/use-toast'
 
 /**
  * @param {Model} selectedModel, selected model to display (if any)
@@ -34,6 +35,7 @@ const emit = defineEmits<{
 
 // variables
 const isLoading = ref(false)
+const { toast } = useToast()
 
 // functions
 const save = async () => {
@@ -53,6 +55,12 @@ const save = async () => {
         emit('update:selectedModel', undefined)
       }
     }
+
+    toast({
+      title: 'New version has been created',
+      duration: 3000,
+    });
+
   } catch (error: any) {
     console.log(error.response?.data?.message || error.message)
   }

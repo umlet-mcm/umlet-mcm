@@ -3,6 +3,7 @@ package at.ac.tuwien.model.change.management.core.mapper.uxf;
 import at.ac.tuwien.model.change.management.core.model.Configuration;
 import at.ac.tuwien.model.change.management.core.model.Model;
 import at.ac.tuwien.model.change.management.core.model.Node;
+import at.ac.tuwien.model.change.management.core.model.UMLetPosition;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -22,14 +23,18 @@ public class ConfigurationUxfMapperTest {
         m1.setDescription("Description for model 1");
         m1.setId("Model1");
         Node n1 = new Node();
+        n1.setUmletPosition(new UMLetPosition(0,0,1,1));
         Node n2 = new Node();
+        n2.setUmletPosition(new UMLetPosition(10,10,1,1));
         m1.setNodes(Set.of(n1, n2));
         m1.setZoomLevel(5);
 
         m2.setDescription("Description for model 2");
         m2.setId("Model2");
         Node n3 = new Node();
+        n3.setUmletPosition(new UMLetPosition(20,20,1,1));
         Node n4 = new Node();
+        n4.setUmletPosition(new UMLetPosition(30,30,1,1));
         m2.setNodes(Set.of(n3, n4));
         m2.setZoomLevel(15);
 

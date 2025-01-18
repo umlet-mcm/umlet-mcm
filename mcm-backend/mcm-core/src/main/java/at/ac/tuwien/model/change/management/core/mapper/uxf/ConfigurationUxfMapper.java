@@ -5,8 +5,10 @@ import at.ac.tuwien.model.change.management.core.model.Model;
 import at.ac.tuwien.model.change.management.core.model.intermediary.BaseAttributesUxf;
 import at.ac.tuwien.model.change.management.core.model.intermediary.ConfigurationUxf;
 import at.ac.tuwien.model.change.management.core.model.intermediary.ModelUxf;
+import at.ac.tuwien.model.change.management.core.model.utils.PositionUtils;
 import org.mapstruct.factory.Mappers;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -19,10 +21,17 @@ public class ConfigurationUxfMapper {
 
         configurationUxf.setElements(new LinkedHashSet<>());
 
-        // map the models and add their content to the configuration
+        // map the models
+        ArrayList<ModelUxf> mappedModels = new ArrayList<>();
         for (Model m : configuration.getModels()) {
             ModelUxf modelUxf = modelUxfMapper.fromModel(m);
-            configurationUxf.getElements().addAll(modelUxf.getElements());
+            mappedModels.add(modelUxf);
+        }
+
+        PositionUtils.alignModels(mappedModels);
+
+        for(ModelUxf m : mappedModels) {
+            configurationUxf.getElements().addAll(m.getElements());
         }
 
         // set description

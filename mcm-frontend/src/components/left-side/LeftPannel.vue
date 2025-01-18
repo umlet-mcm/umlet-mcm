@@ -128,7 +128,9 @@ onMounted(async () => {
   <div class="w-64 border-r border-border p-4 flex flex-col gap-4 bg-primary-foreground">
     <TopLeftPannel
         :selectedConfiguration="selectedConfiguration"
+        :selected-model="selectedModel"
         @update:selectedConfiguration="emit('update:selectedConfiguration', $event)"
+        @update:selectedModel="emit('update:selectedModel', $event)"
         :versionList="versionList"
     />
     <Separator />

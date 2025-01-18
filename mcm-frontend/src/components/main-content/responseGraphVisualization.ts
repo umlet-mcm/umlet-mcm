@@ -83,7 +83,6 @@ async function addRelationsToNodes(nodes: Node[]) {
  * @param relation
  */
 function createRelationFromResponse(relation: any) {
-    console.log(relation);
     return {
         id: relation.elementId,
         type: relation.properties.type,

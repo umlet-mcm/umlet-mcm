@@ -42,10 +42,9 @@ const save = async () => {
     // save the current neo4j state to the repository to create a new version
     await saveNeo4JToRepository()
     const newConfiguration = await getConfigurationById({id: props.selectedConfiguration.name})
-
     emit('update:selectedConfiguration', newConfiguration)
     if(props.selectedModel) {
-      const model: Model|undefined = props.selectedConfiguration.models.find(model => model.id === props.selectedModel!.id)
+      const model: Model|undefined = newConfiguration.models.find(model => model.id === props.selectedModel!.id)
       if(model) {
         // if the current model is in the loaded configuration, update it
         emit('update:selectedModel', model)

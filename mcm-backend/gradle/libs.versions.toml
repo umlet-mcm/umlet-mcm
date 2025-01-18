@@ -17,6 +17,7 @@ lombok = { id = "io.freefair.lombok", version.ref = "lombok" }
 
 [libraries]
 jgit = { module = "org.eclipse.jgit:org.eclipse.jgit", version.ref = "jgit" }
+jgit-junit = {module = "org.eclipse.jgit:org.eclipse.jgit.junit", version.ref = "jgit" }
 neo4j = { module = "org.neo4j:neo4j", version.ref = "neo4j" }
 mapstruct = { module = "org.mapstruct:mapstruct", version.ref = "mapstruct" }
 mapstruct-processor = { module = "org.mapstruct:mapstruct-processor", version.ref = "mapstruct" }

@@ -19,6 +19,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.core.io.InputStreamResource;
 
 import java.io.InputStream;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -70,7 +71,7 @@ public class UxfServiceTest {
     @Test
     void testAddUxfToConfiguration() throws UxfException {
         when(versionControlRepository.getCurrentVersion(anyString())).thenAnswer(invocation ->
-                findVersionByName(invocation.getArgument(0)));
+                Optional.of(findVersionByName(invocation.getArgument(0))));
 
         String in1 = "uxf/frag1_cost_updated.uxf";
         Configuration target = service.createConfigurationFromUxf(getStream(in1));
@@ -117,6 +118,6 @@ public class UxfServiceTest {
     }
 
     private String findVersionByName(String name) {
-        return configurationRepository.findConfigurationByName(name).orElseThrow().getVersion();
+        return configurationRepository.findCurrentVersionOfConfigurationByName(name).orElseThrow().getVersion();
     }
 }

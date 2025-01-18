@@ -1,257 +1,653 @@
 package at.ac.tuwien.model.change.management.core.service;
 
-import at.ac.tuwien.model.change.management.core.exception.ConfigurationAlreadyExistsException;
-import at.ac.tuwien.model.change.management.core.exception.ConfigurationDoesNotExistException;
-import at.ac.tuwien.model.change.management.core.exception.ConfigurationUpdateException;
-import at.ac.tuwien.model.change.management.core.exception.ConfigurationValidationException;
+import at.ac.tuwien.model.change.management.core.exception.*;
 import at.ac.tuwien.model.change.management.core.model.Configuration;
+import at.ac.tuwien.model.change.management.core.model.Model;
+import at.ac.tuwien.model.change.management.core.model.Node;
+import at.ac.tuwien.model.change.management.core.model.Relation;
+import at.ac.tuwien.model.change.management.core.model.versioning.ModelDiff;
+import at.ac.tuwien.model.change.management.core.model.versioning.NodeDiff;
+import at.ac.tuwien.model.change.management.core.model.versioning.RelationDiff;
+import at.ac.tuwien.model.change.management.core.utils.ConfigurationContents;
+import at.ac.tuwien.model.change.management.git.exception.RepositoryAccessException;
+import at.ac.tuwien.model.change.management.git.exception.RepositoryAlreadyExistsException;
 import at.ac.tuwien.model.change.management.git.exception.RepositoryDoesNotExistException;
 import at.ac.tuwien.model.change.management.git.repository.ConfigurationRepository;
 import at.ac.tuwien.model.change.management.git.repository.VersionControlRepository;
-import at.ac.tuwien.model.change.management.testutil.DomainModelGen;
-import at.ac.tuwien.model.change.management.testutil.MockConfigurationRepository;
-import at.ac.tuwien.model.change.management.testutil.TestUtils;
-import org.apache.commons.lang3.RandomStringUtils;
+import at.ac.tuwien.model.change.management.testutil.assertion.ConfigurationAssert;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import java.util.*;
 
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
 public class ConfigurationServiceTest {
 
+    @Mock
     private ConfigurationRepository configurationRepository;
-    private AutoCloseable annotations;
 
     @Mock
     private VersionControlRepository versionControlRepository;
 
-    private ConfigurationService configurationService;
-
     @Mock
     private GraphDBService graphDBService;
 
-    @BeforeEach
-    public void setup() {
-        configurationRepository = new MockConfigurationRepository();
-        annotations = MockitoAnnotations.openMocks(this);
-        configurationService = new ConfigurationServiceImpl(configurationRepository, versionControlRepository, graphDBService);
-    }
+    @InjectMocks
+    private ConfigurationServiceImpl configurationService;
 
-    @AfterEach
-    public void teardown() throws Exception {
-        annotations.close();
+    private static final String TEST_CONFIGURATION_NAME = "testConfiguration";
+    private static final String TEST_CONFIGURATION_VERSION = "1.0.0";
+
+    @Test
+    public void testCreateConfiguration_emptyConfiguration_shouldCreateConfiguration() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        when(configurationRepository.saveConfiguration(configuration)).thenReturn(configuration);
+
+        var createdConfiguration = configurationService.createConfiguration(configuration, false);
+
+        Assertions.assertThat(createdConfiguration).isEqualTo(configuration);
+        verify(configurationRepository).createConfiguration(configuration.getName());
+        verify(configurationRepository).saveConfiguration(configuration);
     }
 
     @Test
-    public void testCreateConfiguration_nonExistingConfiguration_shouldSucceed() {
-        var configuration = new Configuration();
-        configuration.setName("test");
-        var result = configurationService.createConfiguration(configuration);
-        Assertions.assertThat(result)
-                .usingRecursiveComparison(TestUtils.recursiveConfigurationComparison())
-                .isEqualTo(configuration);
+    public void testCreateConfiguration_configurationWithVersion_shouldThrowConfigurationValidationException() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+
+        Assertions.assertThatThrownBy(() -> configurationService.createConfiguration(configuration, false))
+                .isInstanceOf(ConfigurationValidationException.class)
+                .hasMessage("New configuration cannot have a version.");
     }
 
     @Test
-    public void testCreateConfiguration_existingConfiguration_shouldThrowConfigurationAlreadyExistsException() {
-        var configurationName = "test";
-        var configuration = new Configuration();
-        configuration.setName(configurationName);
-        configurationService.createConfiguration(configuration);
+    public void testCreateConfiguration_configurationWithDuplicateIDs_shouldThrowConfigurationValidationException() {
+        var model1 = new Model();
+        model1.setId("1");
 
-        var configurationWithExistingName = new Configuration();
-        configurationWithExistingName.setName(configurationName);
-        Assertions.assertThatThrownBy(() -> configurationService.createConfiguration(configurationWithExistingName))
+        var model2 = new Model();
+        model2.setId("1");
+
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setModels(Set.of(model1, model2));
+
+
+        Assertions.assertThatThrownBy(() -> configurationService.createConfiguration(configuration, false))
+                .isInstanceOf(ConfigurationValidationException.class)
+                .hasMessageContaining("duplicate element IDs");
+    }
+
+    @Test
+    public void testCreateConfiguration_createThrowsRepositoryAlreadyExistsException_shouldThrowConfigurationAlreadyExistsException() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        when(configurationRepository.saveConfiguration(configuration)).thenThrow(new RepositoryAlreadyExistsException(TEST_CONFIGURATION_NAME));
+
+        Assertions.assertThatThrownBy(() -> configurationService.createConfiguration(configuration, false))
                 .isInstanceOf(ConfigurationAlreadyExistsException.class);
     }
 
     @Test
-    public void testCreate_versionSet_shouldThrowConfigurationValidationException() {
-        var configuration = new Configuration();
-        configuration.setName("test");
-        configuration.setVersion(RandomStringUtils.randomAlphanumeric(40).toLowerCase());
-        Assertions.assertThatThrownBy(() -> configurationService.createConfiguration(configuration))
-                .isInstanceOf(ConfigurationValidationException.class);
+    public void testCreateConfiguration_createThrowsRepositoryAccessException_shouldThrowConfigurationCreateException() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        when(configurationRepository.saveConfiguration(configuration)).thenThrow(new RepositoryAccessException(TEST_CONFIGURATION_NAME));
+
+        Assertions.assertThatThrownBy(() -> configurationService.createConfiguration(configuration, false))
+                .isInstanceOf(ConfigurationCreateException.class);
     }
 
     @Test
-    public void testCreate_duplicateID_shouldThrowConfigurationValidationException() {
-        var configuration = DomainModelGen.generateRandomizedConfiguration("test", 1, 2, 0);
-        var id = RandomStringUtils.randomAlphanumeric(40).toLowerCase();
-        for (var model : configuration.getModels()) {
-            for (var node : model.getNodes()) {
-                node.setId(id);
-            }
-        }
-        Assertions.assertThatThrownBy(() -> configurationService.createConfiguration(configuration))
-                .isInstanceOf(ConfigurationValidationException.class);
+    public void testCreateConfiguration_loadIntoGraphDBFalse_shouldNotLoadIntoGraphDB() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        when(configurationRepository.saveConfiguration(configuration)).thenReturn(configuration);
+
+        configurationService.createConfiguration(configuration, false);
+
+        verifyNoInteractions(graphDBService);
+    }
+
+
+    @Test
+    public void testCreateConfiguration_loadIntoGraphDBTrue_shouldLoadIntoGraphDB() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        when(configurationRepository.saveConfiguration(configuration)).thenReturn(configuration);
+
+        configurationService.createConfiguration(configuration, true);
+
+        verify(graphDBService).loadConfiguration(configuration);
     }
 
     @Test
-    public void testCreate_incorrectModelIdReferenceSet_shouldThrowConfigurationValidationException() {
-        var configuration = DomainModelGen.generateRandomizedConfiguration("test", 1, 1, 0);
-        configuration.getModels().stream().findFirst()
-                .orElseThrow()
-                .getNodes().stream().findFirst()
-                .orElseThrow()
-                .setMcmModelId(RandomStringUtils.randomAlphanumeric(40).toLowerCase());
+    public void testCreateConfiguration_loadIntoGraphDBDefaultBehavior_shouldLoadIntoGraphDB() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        when(configurationRepository.saveConfiguration(configuration)).thenReturn(configuration);
 
-        Assertions.assertThatThrownBy(() -> configurationService.createConfiguration(configuration))
-                .isInstanceOf(ConfigurationValidationException.class);
+        configurationService.createConfiguration(configuration);
+
+        verify(graphDBService).loadConfiguration(configuration);
     }
 
     @Test
-    public void testUpdateConfiguration_existingConfiguration_shouldSucceed() throws RepositoryDoesNotExistException {
-        when(versionControlRepository.getCurrentVersion(anyString())).thenAnswer(invocation ->
-                findVersionByName(invocation.getArgument(0)));
+    public void testUpdateConfiguration_emptyConfiguration_shouldUpdateConfiguration() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(TEST_CONFIGURATION_VERSION);
 
-        var configurationName = "test";
-        var configuration = DomainModelGen.generateRandomizedConfiguration(configurationName, 2, 2, 1);
-        var originalConfiguration = configurationService.createConfiguration(configuration);
+        when(versionControlRepository.getCurrentVersion(TEST_CONFIGURATION_NAME)).thenReturn(Optional.of(TEST_CONFIGURATION_VERSION));
+        when(configurationRepository.saveConfiguration(configuration)).thenReturn(configuration);
 
-        var updatedConfiguration = DomainModelGen.generateRandomizedConfiguration(configurationName, 3, 3, 2);
-        updatedConfiguration.setVersion(originalConfiguration.getVersion());
+        var updatedConfiguration = configurationService.updateConfiguration(configuration, false);
 
-        var result = configurationService.updateConfiguration(updatedConfiguration);
-        Assertions.assertThat(result)
-                .usingRecursiveComparison(TestUtils.recursiveConfigurationComparison())
-                .isEqualTo(updatedConfiguration);
+        ConfigurationAssert.assertThat(updatedConfiguration)
+                .hasName(TEST_CONFIGURATION_NAME)
+                .containsSameElementsAs(configuration);
+        verify(configurationRepository).saveConfiguration(configuration);
     }
 
     @Test
-    public void testUpdateConfiguration_nonExistingConfiguration_shouldThrowConfigurationDoesNotExistException() throws RepositoryDoesNotExistException {
-        when(versionControlRepository.getCurrentVersion(anyString())).thenThrow(RepositoryDoesNotExistException.class);
-        var configuration = new Configuration();
-        configuration.setVersion(RandomStringUtils.randomAlphanumeric(40).toLowerCase());
-        configuration.setName("test");
-        Assertions.assertThatThrownBy(() -> configurationService.updateConfiguration(configuration))
+    public void testUpdateConfiguration_configurationWithoutVersion_shouldThrowConfigurationValidationException() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+
+        Assertions.assertThatThrownBy(() -> configurationService.updateConfiguration(configuration, false))
+                .isInstanceOf(ConfigurationValidationException.class)
+                .hasMessageContaining("version is not specified");
+    }
+
+    @Test
+    public void testUpdateConfiguration_configurationWithDifferentVersion_shouldThrowConfigurationVersionMismatchException() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+
+        when(versionControlRepository.getCurrentVersion(TEST_CONFIGURATION_NAME)).thenReturn(Optional.of("2.0.0"));
+
+        Assertions.assertThatThrownBy(() -> configurationService.updateConfiguration(configuration, false))
+                .isInstanceOf(ConfigurationVersionMismatchException.class)
+                .hasMessageContaining("does not match the current version");
+    }
+
+    @Test
+    public void testUpdateConfiguration_configurationWithDuplicateIDs_shouldThrowConfigurationValidationException() {
+        var model1 = new Model();
+        model1.setId("1");
+
+        var model2 = new Model();
+        model2.setId("1");
+
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setModels(Set.of(model1, model2));
+
+        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+
+        Assertions.assertThatThrownBy(() -> configurationService.updateConfiguration(configuration, false))
+                .isInstanceOf(ConfigurationValidationException.class)
+                .hasMessageContaining("duplicate element IDs");
+    }
+
+    @Test
+    public void testUpdateConfiguration_getVersionReturnsEmptyOptional_shouldThrowConfigurationVersionDoesNotExistException() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+
+        when(versionControlRepository.getCurrentVersion(TEST_CONFIGURATION_NAME)).thenReturn(Optional.empty());
+
+        Assertions.assertThatThrownBy(() -> configurationService.updateConfiguration(configuration, false))
+                .isInstanceOf(ConfigurationVersionDoesNotExistException.class);
+    }
+
+    @Test
+    public void testUpdateConfiguration_updateThrowsConfigurationDoesNotExistException_shouldThrowConfigurationDoesNotExistException() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+
+        when(versionControlRepository.getCurrentVersion(TEST_CONFIGURATION_NAME)).thenReturn(Optional.of(TEST_CONFIGURATION_VERSION));
+        when(configurationRepository.saveConfiguration(configuration)).thenThrow(new ConfigurationDoesNotExistException(""));
+
+        Assertions.assertThatThrownBy(() -> configurationService.updateConfiguration(configuration, false))
                 .isInstanceOf(ConfigurationDoesNotExistException.class);
     }
 
     @Test
-    public void testUpdateConfiguration_existingConfigurationWithDifferentVersion_shouldThrowConfigurationUpdateException() {
-        var configurationName = "test";
-        var configuration = DomainModelGen.generateRandomizedConfiguration(configurationName, 2, 2, 1);
-        configurationService.createConfiguration(configuration);
-        var updatedConfiguration = DomainModelGen.generateRandomizedConfiguration(configurationName, 3, 3, 2);
-        updatedConfiguration.setVersion(RandomStringUtils.randomAlphanumeric(40).toLowerCase());
+    public void testUpdateConfiguration_updateThrowsRepositoryAccessException_shouldThrowConfigurationUpdateException() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(TEST_CONFIGURATION_VERSION);
 
-        Assertions.assertThatThrownBy(() -> configurationService.updateConfiguration(updatedConfiguration))
+        when(versionControlRepository.getCurrentVersion(TEST_CONFIGURATION_NAME)).thenReturn(Optional.of(TEST_CONFIGURATION_VERSION));
+        when(configurationRepository.saveConfiguration(configuration)).thenThrow(new RepositoryAccessException(TEST_CONFIGURATION_NAME));
+
+        Assertions.assertThatThrownBy(() -> configurationService.updateConfiguration(configuration, false))
                 .isInstanceOf(ConfigurationUpdateException.class);
     }
 
     @Test
-    public void testUpdateConfiguration_noVersionSet_shouldThrowConfigurationValidationException() {
-        var configuration = new Configuration();
-        configuration.setName("test");
-        configurationService.createConfiguration(configuration);
-        configuration.setVersion(null);
+    public void testUpdateConfiguration_loadIntoGraphDBFalse_shouldNotLoadIntoGraphDB() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(TEST_CONFIGURATION_VERSION);
 
-        Assertions.assertThatThrownBy(() -> configurationService.updateConfiguration(configuration))
-                .isInstanceOf(ConfigurationValidationException.class);
+        when(versionControlRepository.getCurrentVersion(TEST_CONFIGURATION_NAME)).thenReturn(Optional.of(TEST_CONFIGURATION_VERSION));
+        when(configurationRepository.saveConfiguration(configuration)).thenReturn(configuration);
+
+        configurationService.updateConfiguration(configuration, false);
+
+        verifyNoInteractions(graphDBService);
     }
 
     @Test
-    public void testUpdateConfiguration_wrongVersionSet_shouldThrowConfigurationUpdateException() {
-        var configuration = new Configuration();
-        configuration.setName("test");
-        configurationService.createConfiguration(configuration);
-        configuration.setVersion(RandomStringUtils.randomAlphanumeric(40).toLowerCase());
+    public void testUpdateConfiguration_loadIntoGraphDBTrue_shouldLoadIntoGraphDB() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(TEST_CONFIGURATION_VERSION);
 
-        Assertions.assertThatThrownBy(() -> configurationService.updateConfiguration(configuration))
-                .isInstanceOf(ConfigurationUpdateException.class);
+        when(versionControlRepository.getCurrentVersion(TEST_CONFIGURATION_NAME)).thenReturn(Optional.of(TEST_CONFIGURATION_VERSION));
+        when(configurationRepository.saveConfiguration(configuration)).thenReturn(configuration);
+
+        configurationService.updateConfiguration(configuration, true);
+
+        verify(graphDBService).loadConfiguration(configuration);
     }
 
     @Test
-    public void testUpdateConfiguration_incorrectModelReferenceInNode_shouldThrowConfigurationValidationException() {
-        var configuration = DomainModelGen.generateRandomizedConfiguration("test", 1, 1, 0);
-        configurationService.createConfiguration(configuration);
-        configuration.getModels().stream().findFirst()
-                .orElseThrow()
-                .getNodes().stream().findFirst()
-                .orElseThrow()
-                .setMcmModelId(RandomStringUtils.randomAlphanumeric(40).toLowerCase());
+    public void testUpdateConfiguration_loadIntoGraphDBDefaultBehavior_shouldLoadIntoGraphDB() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(TEST_CONFIGURATION_VERSION);
 
-        Assertions.assertThatThrownBy(() -> configurationService.updateConfiguration(configuration))
-                .isInstanceOf(ConfigurationValidationException.class);
+        when(versionControlRepository.getCurrentVersion(TEST_CONFIGURATION_NAME)).thenReturn(Optional.of(TEST_CONFIGURATION_VERSION));
+        when(configurationRepository.saveConfiguration(configuration)).thenReturn(configuration);
+
+        configurationService.updateConfiguration(configuration);
+
+        verify(graphDBService).loadConfiguration(configuration);
     }
 
     @Test
-    public void testDeleteConfiguration_existingConfiguration_shouldSucceed() {
-        var configuration = new Configuration();
-        configuration.setName("test");
-        configurationService.createConfiguration(configuration);
-        configurationService.deleteConfiguration(configuration.getName());
-        Assertions.assertThat(configurationRepository.findConfigurationByName(configuration.getName())).isEmpty();
+    public void testDeleteConfiguration_shouldDeleteConfiguration() {
+        configurationService.deleteConfiguration(TEST_CONFIGURATION_NAME);
+
+        verify(configurationRepository).deleteConfiguration(TEST_CONFIGURATION_NAME);
     }
 
     @Test
-    public void testDeleteConfiguration_nonExistingConfiguration_shouldSucceed() {
-        Assertions.assertThatCode(() -> configurationService.deleteConfiguration("test"))
-                .doesNotThrowAnyException();
+    public void testDeleteConfiguration_deleteThrowsRepositoryAccessException_shouldThrowConfigurationDeleteException() {
+        doThrow(new RepositoryAccessException(TEST_CONFIGURATION_NAME)).when(configurationRepository).deleteConfiguration(TEST_CONFIGURATION_NAME);
+
+        Assertions.assertThatThrownBy(() -> configurationService.deleteConfiguration(TEST_CONFIGURATION_NAME))
+                .isInstanceOf(ConfigurationDeleteException.class);
     }
 
     @Test
-    public void testGetConfigurationByName_existingConfiguration_shouldSucceed() {
-        var configuration = new Configuration();
-        configuration.setName("test");
-        configurationService.createConfiguration(configuration);
-        var result = configurationService.getConfigurationByName(configuration.getName());
-        Assertions.assertThat(result)
-                .usingRecursiveComparison(TestUtils.recursiveConfigurationComparison())
-                .isEqualTo(configuration);
-    }
+    public void testGetConfigurationByName_existingConfiguration_shouldReturnConfiguration() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        when(configurationRepository.findCurrentVersionOfConfigurationByName(TEST_CONFIGURATION_NAME)).thenReturn(Optional.of(configuration));
 
-    @Test
-    public void testGetConfigurationByName_existingLargeConfiguration_shouldSucceed() {
-        var configuration = DomainModelGen.generateRandomizedConfiguration("test", 5, 100, 20);
-        configurationService.createConfiguration(configuration);
-        var result = configurationService.getConfigurationByName(configuration.getName());
-        Assertions.assertThat(result)
-                .usingRecursiveComparison(TestUtils.recursiveConfigurationComparison())
-                .isEqualTo(configuration);
+        var retrievedConfiguration = configurationService.getConfigurationByName(TEST_CONFIGURATION_NAME, false);
+
+        ConfigurationAssert.assertThat(retrievedConfiguration)
+                .hasName(TEST_CONFIGURATION_NAME)
+                .containsSameElementsAs(configuration);
+        verify(configurationRepository).findCurrentVersionOfConfigurationByName(TEST_CONFIGURATION_NAME);
     }
 
     @Test
     public void testGetConfigurationByName_nonExistingConfiguration_shouldThrowConfigurationNotFoundException() {
-        Assertions.assertThatThrownBy(() -> configurationService.getConfigurationByName("test"))
+        when(configurationRepository.findCurrentVersionOfConfigurationByName(TEST_CONFIGURATION_NAME)).thenReturn(Optional.empty());
+
+        Assertions.assertThatThrownBy(() -> configurationService.getConfigurationByName(TEST_CONFIGURATION_NAME, false))
                 .isInstanceOf(ConfigurationNotFoundException.class);
     }
 
     @Test
+    public void testGetConfigurationByName_findByNameThrowsRepositoryAccessException_shouldThrowConfigurationGetException() {
+        when(configurationRepository.findCurrentVersionOfConfigurationByName(TEST_CONFIGURATION_NAME)).thenThrow(new RepositoryAccessException(TEST_CONFIGURATION_NAME));
+
+        Assertions.assertThatThrownBy(() -> configurationService.getConfigurationByName(TEST_CONFIGURATION_NAME, false))
+                .isInstanceOf(ConfigurationGetException.class);
+    }
+
+    @Test
+    public void testGetConfigurationByName_loadIntoGraphDBFalse_shouldNotLoadIntoGraphDB() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        when(configurationRepository.findCurrentVersionOfConfigurationByName(TEST_CONFIGURATION_NAME)).thenReturn(Optional.of(configuration));
+
+        configurationService.getConfigurationByName(TEST_CONFIGURATION_NAME, false);
+
+        verifyNoInteractions(graphDBService);
+    }
+
+    @Test
+    public void testGetConfigurationByName_loadIntoGraphDBTrue_shouldLoadIntoGraphDB() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        when(configurationRepository.findCurrentVersionOfConfigurationByName(TEST_CONFIGURATION_NAME)).thenReturn(Optional.of(configuration));
+
+        configurationService.getConfigurationByName(TEST_CONFIGURATION_NAME, true);
+
+        verify(graphDBService).loadConfiguration(configuration);
+    }
+
+    @Test
+    public void testGetConfigurationByName_loadIntoGraphDBDefaultBehavior_shouldNotLoadIntoGraphDB() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        when(configurationRepository.findCurrentVersionOfConfigurationByName(TEST_CONFIGURATION_NAME)).thenReturn(Optional.of(configuration));
+
+        configurationService.getConfigurationByName(TEST_CONFIGURATION_NAME);
+
+        verifyNoInteractions(graphDBService);
+    }
+
+
+    @Test
+    public void testGetConfigurationVersion_existingConfigurationVersion_shouldReturnConfiguration() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+        when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
+
+        var retrievedConfiguration = configurationService.getConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false);
+
+        ConfigurationAssert.assertThat(retrievedConfiguration)
+                .hasName(TEST_CONFIGURATION_NAME)
+                .hasVersion(TEST_CONFIGURATION_VERSION)
+                .containsSameElementsAs(configuration);
+        verify(configurationRepository).findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION);
+    }
+
+    @Test
+    public void testGetConfigurationVersion_nonExistingConfigurationVersion_shouldThrowConfigurationNotFoundException() {
+        when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.empty());
+
+        Assertions.assertThatThrownBy(() -> configurationService.getConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false))
+                .isInstanceOf(ConfigurationNotFoundException.class);
+    }
+
+    @Test
+    public void testGetConfigurationVersion_findSpecifiedVersionThrowsRepositoryAccessException_shouldThrowConfigurationGetException() {
+        when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenThrow(new RepositoryAccessException(TEST_CONFIGURATION_NAME));
+
+        Assertions.assertThatThrownBy(() -> configurationService.getConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false))
+                .isInstanceOf(ConfigurationGetException.class);
+    }
+
+    @Test
+    public void testGetConfigurationVersion_loadIntoGraphDBFalse_shouldNotLoadIntoGraphDB() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+        when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
+
+        configurationService.getConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false);
+
+        verifyNoInteractions(graphDBService);
+    }
+
+    @Test
+    public void testGetConfigurationVersion_loadIntoGraphDBTrue_shouldLoadIntoGraphDB() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+        when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
+
+        configurationService.getConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, true);
+
+        verify(graphDBService).loadConfiguration(configuration);
+    }
+
+    @Test
+    public void testGetConfigurationVersion_loadIntoGraphDBDefaultBehavior_shouldNotLoadIntoGraphDB() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+        when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
+
+        configurationService.getConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION);
+
+        verifyNoInteractions(graphDBService);
+    }
+
+    @Test
     public void testGetAllConfigurations_noConfigurations_shouldReturnEmptyList() {
-        Assertions.assertThat(configurationService.getAllConfigurations()).isEmpty();
+        when(configurationRepository.findAllConfigurations()).thenReturn(List.of());
+
+        var configurations = configurationService.getAllConfigurations();
+
+        Assertions.assertThat(configurations).isEmpty();
+        verify(configurationRepository).findAllConfigurations();
     }
 
     @Test
-    public void testGetAllConfigurations_oneConfiguration_shouldReturnListWithOneConfiguration() {
+    public void testGetAllConfigurations_shouldReturnAllConfigurations() {
+        var configuration1 = getEmptyConfiguration("configuration1");
+        var configuration2 = getEmptyConfiguration("configuration2");
+        when(configurationRepository.findAllConfigurations()).thenReturn(List.of(configuration1, configuration2));
+
+        var configurations = configurationService.getAllConfigurations();
+
+        Assertions.assertThat(configurations).containsExactlyInAnyOrder(configuration1, configuration2);
+        verify(configurationRepository).findAllConfigurations();
+    }
+
+    @Test
+    public void testGetAllConfigurations_findAllConfigurationsThrowsRepositoryAccessException_shouldThrowConfigurationGetException() {
+        when(configurationRepository.findAllConfigurations()).thenThrow(new RepositoryAccessException(""));
+
+        Assertions.assertThatThrownBy(() -> configurationService.getAllConfigurations())
+                .isInstanceOf(ConfigurationGetException.class);
+    }
+
+    @Test
+    public void testListConfigurationVersions_existingConfiguration_shouldReturnVersions() {
+        var versions = List.of("1.0.0", "1.1.0", "1.2.0");
+        when(versionControlRepository.listVersions(TEST_CONFIGURATION_NAME)).thenReturn(versions);
+
+        var retrievedVersions = configurationService.listConfigurationVersions(TEST_CONFIGURATION_NAME);
+
+        Assertions.assertThat(retrievedVersions).containsExactlyInAnyOrderElementsOf(versions);
+        verify(versionControlRepository).listVersions(TEST_CONFIGURATION_NAME);
+    }
+
+    @Test
+    public void testListConfigurationVersions_findAllConfigurationsThrowsRepositoryAccessException_shouldThrowConfigurationGetException() {
+        when(versionControlRepository.listVersions(TEST_CONFIGURATION_NAME)).thenThrow(new RepositoryAccessException(TEST_CONFIGURATION_NAME));
+
+        Assertions.assertThatThrownBy(() -> configurationService.listConfigurationVersions(TEST_CONFIGURATION_NAME))
+                .isInstanceOf(ConfigurationGetException.class);
+    }
+
+    @Test
+    public void testCompareConfigurationVersions_nonExistingConfiguration_shouldThrowConfigurationDoesNotExistException() {
+        var oldVersion = "1.0.0";
+        var newVersion = "1.1.0";
+        var includeUnchanged = true;
+
+        doThrow(new ConfigurationDoesNotExistException("")).when(configurationRepository).compareConfigurationVersions(TEST_CONFIGURATION_NAME, oldVersion, newVersion, includeUnchanged);
+
+        Assertions.assertThatThrownBy(() -> configurationService.compareConfigurationVersions(TEST_CONFIGURATION_NAME, oldVersion, newVersion, includeUnchanged))
+                .isInstanceOf(ConfigurationDoesNotExistException.class);
+    }
+
+    @Test
+    public void testCompareConfigurationVersions_existingConfiguration_shouldReturnDiffsInList() {
+        var oldVersion = "1.0.0";
+        var newVersion = "1.1.0";
+        var includeUnchanged = true;
+
+        var modelDiffs = List.of(new ModelDiff(new Model(), "UNCHANGED", "diff"), new ModelDiff(new Model(), "ADD", "diff"));
+        var nodeDiffs = List.of(new NodeDiff(new Node(), "DELETE", "diff"), new NodeDiff(new Node(), "MODIFY", "diff"));
+        var relationDiffs = List.of(new RelationDiff(new Relation(), "UNCHANGED", "diff"), new RelationDiff(new Relation(), "ADD", "diff"));
+
+        var diffs = new ConfigurationContents<ModelDiff, NodeDiff, RelationDiff>();
+        diffs.setModels(new HashSet<>(modelDiffs));
+        diffs.setNodes(new HashSet<>(nodeDiffs));
+        diffs.setRelations(new HashSet<>(relationDiffs));
+
+        when(configurationRepository.compareConfigurationVersions(TEST_CONFIGURATION_NAME, oldVersion, newVersion, includeUnchanged)).thenReturn(diffs);
+
+        var retrievedDiffs = configurationService.compareConfigurationVersions(TEST_CONFIGURATION_NAME, oldVersion, newVersion, includeUnchanged);
+        Assertions.assertThat(retrievedDiffs).containsExactlyInAnyOrderElementsOf(
+                combineLists(modelDiffs, nodeDiffs, relationDiffs)
+        );
+        verify(configurationRepository).compareConfigurationVersions(TEST_CONFIGURATION_NAME, oldVersion, newVersion, includeUnchanged);
+    }
+
+    @Test
+    public void testCompareConfigurationVersions_compareConfigurationVersionsThrowsRepositoryAccessException_shouldThrowConfigurationComparisonException() {
+        var oldVersion = "1.0.0";
+        var newVersion = "1.1.0";
+        var includeUnchanged = true;
+
+        when(configurationRepository.compareConfigurationVersions(TEST_CONFIGURATION_NAME, oldVersion, newVersion, includeUnchanged)).thenThrow(new RepositoryAccessException(TEST_CONFIGURATION_NAME));
+
+        Assertions.assertThatThrownBy(() -> configurationService.compareConfigurationVersions(TEST_CONFIGURATION_NAME, oldVersion, newVersion, includeUnchanged))
+                .isInstanceOf(ConfigurationComparisonException.class);
+    }
+
+    @Test
+    public void testCheckoutConfigurationVersion_existingConfiguration_shouldReturnConfiguration() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+
+        when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
+
+        var retrievedConfiguration = configurationService.checkoutConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false);
+
+        ConfigurationAssert.assertThat(retrievedConfiguration)
+                .hasName(TEST_CONFIGURATION_NAME)
+                .hasVersion(TEST_CONFIGURATION_VERSION)
+                .containsSameElementsAs(configuration);
+
+        verify(versionControlRepository).checkoutVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION);
+    }
+
+    @Test
+    public void testCheckoutConfigurationVersion_nonExistingConfigurationVersion_shouldThrowConfigurationDoesNotExistException() {
+        doThrow(new RepositoryDoesNotExistException("")).when(versionControlRepository).checkoutVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION);
+
+        Assertions.assertThatThrownBy(() -> configurationService.checkoutConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false))
+                .isInstanceOf(ConfigurationDoesNotExistException.class);
+    }
+
+    @Test
+    public void testCheckoutConfigurationVersion_checkoutVersionThrowsRepositoryAccessException_shouldThrowConfigurationCheckoutException() {
+        doThrow(new RepositoryAccessException(TEST_CONFIGURATION_NAME)).when(versionControlRepository).checkoutVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION);
+
+        Assertions.assertThatThrownBy(() -> configurationService.checkoutConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false))
+                .isInstanceOf(ConfigurationCheckoutException.class);
+    }
+
+    @Test
+    public void testCheckoutConfigurationVersion_loadIntoGraphDBFalse_shouldNotLoadIntoGraphDB() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+
+        when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
+
+        configurationService.checkoutConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false);
+
+        verifyNoInteractions(graphDBService);
+    }
+
+    @Test
+    public void testCheckoutConfigurationVersion_loadIntoGraphDBTrue_shouldLoadIntoGraphDB() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+
+        when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
+
+        configurationService.checkoutConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, true);
+
+        verify(graphDBService).loadConfiguration(configuration);
+    }
+
+    @Test
+    public void testCheckoutConfigurationVersion_loadIntoGraphDBDefaultBehavior_shouldNotLoadIntoGraphDB() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+
+        when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
+
+        configurationService.checkoutConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION);
+
+        verifyNoInteractions(graphDBService);
+    }
+
+    @Test
+    public void testResetConfigurationVersion_existingConfiguration_shouldReturnConfiguration() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+
+        when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
+
+        var retrievedConfiguration = configurationService.resetConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false);
+
+        ConfigurationAssert.assertThat(retrievedConfiguration)
+                .hasName(TEST_CONFIGURATION_NAME)
+                .hasVersion(TEST_CONFIGURATION_VERSION)
+                .containsSameElementsAs(configuration);
+
+        verify(versionControlRepository).resetToVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION);
+    }
+
+    @Test
+    public void testResetConfigurationVersion_nonExistingConfigurationVersion_shouldThrowConfigurationDoesNotExistException() {
+        doThrow(new RepositoryDoesNotExistException("")).when(versionControlRepository).resetToVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION);
+
+        Assertions.assertThatThrownBy(() -> configurationService.resetConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false))
+                .isInstanceOf(ConfigurationDoesNotExistException.class);
+    }
+
+    @Test
+    public void testResetConfigurationVersion_resetToVersionThrowsRepositoryAccessException_shouldThrowConfigurationResetException() {
+        doThrow(new RepositoryAccessException(TEST_CONFIGURATION_NAME)).when(versionControlRepository).resetToVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION);
+
+        Assertions.assertThatThrownBy(() -> configurationService.resetConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false))
+                .isInstanceOf(ConfigurationResetException.class);
+    }
+
+    @Test
+    public void testResetConfigurationVersion_loadIntoGraphDBFalse_shouldNotLoadIntoGraphDB() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+
+        when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
+
+        configurationService.resetConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false);
+
+        verifyNoInteractions(graphDBService);
+    }
+
+    @Test
+    public void testResetConfigurationVersion_loadIntoGraphDBTrue_shouldLoadIntoGraphDB() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+
+        when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
+
+        configurationService.resetConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, true);
+
+        verify(graphDBService).loadConfiguration(configuration);
+    }
+
+    @Test
+    public void testResetConfigurationVersion_loadIntoGraphDBDefaultBehavior_shouldNotLoadIntoGraphDB() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+
+        when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
+
+        configurationService.resetConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION);
+
+        verifyNoInteractions(graphDBService);
+    }
+
+
+    private Configuration getEmptyConfiguration(String name) {
         var configuration = new Configuration();
-        configuration.setName("test");
-        configurationService.createConfiguration(configuration);
-        Assertions.assertThat(configurationService.getAllConfigurations()).hasSize(1)
-                .usingRecursiveFieldByFieldElementComparator(TestUtils.recursiveConfigurationComparison())
-                .containsExactly(configuration);
+        configuration.setName(name);
+        return configuration;
     }
 
-    @Test
-    public void testGetAllConfigurations_threeConfigurations_shouldReturnListWithThreeConfigurations() {
-        var configurationOne = DomainModelGen.generateRandomizedConfiguration("test1", 2, 2, 1);
-        var configurationTwo = DomainModelGen.generateRandomizedConfiguration("test2", 2, 2, 1);
-        var configurationThree = DomainModelGen.generateRandomizedConfiguration("test3", 2, 2, 1);
-        configurationService.createConfiguration(configurationOne);
-        configurationService.createConfiguration(configurationTwo);
-        configurationService.createConfiguration(configurationThree);
-        Assertions.assertThat(configurationService.getAllConfigurations()).hasSize(3)
-                .usingRecursiveFieldByFieldElementComparator(TestUtils.recursiveConfigurationComparison())
-                .containsExactlyInAnyOrder(configurationOne, configurationTwo, configurationThree);
-    }
-
-    private String findVersionByName(String name) {
-        return configurationRepository.findConfigurationByName(name).orElseThrow().getVersion();
+    @SafeVarargs
+    private<T> List<T> combineLists (List<? extends T>... lists) {
+        List<T> combined = new ArrayList<>();
+        for (List<? extends T> l : lists) {
+            combined.addAll(l);
+        }
+        return combined;
     }
 }

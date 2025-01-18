@@ -21,9 +21,13 @@ public final class PathUtils {
         return path.replace(SYSTEM_SEPARATOR, UNIX_SEPARATOR);
     }
 
+    public static boolean deleteFilesRecursively(@Nullable Path root) throws IOException{
+        return deleteFilesRecursively(root, false);
+    }
+
     // Spring has a method for that, but it unfortunately doesn't set Files to writable
     // this causes problems on Windows
-    public static boolean deleteFilesRecursively(@Nullable Path root) throws IOException {
+    public static boolean deleteFilesRecursively(@Nullable Path root, boolean keepRootDirectory) throws IOException {
         if (root == null || !Files.exists(root)) {
             return false;
         }
@@ -41,10 +45,15 @@ public final class PathUtils {
 
             @Override
             public @Nonnull FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                if (keepRootDirectory && dir.equals(root)) {
+                    return FileVisitResult.CONTINUE;
+                }
+
                 if (! Files.isWritable(dir) && ! dir.toFile().setWritable(true)) {
                     throw new IOException("Cannot delete " + dir + " because it is not writable. " +
                             "Setting directory to writable was attempted and failed.");
                 }
+
                 Files.delete(dir);
                 return FileVisitResult.CONTINUE;
             }

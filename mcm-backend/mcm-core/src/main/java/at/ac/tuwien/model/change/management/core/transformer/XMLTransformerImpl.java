@@ -35,6 +35,7 @@ public class XMLTransformerImpl implements XMLTransformer {
     @Override
     public String marshal(Object object) throws JAXBException {
         Marshaller marshaller = jaxbContext.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
         StringWriter writer = new StringWriter();
         marshaller.marshal(object, writer);
         return writer.toString();

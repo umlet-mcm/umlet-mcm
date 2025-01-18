@@ -13,6 +13,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Optional;
+
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -50,7 +52,7 @@ public class ModelServiceTest {
         model.setId("id");
         configuration.getModels().add(model);
         when(versionControlRepository.getCurrentVersion(anyString())).thenAnswer(invocation ->
-                findVersionByName(invocation.getArgument(0)));
+                Optional.of(findVersionByName(invocation.getArgument(0))));
 
         configurationService.createConfiguration(configuration);
         Assertions.assertDoesNotThrow(() -> modelService.deleteModel(model.getId()));
@@ -67,6 +69,6 @@ public class ModelServiceTest {
     }
 
     private String findVersionByName(String name) {
-        return configurationRepository.findConfigurationByName(name).orElseThrow().getVersion();
+        return configurationRepository.findCurrentVersionOfConfigurationByName(name).orElseThrow().getVersion();
     }
 }

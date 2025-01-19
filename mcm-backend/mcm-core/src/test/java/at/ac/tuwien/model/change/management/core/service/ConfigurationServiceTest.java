@@ -137,7 +137,6 @@ public class ConfigurationServiceTest {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
         configuration.setVersion(TEST_CONFIGURATION_VERSION);
 
-        when(versionControlRepository.getCurrentVersion(TEST_CONFIGURATION_NAME)).thenReturn(Optional.of(TEST_CONFIGURATION_VERSION));
         when(configurationRepository.saveConfiguration(configuration)).thenReturn(configuration);
 
         var updatedConfiguration = configurationService.updateConfiguration(configuration, false);
@@ -146,27 +145,6 @@ public class ConfigurationServiceTest {
                 .hasName(TEST_CONFIGURATION_NAME)
                 .containsSameElementsAs(configuration);
         verify(configurationRepository).saveConfiguration(configuration);
-    }
-
-    @Test
-    public void testUpdateConfiguration_configurationWithoutVersion_shouldThrowConfigurationValidationException() {
-        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
-
-        Assertions.assertThatThrownBy(() -> configurationService.updateConfiguration(configuration, false))
-                .isInstanceOf(ConfigurationValidationException.class)
-                .hasMessageContaining("version is not specified");
-    }
-
-    @Test
-    public void testUpdateConfiguration_configurationWithDifferentVersion_shouldThrowConfigurationVersionMismatchException() {
-        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
-        configuration.setVersion(TEST_CONFIGURATION_VERSION);
-
-        when(versionControlRepository.getCurrentVersion(TEST_CONFIGURATION_NAME)).thenReturn(Optional.of("2.0.0"));
-
-        Assertions.assertThatThrownBy(() -> configurationService.updateConfiguration(configuration, false))
-                .isInstanceOf(ConfigurationVersionMismatchException.class)
-                .hasMessageContaining("does not match the current version");
     }
 
     @Test
@@ -188,22 +166,10 @@ public class ConfigurationServiceTest {
     }
 
     @Test
-    public void testUpdateConfiguration_getVersionReturnsEmptyOptional_shouldThrowConfigurationVersionDoesNotExistException() {
-        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
-        configuration.setVersion(TEST_CONFIGURATION_VERSION);
-
-        when(versionControlRepository.getCurrentVersion(TEST_CONFIGURATION_NAME)).thenReturn(Optional.empty());
-
-        Assertions.assertThatThrownBy(() -> configurationService.updateConfiguration(configuration, false))
-                .isInstanceOf(ConfigurationVersionDoesNotExistException.class);
-    }
-
-    @Test
     public void testUpdateConfiguration_updateThrowsConfigurationDoesNotExistException_shouldThrowConfigurationDoesNotExistException() {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
         configuration.setVersion(TEST_CONFIGURATION_VERSION);
 
-        when(versionControlRepository.getCurrentVersion(TEST_CONFIGURATION_NAME)).thenReturn(Optional.of(TEST_CONFIGURATION_VERSION));
         when(configurationRepository.saveConfiguration(configuration)).thenThrow(new ConfigurationDoesNotExistException(""));
 
         Assertions.assertThatThrownBy(() -> configurationService.updateConfiguration(configuration, false))
@@ -215,7 +181,6 @@ public class ConfigurationServiceTest {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
         configuration.setVersion(TEST_CONFIGURATION_VERSION);
 
-        when(versionControlRepository.getCurrentVersion(TEST_CONFIGURATION_NAME)).thenReturn(Optional.of(TEST_CONFIGURATION_VERSION));
         when(configurationRepository.saveConfiguration(configuration)).thenThrow(new RepositoryAccessException(TEST_CONFIGURATION_NAME));
 
         Assertions.assertThatThrownBy(() -> configurationService.updateConfiguration(configuration, false))
@@ -227,7 +192,6 @@ public class ConfigurationServiceTest {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
         configuration.setVersion(TEST_CONFIGURATION_VERSION);
 
-        when(versionControlRepository.getCurrentVersion(TEST_CONFIGURATION_NAME)).thenReturn(Optional.of(TEST_CONFIGURATION_VERSION));
         when(configurationRepository.saveConfiguration(configuration)).thenReturn(configuration);
 
         configurationService.updateConfiguration(configuration, false);
@@ -240,7 +204,6 @@ public class ConfigurationServiceTest {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
         configuration.setVersion(TEST_CONFIGURATION_VERSION);
 
-        when(versionControlRepository.getCurrentVersion(TEST_CONFIGURATION_NAME)).thenReturn(Optional.of(TEST_CONFIGURATION_VERSION));
         when(configurationRepository.saveConfiguration(configuration)).thenReturn(configuration);
 
         configurationService.updateConfiguration(configuration, true);
@@ -253,7 +216,6 @@ public class ConfigurationServiceTest {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
         configuration.setVersion(TEST_CONFIGURATION_VERSION);
 
-        when(versionControlRepository.getCurrentVersion(TEST_CONFIGURATION_NAME)).thenReturn(Optional.of(TEST_CONFIGURATION_VERSION));
         when(configurationRepository.saveConfiguration(configuration)).thenReturn(configuration);
 
         configurationService.updateConfiguration(configuration);

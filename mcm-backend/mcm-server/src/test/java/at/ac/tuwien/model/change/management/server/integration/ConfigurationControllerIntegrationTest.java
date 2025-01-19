@@ -202,18 +202,6 @@ public class ConfigurationControllerIntegrationTest {
     }
 
     @Test
-    public void testUpdateConfiguration_versionNotSet_shouldReturnBadRequest() throws Exception {
-        var originalConfiguration = DtoGen.generateRandomizedConfigurationDTO(TEST_CONFIGURATION_NAME, 2, 5, 0);
-        var configurationJson = jsonify(originalConfiguration);
-
-        mockMvc.perform(put(BASE_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(configurationJson))
-                .andExpect(status().isBadRequest());
-    }
-
-
-    @Test
     public void testDeleteConfiguration_existingConfiguration_shouldDeleteConfiguration() throws Exception {
         var originalConfiguration = DtoGen.generateRandomizedConfigurationDTO(TEST_CONFIGURATION_NAME, 2, 5, 0);
         var configurationJson = jsonify(originalConfiguration);

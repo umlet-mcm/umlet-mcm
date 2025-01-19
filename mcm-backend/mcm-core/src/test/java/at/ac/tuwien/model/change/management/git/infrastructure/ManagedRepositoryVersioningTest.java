@@ -36,6 +36,9 @@ public class ManagedRepositoryVersioningTest {
 
     private ManagedRepositoryVersioning versioning;
 
+    private static final String REF_MAIN = "main";
+    private static final String REF_HEAD = "HEAD";
+
     @BeforeEach
     public void setup() throws IOException {
         repository = getJGitRepository();
@@ -52,7 +55,7 @@ public class ManagedRepositoryVersioningTest {
         Assertions.assertThat(repositoryExists(repository)).isFalse();
         versioning.init();
         Assertions.assertThat(repositoryExists(repository)).isTrue();
-        Assertions.assertThat(repository.getBranch()).isEqualTo("main");
+        Assertions.assertThat(repository.getBranch()).isEqualTo(REF_MAIN);
     }
 
     @Test
@@ -257,6 +260,59 @@ public class ManagedRepositoryVersioningTest {
         Assertions.assertThat(listFilesInHeadCommit())
                 .singleElement()
                 .isEqualTo(originalContent);
+    }
+
+    @Test
+    public void testCommit_commitOnMainBranch_shouldMoveMainBranch() {
+        versioning.init();
+        var commitHash = versioning.commit(REF_MAIN, "Test commit", true);
+        Assertions.assertThat(versioning.listVersions(REF_MAIN, false)).containsExactly(commitHash);
+    }
+
+    @Test
+    public void testCommit_commitOnHEAD_mainAndHeadEqual_shouldMoveMainBranch() {
+        versioning.init();
+        var commitHash = versioning.commit(REF_HEAD, "Test commit", true);
+        Assertions.assertThat(versioning.listVersions(REF_MAIN, false)).containsExactly(commitHash);
+    }
+
+    @Test
+    public void testCommit_commitOnMainBranch_mainAndHeadEqual_shouldMoveHEAD() {
+        // Note that this is not default git behavior, but makes things easier for us
+        versioning.init();
+        var commitHash = versioning.commit(REF_MAIN, "Test commit", true);
+        Assertions.assertThat(versioning.listVersions(REF_HEAD, false)).containsExactly(commitHash);
+    }
+
+    @Test
+    public void testCommit_commitOnHead_commitOnMain_shouldResultInEqualMainAndHead() {
+        versioning.init();
+        var commitHash = versioning.commit(REF_HEAD, "Test commit", true);
+        var commitHashOnMain = versioning.commit(REF_MAIN, "Test commit", true);
+        Assertions.assertThat(versioning.listVersions(REF_MAIN, false)).containsExactly(commitHashOnMain, commitHash);
+        Assertions.assertThat(versioning.listVersions(REF_HEAD, false)).containsExactly(commitHashOnMain, commitHash);
+    }
+
+    @Test
+    public void testCommit_updateDifferentRefs_shouldUseDifferentParentCommits() throws Exception {
+        versioning.init();
+
+        try (var testRepository = new TestRepository<>(repository)) {
+            var firstBranch = "firstBranch";
+            var secondBranch = "secondBranch";
+
+            var testRepoCommitOnFirstBranch = testRepository.branch(firstBranch).commit().message("Test commit 1").create();
+            var testRepoCommitOnSecondBranch = testRepository.branch(secondBranch).commit().message("Test commit 2").create();
+
+            var customCommitOnFirstBranch = versioning.commit(firstBranch, "Test commit 1", true);
+            var customCommitOnSecondBranch = versioning.commit(secondBranch, "Test commit 2", true);
+
+            Assertions.assertThat(versioning.listVersions(firstBranch, false))
+                    .containsExactly(customCommitOnFirstBranch, testRepoCommitOnFirstBranch.getName());
+
+            Assertions.assertThat(versioning.listVersions(secondBranch, false))
+                    .containsExactly(customCommitOnSecondBranch, testRepoCommitOnSecondBranch.getName());
+        }
     }
 
     @Test
@@ -652,6 +708,19 @@ public class ManagedRepositoryVersioningTest {
     }
 
     @Test
+    public void testCheckout_commitAfterCheckout_shouldMoveMainButNotHead() {
+        // not default git behavior, but intended
+        versioning.init();
+        var commitHash1 = versioning.commit("Test commit 1", true);
+        var commitHash2 = versioning.commit("Test commit 2", true);
+        versioning.checkout(commitHash1);
+        var commitHash3 = versioning.commit("Test commit 3", true);
+
+        Assertions.assertThat(versioning.listVersions()).containsExactly(commitHash3, commitHash2, commitHash1);
+        Assertions.assertThat(versioning.listVersions(REF_HEAD, false)).containsExactly(commitHash1);
+    }
+
+    @Test
     public void testReset_resetToExistingVersion_shouldResetToVersion() {
         versioning.init();
         var commitHash1 = versioning.commit("Test commit 1", true);
@@ -782,7 +851,7 @@ public class ManagedRepositoryVersioningTest {
 
     @SneakyThrows(IOException.class)
     private List<String> listFilesInHeadCommit() {
-        var headCommit = repository.parseCommit(repository.resolve("HEAD"));
+        var headCommit = repository.parseCommit(repository.resolve(REF_HEAD));
         return listFilesInCommit(headCommit);
     }
 

@@ -8,13 +8,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.JGitInternalException;
+import org.eclipse.jgit.api.errors.*;
 import org.eclipse.jgit.dircache.DirCache;
-import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.hooks.Hooks;
+import org.eclipse.jgit.internal.JGitText;
+import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
 import org.springframework.lang.Nullable;
 
 import java.io.IOException;
@@ -24,6 +24,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+
 @Slf4j
 @RequiredArgsConstructor
 public class ManagedRepositoryVersioning {
@@ -31,6 +32,7 @@ public class ManagedRepositoryVersioning {
     private static final String BRANCH_NAMESPACE = "refs/heads/";
     private static final String DEFAULT_BRANCH_NAME = "main";
     private static final String DEFAULT_BRANCH_REF = BRANCH_NAMESPACE + DEFAULT_BRANCH_NAME;
+    private static final char DEFAULT_GIT_COMMENT_CHAR = '#';
 
     private final Repository repository;
     private final String name;
@@ -66,11 +68,12 @@ public class ManagedRepositoryVersioning {
 
     /**
      * Stage files in the repository.
+     *
      * @param files the files to stage
      * @return the number of files staged
      */
     public int stageFiles(@NonNull Collection<Path> files) {
-        if (! isInitialized()) {
+        if (!isInitialized()) {
             throw new RepositoryVersioningException("Cannot stage files in uninitialized repository: " + name);
         }
 
@@ -95,31 +98,62 @@ public class ManagedRepositoryVersioning {
 
     /**
      * Stage all files in the repository.
+     *
      * @return the number of files staged
      */
     public int stageAll() {
-        if (! isInitialized()) {
+        if (!isInitialized()) {
             throw new RepositoryVersioningException("Cannot stage all files in uninitialized repository: " + name);
         }
 
         log.debug("Staging all files in working directory of repository: {}", name);
-        var dirCache = applyStagingAction(add -> add.addFilepattern(ALL_FILES_PATTERN));
+        var dirCache = stageAll(false);
         var entryCount = dirCache.getEntryCount();
         log.debug("Staged all {} files in working directory of repository: {}", entryCount, name);
         return entryCount;
     }
 
     /**
-     * Commit staged changes in the repository.
-     * @param message the commit message
+     * Commit staged changes ON THE MAIN BRANCH of the repository.
+     * I.e., if HEAD and main differ, it will update the main branch, not HEAD as in most Git implementations
+     *
+     * @param message            the commit message
+     * @param stageModifiedFiles whether to automatically stage modified files before committing
+     * @return the hash of the created commit
+     */
+    public String commit(@NonNull String message, boolean stageModifiedFiles) {
+        return commit(DEFAULT_BRANCH_REF, message, stageModifiedFiles);
+    }
+
+    /**
+     * Commit staged changes in the repository on a specific branch or reference.
+     * Note that the reference can be HEAD
+     * if HEAD and the reference match, the HEAD will be updated as well
+     * if HEAD and the reference differ, only the reference will be updated
+     *
+     * @param referenceToUpdate  the reference to update with the new commit
+     *                           this can be a branch name, a tag, a commit hash, etc.
+     *                           the commit the reference points to will be the parent of the new commit
+     * @param message            the commit message
      * @param stageModifiedFiles whether to automatically stage modified files before committing
      *                           this will include files that have been part of the previous commit
      *                           but not untracked files in the working directory - those have to be staged
      *                           explicitly via {@link #stageFiles(Collection)} or {@link #stageAll()}
      * @return the hash of the created commit
      */
-    public String commit(@NonNull String message, boolean stageModifiedFiles) {
-        if (! isInitialized()) {
+    public String commit(@NonNull String referenceToUpdate, @NonNull String message, boolean stageModifiedFiles) {
+        // we want to update the HEAD, if HEAD and reference match
+        // because in that case we want to move both HEAD and reference
+        var headCommitId = resolveHead().orElse(ObjectId.zeroId());
+        var updateReferenceID = resolve(referenceToUpdate).orElse(ObjectId.zeroId());
+        var updateMatchesHead = updateReferenceID.getName().equals(headCommitId.getName());
+        var updateReference = updateMatchesHead ? Constants.HEAD : referenceToUpdate;
+        var parentCommit = updateMatchesHead
+                ? (headCommitId.equals(ObjectId.zeroId()) ? null : headCommitId)
+                : updateReferenceID;
+
+
+        if (!isInitialized()) {
             throw new RepositoryVersioningException("Cannot commit changes in uninitialized repository: " + name);
         }
 
@@ -128,26 +162,20 @@ public class ManagedRepositoryVersioning {
             throw new IllegalArgumentException("Commit message cannot be empty");
         }
 
-        try (var git = Git.wrap(repository)) {
-            var commit = git.commit()
-                    .setMessage(message)
-                    .setAll(stageModifiedFiles)
-                    .call();
-            var commitHash = commit.getName();
-            log.debug("Created commit '{}' in repository: {}", commitHash, name);
-            return commitHash;
-        } catch (GitAPIException e) {
-            throw new RepositoryVersioningException("Failed to commit changes in repository: " + name, e);
-        }
+        var commit = buildCommit(message, stageModifiedFiles, false, updateReference, parentCommit);
+        var commitHash = commit.getName();
+        log.debug("Created commit '{}' in repository: {}", commitHash, name);
+        return commitHash;
     }
 
     /**
      * Get the current version ID (commit hash) associated with the repository HEAD.
+     *
      * @return the current version ID, or an empty Optional if the repository is not initialized
      * or the HEAD commit cannot be resolved for other reasons
      */
     public Optional<String> getCurrentVersionId() {
-        if (! isInitialized()) {
+        if (!isInitialized()) {
             log.debug("Cannot get current version ID of uninitialized repository: {}", name);
             return Optional.empty();
         }
@@ -158,6 +186,7 @@ public class ManagedRepositoryVersioning {
 
     /**
      * List all versions on the main branch of the repository.
+     *
      * @return a list of version IDs (commit hashes) on the main branch, or an empty list if no such versions exist
      */
     public List<String> listVersions() {
@@ -166,6 +195,7 @@ public class ManagedRepositoryVersioning {
 
     /**
      * List all versions on the main branch of the repository.
+     *
      * @param ascending whether to list versions in ascending order
      *                  - they are listed in descending order when {@link #listVersions()} is called
      * @return a list of version IDs (commit hashes) on the main branch, or an empty list if no such versions exist
@@ -177,13 +207,14 @@ public class ManagedRepositoryVersioning {
     /**
      * List all versions starting from a specific version identifier
      * that could be a branch name, a tag, a commit hash, etc.
-     * @param start the version identifier to start listing versions from
+     *
+     * @param start     the version identifier to start listing versions from
      * @param ascending whether to list versions in ascending order
      *                  - they are listed in descending order when {@link #listVersions()} is called
      * @return a list of version IDs (commit hashes) starting from the specified version, or an empty list if no such versions exist
      */
     public List<String> listVersions(@NonNull String start, boolean ascending) {
-        if (! isInitialized()) {
+        if (!isInitialized()) {
             log.debug("Cannot list versions in uninitialized repository: {}", name);
             return Collections.emptyList();
         }
@@ -209,11 +240,12 @@ public class ManagedRepositoryVersioning {
 
     /**
      * Compare two versions of the repository.
-     * @param oldVersion the old version to compare with
-     * @param newVersion the new version to compare with
-     * @param includeUnchanged whether to include unchanged objects in the comparison results
-     *                         if set to true, these will be included as "UNCHANGED" diff entries with the content simply
-     *                         being the object file's String representation (i.e., not including any Git headers or hunks)
+     *
+     * @param oldVersion         the old version to compare with
+     * @param newVersion         the new version to compare with
+     * @param includeUnchanged   whether to include unchanged objects in the comparison results
+     *                           if set to true, these will be included as "UNCHANGED" diff entries with the content simply
+     *                           being the object file's String representation (i.e., not including any Git headers or hunks)
      * @param objectPreprocessor a function to preprocess the object content before comparison
      *                           can be used to, e.g., remove metadata that we don't want to include in our diffs
      * @return a list of differences between the two versions of the repository as {@link ManagedDiffEntry} objects
@@ -224,7 +256,7 @@ public class ManagedRepositoryVersioning {
             boolean includeUnchanged,
             @Nullable Function<ManagedRepositoryObject, byte[]> objectPreprocessor
     ) {
-        if (! isInitialized()) {
+        if (!isInitialized()) {
             throw new RepositoryVersioningException("Cannot compare versions in uninitialized repository: " + name);
         }
 
@@ -242,10 +274,11 @@ public class ManagedRepositoryVersioning {
 
     /**
      * Checkout a specific version of the repository.
+     *
      * @param version the version to `git checkout`
      */
     public void checkout(@NonNull String version) {
-        if (! isInitialized()) {
+        if (!isInitialized()) {
             throw new RepositoryVersioningException("Cannot checkout version in uninitialized repository: " + name);
         }
 
@@ -262,10 +295,11 @@ public class ManagedRepositoryVersioning {
 
     /**
      * Reset the repository to a specific version.
+     *
      * @param version the version to reset to
      */
     public void reset(@NonNull String version) {
-        if (! isInitialized()) {
+        if (!isInitialized()) {
             throw new RepositoryVersioningException("Cannot reset to version in uninitialized repository: " + name);
         }
 
@@ -280,6 +314,101 @@ public class ManagedRepositoryVersioning {
         }
     }
 
+    private Optional<ObjectId> resolveHead() {
+        return resolve(Constants.HEAD);
+    }
+
+    private Optional<RevCommit> resolveCommit(String id) {
+        return resolve(id).map(objectId -> {
+            try {
+                return repository.parseCommit(objectId);
+            } catch (IOException e) {
+                throw new RepositoryVersioningException("Failed to parse commit: " + id, e);
+            }
+        });
+    }
+
+    private Optional<ObjectId> resolve(String id) {
+        try {
+            return Optional.ofNullable(repository.resolve(id));
+        } catch (IOException e) {
+            throw new RepositoryVersioningException("Failed to resolve current version of repository: " + name, e);
+        }
+    }
+
+    /*
+     * Build a commit in the repository.
+     * This method is largely a copy of the JGit {@link org.eclipse.jgit.api.CommitCommand} implementation
+     * However, it allows setting the commit parent (which is the reason it was created)
+     * Note that a bunch of functionality is missing relative to the original implementation
+     * This includes
+     * - commit hooks
+     * - merges
+     * - signing
+     * possibly more
+     */
+    @SuppressWarnings("SameParameterValue")
+    private RevCommit buildCommit(
+            String message,
+            boolean stageModifiedFiles,
+            boolean noVerify,
+            String referenceToUpdate,
+            @Nullable ObjectId parent
+    ) {
+        try (RevWalk rw = new RevWalk(repository)) {
+            RepositoryState state = repository.getRepositoryState();
+
+            if (!state.canCommit()) {
+                throw new RepositoryVersioningException("Cannot commit in repository '" + name + "' in state: " + state.name());
+            }
+
+            if (!noVerify) {
+                Hooks.preCommit(repository, null, null).call();
+            }
+
+            if (stageModifiedFiles) {
+                stageAll(true);
+            }
+
+            if (!noVerify) {
+                message = Hooks.commitMsg(repository, null, null)
+                        .setCommitMessage(message)
+                        .call();
+            }
+
+            message = CommitConfig.cleanText(message, CommitConfig.CleanupMode.WHITESPACE, DEFAULT_GIT_COMMENT_CHAR);
+
+            DirCache index = repository.lockDirCache();
+            RevCommit revCommit;
+            try (ObjectInserter odi = repository.newObjectInserter()) {
+                ObjectId indexTreeId = index.writeTree(odi);
+                var commitBuilder = configureCommitBuilder(message, indexTreeId, parent);
+                ObjectId commitId = odi.insert(commitBuilder);
+                odi.flush();
+                revCommit = rw.parseCommit(commitId);
+                updateRef(referenceToUpdate, revCommit, commitId, parent);
+            } finally {
+                index.unlock();
+            }
+
+            try {
+                Hooks.postCommit(repository, null, null).call();
+            } catch (Exception e) {
+                log.error("Post-commit hook failed in repository: {}", name, e);
+            }
+
+            return revCommit;
+        } catch (AbortedByHookException e) {
+            throw new RepositoryVersioningException("Commit aborted by hook in repository: " + name, e);
+        } catch (IOException e) {
+            throw new RepositoryVersioningException("Failed to build commit in repository: " + name, e);
+        }
+    }
+
+    private DirCache stageAll(boolean onlyStageFilesAlreadyTracked) {
+        return applyStagingAction(add -> add.addFilepattern(ALL_FILES_PATTERN).setUpdate(onlyStageFilesAlreadyTracked));
+    }
+
     private DirCache applyStagingAction(Consumer<AddCommand> action) {
         try {
             var addCommand = new AddCommand(repository);
@@ -290,25 +419,53 @@ public class ManagedRepositoryVersioning {
         }
     }
 
-    private Optional<ObjectId> resolveHead() {
-        return resolve(Constants.HEAD);
+    private CommitBuilder configureCommitBuilder(
+            String message,
+            ObjectId indexTreeId,
+            @Nullable ObjectId parent
+    ) {
+        var commitBuilder = new CommitBuilder();
+        if (parent != null) {
+            commitBuilder.setParentId(parent);
+        }
+
+        var commitAuthor = new PersonIdent(repository);
+        commitBuilder.setCommitter(commitAuthor);
+        commitBuilder.setAuthor(commitAuthor);
+        commitBuilder.setMessage(message);
+        commitBuilder.setTreeId(indexTreeId);
+        return commitBuilder;
     }
 
-    private Optional<RevCommit> resolveCommit(String id) {
-            return resolve(id).map(objectId -> {
-                try {
-                    return repository.parseCommit(objectId);
-                } catch (IOException e) {
-                    throw new RepositoryVersioningException("Failed to parse commit: " + id, e);
-                }
-            });
-    }
+    private void updateRef(
+            String referenceToUpdate,
+            RevCommit revCommit,
+            ObjectId commitId,
+            @Nullable ObjectId parent
+    ) throws IOException {
+        var parentId = parent == null ? ObjectId.zeroId() : parent;
 
-    private Optional<ObjectId> resolve(String id) {
-        try {
-            return Optional.ofNullable(repository.resolve(id));
-        } catch (IOException e) {
-            throw new RepositoryVersioningException("Failed to resolve current version of repository: " + name, e);
+        var refUpdate = repository.updateRef(referenceToUpdate);
+        refUpdate.setNewObjectId(commitId);
+        String prefix = parent == null ? "commit (initial): " : "commit: ";
+        refUpdate.setRefLogMessage(prefix + revCommit.getShortMessage(), false);
+        refUpdate.setExpectedOldObjectId(parentId);
+
+        RefUpdate.Result rc = refUpdate.update();
+
+        switch (rc) {
+            case NEW:
+            case FORCED:
+            case FAST_FORWARD: {
+                break;
+            }
+            case REJECTED:
+            case LOCK_FAILURE:
+                throw new RepositoryVersioningException("Failed to update reference '" + referenceToUpdate +
+                        "' in repository '" + name + "': " + JGitText.get().couldNotLockHEAD);
+            default:
+                throw new RepositoryVersioningException("Failed to update reference '" + referenceToUpdate +
+                        "' in repository '" + name + "': " + JGitText.get().updatingRefFailed);
         }
     }
 }

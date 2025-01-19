@@ -56,19 +56,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             log.debug("Updating configuration '{}'.", configuration.getName());
             validateExistingConfiguration(configuration);
             configuration.setName(ConfigurationUtils.sanitizeConfigurationName(configuration.getName()));
-
-            if (configuration.getVersion() == null) {
-                throw new ConfigurationValidationException("Configuration '" + configuration.getName() +
-                        "' cannot be updated, because its version is not specified.");
-            }
-
-            var currentVersion = versionControlRepository.getCurrentVersion(configuration.getName())
-                    .orElseThrow(() -> new ConfigurationVersionDoesNotExistException("No versions exist for configuration '" + configuration.getName() + "'."));
-
-            if (!configuration.getVersion().equals(currentVersion)) {
-                throw new ConfigurationVersionMismatchException("Version of configuration '" + configuration.getName() +
-                        "' does not match the current version. Merging of divergent versions is not yet supported.");
-            }
             var savedConfiguration = configurationRepository.saveConfiguration(configuration);
             log.info("Updated configuration '{}'.", configuration.getName());
 

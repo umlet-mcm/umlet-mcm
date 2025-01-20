@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {Node, Relation} from "@/types/Node.ts";
-import {TableBody, TableCell, TableHead, TableHeader, TableRow, Table} from "@/components/ui/table";
+import {TableBody, TableCell, TableHead, TableRow, Table} from "@/components/ui/table";
+import {HelpCircle} from "lucide-vue-next";
 
 /**
  * @param {Node | Relation} selectedEntity, selected entity (optional)
@@ -22,18 +23,20 @@ defineProps({
     </div>
     <div v-if="selectedEntity" class="rounded-md border">
       <Table>
-        <TableHeader>
-          <TableRow class="table-head">
-            <TableHead class="w-1/3">properties</TableHead>
-            <TableHead class="w-2/3">value</TableHead>
-          </TableRow>
-        </TableHeader>
         <TableBody>
-          <TableRow v-for="[key, value] in Object.entries({...selectedEntity.mcmAttributes})">
-            <TableCell class="font-medium w-1/3">{{ key }}</TableCell>
-            <TableCell class="w-2/3">{{ value }}</TableCell>
-          </TableRow>
-          <TableRow class="table-head">
+            <TableRow class="table-head" v-if="Object.keys(selectedEntity.mcmAttributes).length">
+              <TableHead class="w-1/3">properties</TableHead>
+              <TableHead class="w-2/3">value</TableHead>
+            </TableRow>
+            <TableRow v-for="[key, value] in Object.entries({...selectedEntity.mcmAttributes})">
+              <TableCell class="font-medium flex items-center">
+                <!--  TODO TOOLTIP BASED ON COMMENT -->
+                <HelpCircle v-if="false" class="w-4 h-4 mr-2" v-tooltip="''"/>
+                <span>{{ key }}</span>
+              </TableCell>
+              <TableCell class="w-2/3">{{ value }}</TableCell>
+            </TableRow>
+          <TableRow class="table-head" v-if="Object.keys(selectedEntity.umletAttributes).length">
             <TableHead class="w-1/3">umletProperties</TableHead>
             <TableHead class="w-2/3">value</TableHead>
           </TableRow>

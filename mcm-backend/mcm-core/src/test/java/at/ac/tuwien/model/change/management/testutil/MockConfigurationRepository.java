@@ -1,6 +1,7 @@
 package at.ac.tuwien.model.change.management.testutil;
 
 import at.ac.tuwien.model.change.management.core.model.Configuration;
+import at.ac.tuwien.model.change.management.core.model.ConfigurationVersion;
 import at.ac.tuwien.model.change.management.core.model.versioning.ModelDiff;
 import at.ac.tuwien.model.change.management.core.model.versioning.NodeDiff;
 import at.ac.tuwien.model.change.management.core.model.versioning.RelationDiff;
@@ -27,9 +28,20 @@ public class MockConfigurationRepository implements ConfigurationRepository {
         }
         var configuration = new Configuration();
         configuration.setName(name);
-        var version = configuration.getVersion() == null ? generateSHA1Version() : configuration.getVersion();
-        configuration.setVersion(version);
+        var version = configuration.getVersionHash() == null ? generateSHA1Version() : configuration.getVersionHash();
+        configuration.setVersion(new ConfigurationVersion(version, null, null));
         configurations.computeIfAbsent(name, k -> new LinkedHashMap<>()).put(version, configuration);
+    }
+
+    @Override
+    public void renameConfiguration(@NonNull String currentName, @NonNull String newName) throws RepositoryAlreadyExistsException {
+        if (configurations.containsKey(newName)) {
+            throw new RepositoryAlreadyExistsException("Configuration with name " + newName + " already exists");
+        }
+        var configurationVersions = configurations.remove(currentName);
+        if (configurationVersions != null) {
+            configurations.put(newName, configurationVersions);
+        }
     }
 
     @Override
@@ -61,8 +73,8 @@ public class MockConfigurationRepository implements ConfigurationRepository {
         if (configurationVersions == null) {
             throw new RepositoryDoesNotExistException("Configuration with name " + configuration.getName() + " does not exist");
         }
-        configuration.setVersion(generateSHA1Version());
-        configurationVersions.putFirst(configuration.getVersion(), configuration);
+        configuration.setVersion(new ConfigurationVersion(generateSHA1Version(), null, null));
+        configurationVersions.putFirst(configuration.getVersionHash(), configuration);
         return configuration;
     }
 

@@ -1,16 +1,17 @@
-package at.ac.tuwien.model.change.management.git.operation;
+package at.ac.tuwien.model.change.management.core.service;
 
-
+import at.ac.tuwien.model.change.management.core.exception.ConfigurationValidationException;
 import at.ac.tuwien.model.change.management.core.model.Model;
 import at.ac.tuwien.model.change.management.core.model.Node;
 import at.ac.tuwien.model.change.management.core.model.Relation;
-import at.ac.tuwien.model.change.management.git.exception.RepositoryWriteException;
+import at.ac.tuwien.model.change.management.git.operation.IdGenerator;
+import at.ac.tuwien.model.change.management.git.operation.IdGeneratorImpl;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class ConfigurationIDGeneratorTest {
+public class IdGeneratorTest {
 
-    private final ConfigurationIDGenerator idGenerator = new ConfigurationIDGeneratorImpl();
+    private final IdGenerator idGenerator = new IdGeneratorImpl();
 
     @Test
     public void testSetId_model_shouldSetIdOnModel() {
@@ -53,12 +54,12 @@ public class ConfigurationIDGeneratorTest {
     }
 
     @Test
-    public void testSetId_idAlreadySet_disallowOverwrite_shouldThrowRepositoryWriteException() {
+    public void testSetId_idAlreadySet_disallowOverwrite_shouldThrowConfigurationValidationException() {
         var oldId = "old ID";
         var model = new Model();
         model.setId(oldId);
 
         Assertions.assertThatThrownBy(() -> idGenerator.setID(model, false))
-                .isInstanceOf(RepositoryWriteException.class);
+                .isInstanceOf(ConfigurationValidationException.class);
     }
 }

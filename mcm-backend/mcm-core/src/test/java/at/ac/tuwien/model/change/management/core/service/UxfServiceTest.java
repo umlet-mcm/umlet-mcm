@@ -90,12 +90,12 @@ public class UxfServiceTest {
         Configuration conf = service.createConfigurationFromUxf(getStream(in));
         String targetId = conf.getModels().stream().findFirst().orElseThrow().getId();
 
-        assertDoesNotThrow(()->service.exportModel(targetId));
+        assertDoesNotThrow(() -> service.exportModel(targetId));
         String res = service.exportModel(targetId);
         assertNotNull(res);
         assertTrue(res.startsWith("<diagram>"));
 
-        assertThrows(ModelNotFoundException.class, ()->service.exportModel("invalid_uuid"));
+        assertThrows(ModelNotFoundException.class, () -> service.exportModel("invalid_uuid"));
     }
 
     @Test
@@ -103,12 +103,12 @@ public class UxfServiceTest {
         String in = "uxf/frag1_cost_updated.uxf";
         Configuration conf = service.createConfigurationFromUxf(getStream(in));
 
-        assertDoesNotThrow(()->service.exportConfiguration(conf.getName()));
+        assertDoesNotThrow(() -> service.exportConfiguration(conf.getName()));
         String res = service.exportConfiguration(conf.getName());
         assertNotNull(res);
         assertTrue(res.startsWith("<diagram>"));
 
-        assertThrows(ConfigurationException.class, ()->service.exportConfiguration("invalid_uuid"));
+        assertThrows(ConfigurationException.class, () -> service.exportConfiguration("invalid_uuid"));
     }
 
     InputStreamResource getStream(String filename) {
@@ -118,6 +118,6 @@ public class UxfServiceTest {
     }
 
     private String findVersionByName(String name) {
-        return configurationRepository.findCurrentVersionOfConfigurationByName(name).orElseThrow().getVersion();
+        return configurationRepository.findCurrentVersionOfConfigurationByName(name).orElseThrow().getVersionHash();
     }
 }

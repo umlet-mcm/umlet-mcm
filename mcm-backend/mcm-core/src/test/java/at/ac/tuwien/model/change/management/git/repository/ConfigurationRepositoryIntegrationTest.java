@@ -1,6 +1,7 @@
 package at.ac.tuwien.model.change.management.git.repository;
 
 import at.ac.tuwien.model.change.management.core.model.Configuration;
+import at.ac.tuwien.model.change.management.core.model.ConfigurationVersion;
 import at.ac.tuwien.model.change.management.core.model.versioning.ModelDiff;
 import at.ac.tuwien.model.change.management.core.model.versioning.NodeDiff;
 import at.ac.tuwien.model.change.management.core.model.versioning.RelationDiff;
@@ -13,7 +14,6 @@ import at.ac.tuwien.model.change.management.testutil.DomainModelGen;
 import at.ac.tuwien.model.change.management.testutil.assertion.ConfigurationAssert;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -139,7 +139,7 @@ public class ConfigurationRepositoryIntegrationTest {
 
         var optionalConfiguration = configurationRepository.findSpecifiedVersionOfConfigurationByName(
                 TEST_CONFIGURATION_NAME,
-                Objects.requireNonNull(originalSavedConfiguration.getVersion())
+                Objects.requireNonNull(originalSavedConfiguration.getVersionHash())
         );
 
         Assertions.assertThat(optionalConfiguration)
@@ -161,7 +161,7 @@ public class ConfigurationRepositoryIntegrationTest {
 
         var optionalOriginalConfig = configurationRepository.findSpecifiedVersionOfConfigurationByName(
                 TEST_CONFIGURATION_NAME,
-                Objects.requireNonNull(originalSavedConfiguration.getVersion())
+                Objects.requireNonNull(originalSavedConfiguration.getVersionHash())
         );
 
         Assertions.assertThat(optionalOriginalConfig)
@@ -173,7 +173,7 @@ public class ConfigurationRepositoryIntegrationTest {
 
         var optionalUpdatedConfig = configurationRepository.findSpecifiedVersionOfConfigurationByName(
                 TEST_CONFIGURATION_NAME,
-                Objects.requireNonNull(updatedSavedConfiguration.getVersion())
+                Objects.requireNonNull(updatedSavedConfiguration.getVersionHash())
         );
 
         Assertions.assertThat(optionalUpdatedConfig)
@@ -290,6 +290,52 @@ public class ConfigurationRepositoryIntegrationTest {
     }
 
     @Test
+    public void testSaveConfiguration_withCustomName_shouldSaveConfiguration() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(new ConfigurationVersion("v1.0.0", null, "custom-name"));
+        configurationRepository.createConfiguration(TEST_CONFIGURATION_NAME);
+        var savedConfiguration = configurationRepository.saveConfiguration(configuration);
+
+        Assertions.assertThat(savedConfiguration)
+                .isNotNull()
+                .satisfies(config -> ConfigurationAssert.assertThat(config)
+                        .containsSameElementsAs(configuration)
+                        .hasVersionCustomName(configuration.getVersionCustomName())
+                        .hasName(TEST_CONFIGURATION_NAME));
+    }
+
+    @Test
+    public void testSaveConfiguration_withName_shouldSaveConfiguration() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(new ConfigurationVersion("v1.0.0", "v1.0.0", null));
+        configurationRepository.createConfiguration(TEST_CONFIGURATION_NAME);
+        var savedConfiguration = configurationRepository.saveConfiguration(configuration);
+
+        Assertions.assertThat(savedConfiguration)
+                .isNotNull()
+                .satisfies(config -> ConfigurationAssert.assertThat(config)
+                        .containsSameElementsAs(configuration)
+                        .hasVersionName(configuration.getVersionName())
+                        .hasName(TEST_CONFIGURATION_NAME));
+    }
+
+    @Test
+    public void testSaveConfiguration_withNames_shouldSaveConfiguration() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(new ConfigurationVersion("v1.0.0", "v1.0.0", "custom-name"));
+        configurationRepository.createConfiguration(TEST_CONFIGURATION_NAME);
+        var savedConfiguration = configurationRepository.saveConfiguration(configuration);
+
+        Assertions.assertThat(savedConfiguration)
+                .isNotNull()
+                .satisfies(config -> ConfigurationAssert.assertThat(config)
+                        .containsSameElementsAs(configuration)
+                        .hasVersionName(configuration.getVersionName())
+                        .hasVersionCustomName(configuration.getVersionCustomName())
+                        .hasName(TEST_CONFIGURATION_NAME));
+    }
+
+    @Test
     public void testDeleteConfiguration_existingConfiguration_shouldDeleteConfigurationDirectory() {
         configurationRepository.createConfiguration(TEST_CONFIGURATION_NAME);
         configurationRepository.deleteConfiguration(TEST_CONFIGURATION_NAME);
@@ -323,7 +369,7 @@ public class ConfigurationRepositoryIntegrationTest {
     }
 
     @Test
-    public void testCompareConfigurationVersions_nonExistingConfiguration_shouldThrowRepositoryDoesNotExistException () {
+    public void testCompareConfigurationVersions_nonExistingConfiguration_shouldThrowRepositoryDoesNotExistException() {
         Assertions.assertThatThrownBy(() -> configurationRepository.compareConfigurationVersions(TEST_CONFIGURATION_NAME, "v1.0.0", "v1.0.1", true))
                 .isInstanceOf(RepositoryDoesNotExistException.class);
     }
@@ -335,7 +381,7 @@ public class ConfigurationRepositoryIntegrationTest {
         var savedVersion = configurationRepository.saveConfiguration(configuration);
 
         @SuppressWarnings("ConstantConditions")
-        var comparison = configurationRepository.compareConfigurationVersions(TEST_CONFIGURATION_NAME, savedVersion.getVersion(), savedVersion.getVersion(), false);
+        var comparison = configurationRepository.compareConfigurationVersions(TEST_CONFIGURATION_NAME, savedVersion.getVersionHash(), savedVersion.getVersionHash(), false);
         Assertions.assertThat(comparison).isNotNull();
         Assertions.assertThat(comparison.getModels()).isEmpty();
         Assertions.assertThat(comparison.getNodes()).isEmpty();
@@ -349,7 +395,7 @@ public class ConfigurationRepositoryIntegrationTest {
         var savedVersion = configurationRepository.saveConfiguration(configuration);
 
         @SuppressWarnings("ConstantConditions")
-        var comparison = configurationRepository.compareConfigurationVersions(TEST_CONFIGURATION_NAME, savedVersion.getVersion(), savedVersion.getVersion(), true);
+        var comparison = configurationRepository.compareConfigurationVersions(TEST_CONFIGURATION_NAME, savedVersion.getVersionHash(), savedVersion.getVersionHash(), true);
         Assertions.assertThat(comparison).isNotNull();
         Assertions.assertThat(comparison.getModels()).hasSize(1).allSatisfy(modelDiff ->
                 Assertions.assertThat(modelDiff.getDiffType()).isEqualTo("UNCHANGED"));
@@ -367,7 +413,7 @@ public class ConfigurationRepositoryIntegrationTest {
         var updatedVersion = configurationRepository.saveConfiguration(configuration);
 
         @SuppressWarnings("ConstantConditions")
-        var comparison = configurationRepository.compareConfigurationVersions(TEST_CONFIGURATION_NAME, savedVersion.getVersion(), updatedVersion.getVersion(), false);
+        var comparison = configurationRepository.compareConfigurationVersions(TEST_CONFIGURATION_NAME, savedVersion.getVersionHash(), updatedVersion.getVersionHash(), false);
         Assertions.assertThat(comparison).isNotNull();
         Assertions.assertThat(comparison.getModels()).isEmpty();
         Assertions.assertThat(comparison.getNodes()).isEmpty();
@@ -382,7 +428,7 @@ public class ConfigurationRepositoryIntegrationTest {
         var updatedVersion = configurationRepository.saveConfiguration(configuration);
 
         @SuppressWarnings("ConstantConditions")
-        var comparison = configurationRepository.compareConfigurationVersions(TEST_CONFIGURATION_NAME, savedVersion.getVersion(), updatedVersion.getVersion(), true);
+        var comparison = configurationRepository.compareConfigurationVersions(TEST_CONFIGURATION_NAME, savedVersion.getVersionHash(), updatedVersion.getVersionHash(), true);
         Assertions.assertThat(comparison).isNotNull();
         Assertions.assertThat(comparison.getModels()).hasSize(1).allSatisfy(modelDiff ->
                 Assertions.assertThat(modelDiff.getDiffType()).isEqualTo("UNCHANGED"));
@@ -406,7 +452,7 @@ public class ConfigurationRepositoryIntegrationTest {
         var updatedVersion = configurationRepository.saveConfiguration(updatedConfiguration);
 
         @SuppressWarnings("ConstantConditions")
-        var comparison = configurationRepository.compareConfigurationVersions(TEST_CONFIGURATION_NAME, savedVersion.getVersion(), updatedVersion.getVersion(), false);
+        var comparison = configurationRepository.compareConfigurationVersions(TEST_CONFIGURATION_NAME, savedVersion.getVersionHash(), updatedVersion.getVersionHash(), false);
         Assertions.assertThat(comparison).isNotNull();
         Assertions.assertThat(comparison.getModels()).hasSize(2).allSatisfy(modelDiff ->
                 Assertions.assertThat(modelDiff.getDiffType()).isEqualTo("ADD"));
@@ -425,7 +471,7 @@ public class ConfigurationRepositoryIntegrationTest {
         var updatedVersion = configurationRepository.saveConfiguration(getEmptyConfiguration(TEST_CONFIGURATION_NAME));
 
         @SuppressWarnings("ConstantConditions")
-        var comparison = configurationRepository.compareConfigurationVersions(TEST_CONFIGURATION_NAME, savedVersion.getVersion(), updatedVersion.getVersion(), false);
+        var comparison = configurationRepository.compareConfigurationVersions(TEST_CONFIGURATION_NAME, savedVersion.getVersionHash(), updatedVersion.getVersionHash(), false);
         Assertions.assertThat(comparison).isNotNull();
         Assertions.assertThat(comparison.getModels()).hasSize(1).allSatisfy(modelDiff ->
                 Assertions.assertThat(modelDiff.getDiffType()).isEqualTo("DELETE"));
@@ -449,7 +495,7 @@ public class ConfigurationRepositoryIntegrationTest {
         var updatedVersion = configurationRepository.saveConfiguration(configuration);
 
         @SuppressWarnings("ConstantConditions")
-        var comparison = configurationRepository.compareConfigurationVersions(TEST_CONFIGURATION_NAME, savedVersion.getVersion(), updatedVersion.getVersion(), false);
+        var comparison = configurationRepository.compareConfigurationVersions(TEST_CONFIGURATION_NAME, savedVersion.getVersionHash(), updatedVersion.getVersionHash(), false);
         Assertions.assertThat(comparison).isNotNull();
         Assertions.assertThat(comparison.getModels()).hasSize(1).allSatisfy(modelDiff ->
                 Assertions.assertThat(modelDiff.getDiffType()).isEqualTo("MODIFY"));
@@ -476,7 +522,7 @@ public class ConfigurationRepositoryIntegrationTest {
         var updatedVersion = configurationRepository.saveConfiguration(configuration);
 
         @SuppressWarnings("ConstantConditions")
-        var comparison = configurationRepository.compareConfigurationVersions(TEST_CONFIGURATION_NAME, savedVersion.getVersion(), updatedVersion.getVersion(), true);
+        var comparison = configurationRepository.compareConfigurationVersions(TEST_CONFIGURATION_NAME, savedVersion.getVersionHash(), updatedVersion.getVersionHash(), true);
 
         // Overall
         // Removed two relations
@@ -506,7 +552,7 @@ public class ConfigurationRepositoryIntegrationTest {
         var updatedVersion = configurationRepository.saveConfiguration(updatedConfiguration);
 
         @SuppressWarnings("ConstantConditions")
-        var comparison = configurationRepository.compareConfigurationVersions(TEST_CONFIGURATION_NAME, savedVersion.getVersion(), updatedVersion.getVersion(), false);
+        var comparison = configurationRepository.compareConfigurationVersions(TEST_CONFIGURATION_NAME, savedVersion.getVersionHash(), updatedVersion.getVersionHash(), false);
 
         Assertions.assertThat(comparison).isNotNull();
 
@@ -522,6 +568,41 @@ public class ConfigurationRepositoryIntegrationTest {
         Assertions.assertThat(comparison.getRelations())
                 .extracting(RelationDiff::getContent)
                 .noneMatch(relationDiff -> relationDiff.contains("metadata"));
+    }
+
+    @Test
+    public void testRenameConfiguration_existingConfiguration_shouldRenameConfigurationDirectory() {
+        configurationRepository.createConfiguration(TEST_CONFIGURATION_NAME);
+        configurationRepository.renameConfiguration(TEST_CONFIGURATION_NAME, "new-name");
+        Assertions.assertThat(resolveTestDirectoryPath("new-name")).exists();
+    }
+
+    @Test
+    public void testRenameConfiguration_existingConfiguration_shouldNotFindOldConfiguration() {
+        configurationRepository.createConfiguration(TEST_CONFIGURATION_NAME);
+        configurationRepository.saveConfiguration(DomainModelGen.generateRandomizedConfiguration(TEST_CONFIGURATION_NAME, 1, 2, 1));
+
+        Assertions.assertThat(configurationRepository.findCurrentVersionOfConfigurationByName(TEST_CONFIGURATION_NAME)).isPresent();
+        configurationRepository.renameConfiguration(TEST_CONFIGURATION_NAME, "new-name");
+        Assertions.assertThat(configurationRepository.findCurrentVersionOfConfigurationByName(TEST_CONFIGURATION_NAME)).isEmpty();
+    }
+
+    @Test
+    public void testRenameConfiguration_existingConfiguration_shouldFindNewConfiguration() {
+        configurationRepository.createConfiguration(TEST_CONFIGURATION_NAME);
+        configurationRepository.saveConfiguration(DomainModelGen.generateRandomizedConfiguration(TEST_CONFIGURATION_NAME, 1, 2, 1));
+
+        Assertions.assertThat(configurationRepository.findCurrentVersionOfConfigurationByName("new-name")).isEmpty();
+        configurationRepository.renameConfiguration(TEST_CONFIGURATION_NAME, "new-name");
+        Assertions.assertThat(configurationRepository.findCurrentVersionOfConfigurationByName("new-name")).isPresent();
+    }
+
+    @Test
+    public void testRenameConfiguration_existingNewName_shouldThrowRepositoryAlreadyExistsException() {
+        configurationRepository.createConfiguration(TEST_CONFIGURATION_NAME);
+        configurationRepository.createConfiguration("new-name");
+        Assertions.assertThatThrownBy(() -> configurationRepository.renameConfiguration(TEST_CONFIGURATION_NAME, "new-name"))
+                .isInstanceOf(RepositoryAlreadyExistsException.class);
     }
 
 
@@ -542,7 +623,7 @@ public class ConfigurationRepositoryIntegrationTest {
     private Configuration getEmptyConfiguration(String name, String version) {
         var configuration = new Configuration();
         configuration.setName(name);
-        configuration.setVersion(version);
+        configuration.setVersion(new ConfigurationVersion(version, null, null));
         return configuration;
     }
 }

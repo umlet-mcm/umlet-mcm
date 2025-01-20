@@ -2,6 +2,7 @@ package at.ac.tuwien.model.change.management.server.integration;
 
 import at.ac.tuwien.model.change.management.git.util.PathUtils;
 import at.ac.tuwien.model.change.management.server.dto.ConfigurationDTO;
+import at.ac.tuwien.model.change.management.server.dto.ConfigurationVersionDTO;
 import at.ac.tuwien.model.change.management.server.dto.DiffDTO;
 import at.ac.tuwien.model.change.management.server.dto.ModelDTO;
 import at.ac.tuwien.model.change.management.server.testutil.ConfigurationDTOAssert;
@@ -29,7 +30,8 @@ import java.util.Collections;
 import java.util.stream.Collectors;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -185,7 +187,7 @@ public class ConfigurationControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andReturn();
         var createdConfiguration = deserialize(result, ConfigurationDTO.class);
-        var updatedConfiguration = DtoGen.generateRandomizedConfigurationDTO(TEST_CONFIGURATION_NAME, createdConfiguration.version(), 2, 5, 0);
+        var updatedConfiguration = DtoGen.generateRandomizedConfigurationDTO(TEST_CONFIGURATION_NAME, createdConfiguration.version().hash(), 2, 5, 0);
         var updatedConfigurationJson = jsonify(updatedConfiguration);
 
         var updateResult = mockMvc.perform(put(BASE_URL)
@@ -238,7 +240,7 @@ public class ConfigurationControllerIntegrationTest {
                 .andReturn();
         var createdConfiguration = deserialize(resultCreate, ConfigurationDTO.class);
 
-        var resultFind = mockMvc.perform(get(BASE_URL + "/" + createdConfiguration.name() + "/versions/" + createdConfiguration.version()))
+        var resultFind = mockMvc.perform(get(BASE_URL + "/" + createdConfiguration.name() + "/versions/" + createdConfiguration.version().hash()))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -256,7 +258,7 @@ public class ConfigurationControllerIntegrationTest {
     }
 
     @Test
-    public void testGetConfigurationVersion_configurationWithTwoVersions_shouldReturnOriginalConfigurationOnRequest() throws Exception{
+    public void testGetConfigurationVersion_configurationWithTwoVersions_shouldReturnOriginalConfigurationOnRequest() throws Exception {
         var originalConfiguration = DtoGen.generateRandomizedConfigurationDTO(TEST_CONFIGURATION_NAME, 1, 2, 0);
         var originalConfigurationJson = jsonify(originalConfiguration);
 
@@ -267,7 +269,7 @@ public class ConfigurationControllerIntegrationTest {
                 .andReturn();
         var createdConfiguration = deserialize(resultCreate, ConfigurationDTO.class);
 
-        var newConfiguration = DtoGen.generateRandomizedConfigurationDTO(TEST_CONFIGURATION_NAME, createdConfiguration.version(), 2, 5, 0);
+        var newConfiguration = DtoGen.generateRandomizedConfigurationDTO(TEST_CONFIGURATION_NAME, createdConfiguration.version().hash(), 2, 5, 0);
         var newConfigurationJson = jsonify(newConfiguration);
 
         mockMvc.perform(put(BASE_URL)
@@ -276,7 +278,7 @@ public class ConfigurationControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        var resultFind = mockMvc.perform(get(BASE_URL + "/" + createdConfiguration.name() + "/versions/" + createdConfiguration.version()))
+        var resultFind = mockMvc.perform(get(BASE_URL + "/" + createdConfiguration.name() + "/versions/" + createdConfiguration.version().hash()))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -299,7 +301,7 @@ public class ConfigurationControllerIntegrationTest {
                 .andReturn();
         var createdConfiguration = deserialize(resultCreate, ConfigurationDTO.class);
 
-        var newConfiguration = DtoGen.generateRandomizedConfigurationDTO(TEST_CONFIGURATION_NAME, createdConfiguration.version(), 2, 5, 0);
+        var newConfiguration = DtoGen.generateRandomizedConfigurationDTO(TEST_CONFIGURATION_NAME, createdConfiguration.version().hash(), 2, 5, 0);
         var newConfigurationJson = jsonify(newConfiguration);
 
         var resultUpdate = mockMvc.perform(put(BASE_URL)
@@ -307,9 +309,9 @@ public class ConfigurationControllerIntegrationTest {
                         .content(newConfigurationJson))
                 .andExpect(status().isOk())
                 .andReturn();
-        var updatedConfiguration= deserialize(resultUpdate, ConfigurationDTO.class);
+        var updatedConfiguration = deserialize(resultUpdate, ConfigurationDTO.class);
 
-        var resultFind = mockMvc.perform(get(BASE_URL + "/" + createdConfiguration.name() + "/versions/" + updatedConfiguration.version()))
+        var resultFind = mockMvc.perform(get(BASE_URL + "/" + createdConfiguration.name() + "/versions/" + updatedConfiguration.version().hash()))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -343,7 +345,7 @@ public class ConfigurationControllerIntegrationTest {
                 .andReturn();
         var createdConfiguration = deserialize(resultCreate, ConfigurationDTO.class);
 
-        var diffResult = mockMvc.perform(get(BASE_URL + "/" + createdConfiguration.name() + "/versions/" + createdConfiguration.version() + "/compare/" + createdConfiguration.version()))
+        var diffResult = mockMvc.perform(get(BASE_URL + "/" + createdConfiguration.name() + "/versions/" + createdConfiguration.version().hash() + "/compare/" + createdConfiguration.version().hash()))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -363,7 +365,7 @@ public class ConfigurationControllerIntegrationTest {
                 .andReturn();
         var createdConfiguration = deserialize(resultCreate, ConfigurationDTO.class);
 
-        var diffResult = mockMvc.perform(get(BASE_URL + "/" + createdConfiguration.name() + "/versions/" + createdConfiguration.version() + "/compare/" + createdConfiguration.version() + "?includeUnchanged=true"))
+        var diffResult = mockMvc.perform(get(BASE_URL + "/" + createdConfiguration.name() + "/versions/" + createdConfiguration.version().hash() + "/compare/" + createdConfiguration.version().hash() + "?includeUnchanged=true"))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -386,7 +388,7 @@ public class ConfigurationControllerIntegrationTest {
                 .andReturn();
         var createdConfiguration = deserialize(resultCreate, ConfigurationDTO.class);
 
-        var newConfiguration = DtoGen.generateRandomizedConfigurationDTO(TEST_CONFIGURATION_NAME, createdConfiguration.version(), 2, 5, 0);
+        var newConfiguration = DtoGen.generateRandomizedConfigurationDTO(TEST_CONFIGURATION_NAME, createdConfiguration.version().hash(), 2, 5, 0);
         var newConfigurationJson = jsonify(newConfiguration);
 
         var resultUpdate = mockMvc.perform(put(BASE_URL)
@@ -396,7 +398,7 @@ public class ConfigurationControllerIntegrationTest {
                 .andReturn();
         var updatedConfiguration = deserialize(resultUpdate, ConfigurationDTO.class);
 
-        var diffResult = mockMvc.perform(get(BASE_URL + "/" + createdConfiguration.name() + "/versions/" + updatedConfiguration.version() + "/compare/" + createdConfiguration.version()))
+        var diffResult = mockMvc.perform(get(BASE_URL + "/" + createdConfiguration.name() + "/versions/" + updatedConfiguration.version().hash() + "/compare/" + createdConfiguration.version().hash()))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -442,7 +444,7 @@ public class ConfigurationControllerIntegrationTest {
                 .andReturn();
         var updatedConfiguration = deserialize(resultUpdate, ConfigurationDTO.class);
 
-        var diffResult = mockMvc.perform(get(BASE_URL + "/" + createdConfiguration.name() + "/versions/" + updatedConfiguration.version() + "/compare/" + createdConfiguration.version()))
+        var diffResult = mockMvc.perform(get(BASE_URL + "/" + createdConfiguration.name() + "/versions/" + updatedConfiguration.version().hash() + "/compare/" + createdConfiguration.version().hash()))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -477,7 +479,7 @@ public class ConfigurationControllerIntegrationTest {
                 .andReturn();
         var updatedConfiguration = deserialize(resultUpdate, ConfigurationDTO.class);
 
-        var diffResult = mockMvc.perform(get(BASE_URL + "/" + createdConfiguration.name() + "/versions/" + updatedConfiguration.version() + "/compare/" + createdConfiguration.version()))
+        var diffResult = mockMvc.perform(get(BASE_URL + "/" + createdConfiguration.name() + "/versions/" + updatedConfiguration.version().hash() + "/compare/" + createdConfiguration.version().hash()))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -504,7 +506,7 @@ public class ConfigurationControllerIntegrationTest {
                 .andReturn();
         var createdConfiguration = deserialize(resultCreate, ConfigurationDTO.class);
 
-        var resultCheckout = mockMvc.perform(post(BASE_URL + "/" + createdConfiguration.name() + "/versions/" + createdConfiguration.version() + "/checkout"))
+        var resultCheckout = mockMvc.perform(post(BASE_URL + "/" + createdConfiguration.name() + "/versions/" + createdConfiguration.version().hash() + "/checkout"))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -527,7 +529,7 @@ public class ConfigurationControllerIntegrationTest {
                 .andReturn();
         var createdConfiguration = deserialize(resultCreate, ConfigurationDTO.class);
 
-        var newConfiguration = DtoGen.generateRandomizedConfigurationDTO(TEST_CONFIGURATION_NAME, createdConfiguration.version(), 2, 5, 0);
+        var newConfiguration = DtoGen.generateRandomizedConfigurationDTO(TEST_CONFIGURATION_NAME, createdConfiguration.version().hash(), 2, 5, 0);
         var newConfigurationJson = jsonify(newConfiguration);
 
         mockMvc.perform(put(BASE_URL)
@@ -536,7 +538,7 @@ public class ConfigurationControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        var resultCheckout = mockMvc.perform(post(BASE_URL + "/" + createdConfiguration.name() + "/versions/" + createdConfiguration.version() + "/checkout"))
+        var resultCheckout = mockMvc.perform(post(BASE_URL + "/" + createdConfiguration.name() + "/versions/" + createdConfiguration.version().hash() + "/checkout"))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -565,7 +567,7 @@ public class ConfigurationControllerIntegrationTest {
                 .andReturn();
         var createdConfiguration = deserialize(resultCreate, ConfigurationDTO.class);
 
-        var resultReset = mockMvc.perform(post(BASE_URL + "/" + createdConfiguration.name() + "/versions/" + createdConfiguration.version() + "/reset"))
+        var resultReset = mockMvc.perform(post(BASE_URL + "/" + createdConfiguration.name() + "/versions/" + createdConfiguration.version().hash() + "/reset"))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -588,7 +590,7 @@ public class ConfigurationControllerIntegrationTest {
                 .andReturn();
         var createdConfiguration = deserialize(resultCreate, ConfigurationDTO.class);
 
-        var newConfiguration = DtoGen.generateRandomizedConfigurationDTO(TEST_CONFIGURATION_NAME, createdConfiguration.version(), 2, 5, 0);
+        var newConfiguration = DtoGen.generateRandomizedConfigurationDTO(TEST_CONFIGURATION_NAME, createdConfiguration.version().hash(), 2, 5, 0);
         var newConfigurationJson = jsonify(newConfiguration);
 
         mockMvc.perform(put(BASE_URL)
@@ -597,7 +599,7 @@ public class ConfigurationControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        var resultReset = mockMvc.perform(post(BASE_URL + "/" + createdConfiguration.name() + "/versions/" + createdConfiguration.version() + "/reset"))
+        var resultReset = mockMvc.perform(post(BASE_URL + "/" + createdConfiguration.name() + "/versions/" + createdConfiguration.version().hash() + "/reset"))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -606,6 +608,89 @@ public class ConfigurationControllerIntegrationTest {
                 .hasName(TEST_CONFIGURATION_NAME)
                 .hasValidVersion()
                 .containsSameElementsAs(originalConfiguration);
+    }
+
+    @Test
+    public void testCreateConfiguration_withCustomVersionName_shouldReturnConfigurationDTO() throws Exception {
+        var originalConfiguration = new ConfigurationDTO(
+                TEST_CONFIGURATION_NAME,
+                new ConfigurationVersionDTO(null, null, "custom-name"),
+                null
+        );
+        var configurationJson = jsonify(originalConfiguration);
+
+        var response = mockMvc.perform(post(BASE_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(configurationJson))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        var responseConfiguration = deserialize(response, ConfigurationDTO.class);
+        ConfigurationDTOAssert.assertThat(responseConfiguration)
+                .hasName(TEST_CONFIGURATION_NAME)
+                .hasValidVersion()
+                .hasVersionCustomName("custom-name");
+    }
+
+    @Test
+    public void testUpdateConfiguration_withCustomVersionName_shouldReturnConfigurationDTO() throws Exception {
+        var originalConfiguration = new ConfigurationDTO(
+                TEST_CONFIGURATION_NAME,
+                new ConfigurationVersionDTO(null, null, null),
+                null
+        );
+        var configurationJson = jsonify(originalConfiguration);
+
+        var result = mockMvc.perform(post(BASE_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(configurationJson))
+                .andExpect(status().isOk())
+                .andReturn();
+        var createdConfiguration = deserialize(result, ConfigurationDTO.class);
+        var updatedConfiguration = new ConfigurationDTO(
+                TEST_CONFIGURATION_NAME,
+                new ConfigurationVersionDTO(createdConfiguration.version().hash(), null, "custom-name"),
+                null
+        );
+        var updatedConfigurationJson = jsonify(updatedConfiguration);
+
+        var updateResult = mockMvc.perform(put(BASE_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updatedConfigurationJson))
+                .andExpect(status().isOk())
+                .andReturn();
+        var updatedConfigurationResult = deserialize(updateResult, ConfigurationDTO.class);
+
+        ConfigurationDTOAssert.assertThat(updatedConfigurationResult)
+                .hasName(TEST_CONFIGURATION_NAME)
+                .hasValidVersion()
+                .hasVersionCustomName("custom-name");
+    }
+
+    @Test
+    public void testRenameConfiguration_existingConfiguration_shouldReturnConfigurationDTO() throws Exception {
+        var originalConfiguration = new ConfigurationDTO(
+                TEST_CONFIGURATION_NAME,
+                new ConfigurationVersionDTO(null, null, null),
+                null
+        );
+        var configurationJson = jsonify(originalConfiguration);
+
+        var result = mockMvc.perform(post(BASE_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(configurationJson))
+                .andExpect(status().isOk())
+                .andReturn();
+        var createdConfiguration = deserialize(result, ConfigurationDTO.class);
+
+        var updateResult = mockMvc.perform(put(BASE_URL + "/" + createdConfiguration.name() + "/rename?newName=updated-name")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+        var updatedConfigurationResult = deserialize(updateResult, ConfigurationDTO.class);
+
+        ConfigurationDTOAssert.assertThat(updatedConfigurationResult)
+                .hasName("updated-name");
     }
 
     @SneakyThrows(JsonProcessingException.class)

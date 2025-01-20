@@ -36,12 +36,22 @@ public class ConfigurationDTOAssert extends AbstractObjectAssert<ConfigurationDT
         return this;
     }
 
+    public ConfigurationDTOAssert hasVersionName(@NonNull String versionName) {
+        isNotNull();
+        Assertions.assertThat(actual.version().name()).isEqualTo(versionName);
+        return this;
+    }
+
+    public ConfigurationDTOAssert hasVersionCustomName(@NonNull String versionCustomName) {
+        isNotNull();
+        Assertions.assertThat(actual.version().customName()).isEqualTo(versionCustomName);
+        return this;
+    }
+
     public ConfigurationDTOAssert hasValidVersion() {
         isNotNull();
         Assertions.assertThat(actual.version())
-                .isNotNull()
-                .isNotBlank()
-                .hasSize(40);
+                .isNotNull();
         return this;
     }
 

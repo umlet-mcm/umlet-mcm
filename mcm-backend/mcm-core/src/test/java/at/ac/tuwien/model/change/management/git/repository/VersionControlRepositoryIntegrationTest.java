@@ -213,7 +213,7 @@ public class VersionControlRepositoryIntegrationTest {
         var commit3 = createCommit(TEST_REPOSITORY_NAME);
 
         Assertions.assertThat(versionControlRepository.listVersions(TEST_REPOSITORY_NAME))
-                        .containsExactly(commit3, commit2, commit1);
+                .containsExactly(commit3, commit2, commit1);
 
         versionControlRepository.resetToVersion(TEST_REPOSITORY_NAME, commit2);
 
@@ -230,6 +230,6 @@ public class VersionControlRepositoryIntegrationTest {
     private String createCommit(String repositoryName) {
         var configuration = new Configuration();
         configuration.setName(repositoryName);
-        return configurationRepository.saveConfiguration(configuration).getVersion();
+        return configurationRepository.saveConfiguration(configuration).getVersionHash();
     }
 }

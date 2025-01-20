@@ -6,10 +6,10 @@ import at.ac.tuwien.model.change.management.core.model.Model;
 import at.ac.tuwien.model.change.management.git.repository.ConfigurationRepository;
 import at.ac.tuwien.model.change.management.git.repository.VersionControlRepository;
 import at.ac.tuwien.model.change.management.testutil.MockConfigurationRepository;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -69,6 +69,6 @@ public class ModelServiceTest {
     }
 
     private String findVersionByName(String name) {
-        return configurationRepository.findCurrentVersionOfConfigurationByName(name).orElseThrow().getVersion();
+        return configurationRepository.findCurrentVersionOfConfigurationByName(name).orElseThrow().getVersionHash();
     }
 }

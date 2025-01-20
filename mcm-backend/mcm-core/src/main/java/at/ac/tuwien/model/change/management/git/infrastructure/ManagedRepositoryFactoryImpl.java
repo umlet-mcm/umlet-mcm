@@ -76,7 +76,7 @@ public class ManagedRepositoryFactoryImpl implements ManagedRepositoryFactory {
     private Path resolveRepositoryPath(String name) {
         var repositoriesDir = getRepositoriesDir();
         var repositoryPath = repositoriesDir.resolve(name).normalize();
-        if (! repositoryPath.startsWith(repositoriesDir)) {
+        if (!repositoryPath.startsWith(repositoriesDir)) {
             throw new RepositoryAccessException("Attempted to access repository outside of: " + repositoriesDir);
         }
         return repositoryPath;

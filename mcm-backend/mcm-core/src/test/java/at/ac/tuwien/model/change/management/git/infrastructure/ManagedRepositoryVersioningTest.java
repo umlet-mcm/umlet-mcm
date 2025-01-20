@@ -800,6 +800,129 @@ public class ManagedRepositoryVersioningTest {
         Assertions.assertThat(versioning.listVersions()).containsExactly(commitHash1);
     }
 
+    @Test
+    public void testTagCommit_tagExistingCommit_shouldTagCommit() {
+        versioning.init();
+        var commitHash = versioning.commit("Test commit", true);
+        var tagName = "testTag";
+        versioning.tagCommit(commitHash, tagName);
+        Assertions.assertThat(versioning.listTagsForCommit(commitHash)).containsExactly(tagName);
+    }
+
+    @Test
+    public void testTagCommit_tagNonExistingCommit_shouldThrowRepositoryVersioningException() {
+        versioning.init();
+        var commitHash = versioning.commit("Test commit", true);
+        var nonExistingCommitHash = commitHash + "123";
+        var tagName = "testTag";
+        Assertions.assertThatThrownBy(() -> versioning.tagCommit(nonExistingCommitHash, tagName))
+                .isInstanceOf(RepositoryVersioningException.class);
+    }
+
+    @Test
+    public void testTagCommit_tagExistingCommitWithExistingTag_shouldThrowRepositoryVersioningException() {
+        versioning.init();
+        var commitHash = versioning.commit("Test commit", true);
+        var tagName = "testTag";
+        versioning.tagCommit(commitHash, tagName);
+        Assertions.assertThatThrownBy(() -> versioning.tagCommit(commitHash, tagName))
+                .isInstanceOf(RepositoryVersioningException.class);
+    }
+
+    @Test
+    public void testTagCommit_repositoryNotInitialized_shouldThrowRepositoryVersioningException() {
+        var commitHash = "commitHash";
+        var tagName = "testTag";
+        Assertions.assertThatThrownBy(() -> versioning.tagCommit(commitHash, tagName))
+                .isInstanceOf(RepositoryVersioningException.class);
+    }
+
+    @Test
+    public void testListTagsForCommit_commitWithNoTags_shouldReturnEmptyList() {
+        versioning.init();
+        var commitHash = versioning.commit("Test commit", true);
+        Assertions.assertThat(versioning.listTagsForCommit(commitHash)).isEmpty();
+    }
+
+    @Test
+    public void testListTagsForCommit_commitWithOneTag_shouldReturnListWithOneTag() {
+        versioning.init();
+        var commitHash = versioning.commit("Test commit", true);
+        var tagName = "testTag";
+        versioning.tagCommit(commitHash, tagName);
+        Assertions.assertThat(versioning.listTagsForCommit(commitHash)).containsExactly(tagName);
+    }
+
+    @Test
+    public void testListTagsForCommit_commitWithMultipleTags_shouldReturnListWithAllTags() {
+        versioning.init();
+        var commitHash = versioning.commit("Test commit", true);
+        var tagNames = List.of("testTag1", "testTag2", "testTag3");
+        tagNames.forEach(tagName -> versioning.tagCommit(commitHash, tagName));
+        Assertions.assertThat(versioning.listTagsForCommit(commitHash)).containsExactlyElementsOf(tagNames);
+    }
+
+    @Test
+    public void testListTagsForCommit_nonExistingCommit_shouldThrowRepositoryVersioningException() {
+        versioning.init();
+        var commitHash = versioning.commit("Test commit", true);
+        var nonExistingCommitHash = commitHash + "123";
+        Assertions.assertThatThrownBy(() -> versioning.listTagsForCommit(nonExistingCommitHash))
+                .isInstanceOf(RepositoryVersioningException.class);
+    }
+
+    @Test
+    public void testListTagsForCommit_repositoryNotInitialized_shouldThrowRepositoryVersioningException() {
+        var commitHash = "commitHash";
+        Assertions.assertThatThrownBy(() -> versioning.listTagsForCommit(commitHash))
+                .isInstanceOf(RepositoryVersioningException.class);
+    }
+
+    @Test
+    public void testListTags_noTags_shouldReturnEmptyList() {
+        versioning.init();
+        Assertions.assertThat(versioning.listTags()).isEmpty();
+    }
+
+    @Test
+    public void testListTags_oneTag_shouldReturnListWithOneTag() {
+        versioning.init();
+        var commitHash = versioning.commit("Test commit", true);
+        var tagName = "testTag";
+        versioning.tagCommit(commitHash, tagName);
+        Assertions.assertThat(versioning.listTags()).containsExactly(tagName);
+    }
+
+    @Test
+    public void testListTags_multipleTags_shouldReturnListWithAllTags() {
+        versioning.init();
+        var commitHash = versioning.commit("Test commit", true);
+        var tagNames = List.of("testTag1", "testTag2", "testTag3");
+        tagNames.forEach(tagName -> versioning.tagCommit(commitHash, tagName));
+        Assertions.assertThat(versioning.listTags()).containsExactlyElementsOf(tagNames);
+    }
+
+    @Test
+    public void testListTags_repositoryWithMultipleCommitsAndTags_shouldReturnListWithAllTags() {
+        versioning.init();
+        var commitHash1 = versioning.commit("Test commit 1", true);
+        var commitHash2 = versioning.commit("Test commit 2", true);
+        var commitHash3 = versioning.commit("Test commit 3", true);
+        var tag1 = "testTag1";
+        var tag2 = "testTag2";
+        var tag3 = "testTag3";
+        versioning.tagCommit(commitHash1, tag1);
+        versioning.tagCommit(commitHash2, tag2);
+        versioning.tagCommit(commitHash3, tag3);
+        Assertions.assertThat(versioning.listTags()).containsExactlyInAnyOrder(tag1, tag2, tag3);
+    }
+
+    @Test
+    public void testListTags_repositoryNotInitialized_shouldThrowRepositoryVersioningException() {
+        Assertions.assertThatThrownBy(() -> versioning.listTags())
+                .isInstanceOf(RepositoryVersioningException.class);
+    }
+
     @SneakyThrows(IOException.class)
     private Repository getJGitRepository() {
         return new FileRepositoryBuilder()

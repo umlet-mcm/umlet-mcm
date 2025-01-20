@@ -1,5 +1,6 @@
 package at.ac.tuwien.model.change.management.git.util;
 
+import at.ac.tuwien.model.change.management.git.exception.RepositoryAlreadyExistsException;
 import lombok.NonNull;
 
 import javax.annotation.Nonnull;
@@ -15,13 +16,22 @@ import java.nio.file.attribute.BasicFileAttributes;
 public final class PathUtils {
     private final static String SYSTEM_SEPARATOR = File.separator;
     private final static String UNIX_SEPARATOR = "/";
-    private PathUtils() {}
+
+    private PathUtils() {
+    }
 
     public static String normalizePath(@NonNull final String path) {
         return path.replace(SYSTEM_SEPARATOR, UNIX_SEPARATOR);
     }
 
-    public static boolean deleteFilesRecursively(@Nullable Path root) throws IOException{
+    public static boolean renameFile(@NonNull Path source, @NonNull Path target) throws IOException {
+        if (Files.exists(target)) {
+            throw new RepositoryAlreadyExistsException("Cannot rename " + source + " to " + target + " because target already exists.");
+        }
+        return source.toFile().renameTo(target.toFile());
+    }
+
+    public static boolean deleteFilesRecursively(@Nullable Path root) throws IOException {
         return deleteFilesRecursively(root, false);
     }
 
@@ -35,7 +45,7 @@ public final class PathUtils {
         Files.walkFileTree(root, new SimpleFileVisitor<>() {
             @Override
             public @Nonnull FileVisitResult visitFile(Path file, @Nonnull BasicFileAttributes attrs) throws IOException {
-                if (! Files.isWritable(file) && ! file.toFile().setWritable(true)) {
+                if (!Files.isWritable(file) && !file.toFile().setWritable(true)) {
                     throw new IOException("Cannot delete " + file + " because it is not writable. " +
                             "Setting file to writable was attempted and failed.");
                 }
@@ -49,7 +59,7 @@ public final class PathUtils {
                     return FileVisitResult.CONTINUE;
                 }
 
-                if (! Files.isWritable(dir) && ! dir.toFile().setWritable(true)) {
+                if (!Files.isWritable(dir) && !dir.toFile().setWritable(true)) {
                     throw new IOException("Cannot delete " + dir + " because it is not writable. " +
                             "Setting directory to writable was attempted and failed.");
                 }

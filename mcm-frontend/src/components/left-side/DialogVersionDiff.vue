@@ -53,7 +53,8 @@ const compareVersions = async () => {
   isLoading.value = true
   try {
     const diffResult = await compareTwoVersions(props.currentConfiguration.name, firstSelected.value, secondSelected.value)
-    const diffJson = parse(diffResult)
+    // join all the diffs into a single string
+    const diffJson = parse(diffResult.map((diff) => diff.content).join('\n'))
 
     if(diffJson.length === 0) {
       errorMessage.value = "No differences found between the two versions"
@@ -120,7 +121,7 @@ const compareVersions = async () => {
               </Select>
             </div>
             <div class="flex flex-col items-center">
-              <Button :disabled="!firstSelected || !secondSelected || (firstSelected === secondSelected)" @click="compareVersions">
+              <Button :disabled="!firstSelected || !secondSelected || (firstSelected === secondSelected) || isLoading" @click="compareVersions">
                 <LoaderCircleIcon v-if="isLoading" class="animate-spin"/>
                 <Diff v-else class="mr-2" />
                 Compare

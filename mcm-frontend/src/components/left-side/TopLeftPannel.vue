@@ -1,12 +1,15 @@
 <script setup lang="ts">
 
 import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
-import {GitGraph, Settings} from "lucide-vue-next";
+import {Settings} from "lucide-vue-next";
 import {Button} from "@/components/ui/button";
 import {Configuration} from "@/types/Configuration.ts";
+import {Model} from "@/types/Model.ts";
 import {ref, watch} from "vue";
 import AlertConfirmation from "@/components/left-side/AlertConfirmation.vue";
 import DialogSettings from "@/components/left-side/DialogSettings.vue";
+import {checkoutConfiguration} from "@/api/configuration.ts";
+import { useToast } from '@/components/ui/toast/use-toast'
 
 // props related
 const props = defineProps({
@@ -14,22 +17,59 @@ const props = defineProps({
     type: Object as () => Configuration,
     required: true
   },
+  selectedModel: {
+    type: Object as () => Model,
+    required: false
+  },
   versionList: {
     type: Array as () => string[],
     required: true
   }
 });
-const emit = defineEmits(["update:selectedConfiguration"]);
+
+/**
+ * @emits {Model} update:selectedModel, selected model
+ * @emits {Configuration} update:selectedConfiguration, selected configuration
+ */
+const emit = defineEmits<{
+  'update:selectedModel': [value: Model | undefined],
+  'update:selectedConfiguration': [value: Configuration]
+}>()
 
 // variables
 const isDialogOpen = ref({settings: false, confirmation: false})
 const selectedVersion = ref<string | undefined>(props.selectedConfiguration.version)
+const { toast } = useToast()
 
 // functions
-function confirmLoadVersion() {
-  isDialogOpen.value.confirmation = false
-  //todo load the selected version
-  // emit('update:selectedConfiguration', newConfiguration)
+async function confirmLoadVersion() {
+  if(!selectedVersion.value) return
+  try{
+    const newConfiguration = await checkoutConfiguration(props.selectedConfiguration.name, selectedVersion.value)
+    isDialogOpen.value.confirmation = false
+    emit('update:selectedConfiguration', newConfiguration)
+    if(props.selectedModel) {
+      const model: Model|undefined = newConfiguration.models.find(model => model.id === props.selectedModel!.id)
+      if(model) {
+        // if the current model is in the loaded configuration, update it
+        emit('update:selectedModel', model)
+      } else {
+        // if the current model is not in the configuration, deselect it
+        emit('update:selectedModel', undefined)
+      }
+    }
+
+    toast({
+      title: 'Successfully loaded the new version',
+      duration: 3000,
+    });
+  } catch(error: any) {
+    console.log(error.response?.data?.message || error.message)
+  }
+}
+
+const rejectLoadVersion = () => {
+  selectedVersion.value = props.selectedConfiguration.version
 }
 
 /*
@@ -39,6 +79,12 @@ function confirmLoadVersion() {
 watch(() => props.selectedConfiguration.version, async (newVersion, oldVersion) => {
   if (newVersion !== oldVersion) {
     selectedVersion.value = props.selectedConfiguration.version
+  }
+})
+
+watch(() => selectedVersion.value, (newVersion, oldVersion) => {
+  if (newVersion !== oldVersion && newVersion !== props.selectedConfiguration.version) {
+    isDialogOpen.value.confirmation = true
   }
 })
 </script>
@@ -66,9 +112,6 @@ watch(() => props.selectedConfiguration.version, async (newVersion, oldVersion) 
           </SelectGroup>
         </SelectContent>
       </Select>
-      <Button v-if="selectedVersion !== props.selectedConfiguration.version" class="p-2" size="icon" v-tooltip="'Checkout'" @click="isDialogOpen.confirmation = true">
-        <GitGraph />
-      </Button>
     </div>
   </div>
 
@@ -81,6 +124,7 @@ watch(() => props.selectedConfiguration.version, async (newVersion, oldVersion) 
   <!-- Alert dialog to load a new configuration version -->
   <AlertConfirmation
       :on-confirm="confirmLoadVersion"
+      :on-reject="rejectLoadVersion"
       dialog-title="Load this version?"
       dialog-description=""
       dialog-content="All of your unsaved modifications will be deleted."

@@ -1,4 +1,5 @@
 import axios from "axios"
+import {Configuration} from "@/types/Configuration.ts";
 
 const apiClient = axios.create({
     baseURL: '/api/v1',
@@ -36,6 +37,32 @@ export const exportToCsv = async (filename: string) => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    } catch (error) {
+        throw error;
+    }
+}
+
+/**
+ * Load a configuration into the graph database
+ * @param configuration
+ */
+export const loadConfigurationDatabase = async (configuration: Configuration) => {
+    try {
+        //reset the database first
+        await apiClient.delete('/graphdb')
+        const response = await apiClient.post('/graphdb/configuration/' + configuration.name);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+/**
+ * Save the current state of the neo4J database to the repository
+ */
+export const saveNeo4JToRepository = async () => {
+    try {
+        await apiClient.post('/graphdb/save');
     } catch (error) {
         throw error;
     }

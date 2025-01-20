@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Configuration } from '@/types/Configuration.ts'
 import ModelList from "@/components/left-side/ModelList.vue"
-import {FileUp, Save, FileOutput, FileInput, FileStack, HelpCircle} from 'lucide-vue-next'
+import {FileUp, FileOutput, FileInput, FileStack, HelpCircle, Diff} from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
 import DialogMerge from "@/components/left-side/DialogMerge.vue";
 import {onMounted, ref, watch} from "vue";
@@ -13,9 +13,11 @@ import DialogExport from "@/components/left-side/DialogExport.vue";
 import DialogUploadUXF from "@/components/left-side/DialogUploadUXF.vue";
 import TopLeftPannel from "@/components/left-side/TopLeftPannel.vue";
 import DialogVersionDiff from "@/components/left-side/DialogVersionDiff.vue";
-import {getConfigurationVersions} from "@/api/configuration.ts";
+import {listConfigurationVersions} from "@/api/configuration.ts";
 import AlertConfirmation from "@/components/left-side/AlertConfirmation.vue";
 import {deleteModelFromConfig} from "@/api/model.ts";
+import SaveButton from "@/components/left-side/SaveButton.vue";
+import { useToast } from '@/components/ui/toast/use-toast'
 
 /**
  * @param {Model} selectedModel, selected model to display (if any)
@@ -44,6 +46,7 @@ const emit = defineEmits<{
 // variables
 const isDialogOpen = ref({merge: false, settings: false, export: false, upload: false, confirmation: false, versionDiff:false})
 const versionList = ref<string[]>([])
+const { toast } = useToast()
 
 // functions
 /**
@@ -87,6 +90,11 @@ const confirmDeletion = async () => {
       props.selectedConfiguration.models.splice(index, 1)
       emit('update:selectedModel', undefined)
       isDialogOpen.value.confirmation = false
+
+      toast({
+        title: 'New version has been created',
+        duration: 3000,
+      });
     } catch (error: any) {
       console.error(error)
       isDialogOpen.value.confirmation = false
@@ -100,7 +108,12 @@ const confirmDeletion = async () => {
  */
 watch(() => props.selectedConfiguration.version, async (newVersion, oldVersion) => {
   if (newVersion !== oldVersion) {
-    versionList.value = await getConfigurationVersions(props.selectedConfiguration.name, props.selectedConfiguration.version)
+    try {
+      versionList.value = await listConfigurationVersions(props.selectedConfiguration.name)
+    } catch (e) {
+      versionList.value = [props.selectedConfiguration.version]
+      console.error(e)
+    }
   }
 })
 
@@ -110,8 +123,7 @@ watch(() => props.selectedConfiguration.version, async (newVersion, oldVersion) 
  */
 onMounted(async () => {
   try {
-    // todo the second argument will be deleted when the backend is ready
-    versionList.value = await getConfigurationVersions(props.selectedConfiguration.name, props.selectedConfiguration.version)
+    versionList.value = await listConfigurationVersions(props.selectedConfiguration.name)
   } catch (e) {
     versionList.value = [props.selectedConfiguration.version]
     console.error(e)
@@ -123,7 +135,9 @@ onMounted(async () => {
   <div class="w-64 border-r border-border p-4 flex flex-col gap-4 bg-primary-foreground">
     <TopLeftPannel
         :selectedConfiguration="selectedConfiguration"
+        :selected-model="selectedModel"
         @update:selectedConfiguration="emit('update:selectedConfiguration', $event)"
+        @update:selectedModel="emit('update:selectedModel', $event)"
         :versionList="versionList"
     />
     <Separator />
@@ -140,10 +154,12 @@ onMounted(async () => {
             <FileUp class="mr-2" />
             Open new configuration
           </Button>
-          <Button variant="outline" class="w-full justify-start" @click="placeholder">
-            <Save class="mr-2" />
-            Save configuration
-          </Button>
+          <SaveButton
+              :selectedConfiguration="selectedConfiguration"
+              @update:selectedConfiguration="emit('update:selectedConfiguration', $event)"
+              :selected-model="selectedModel"
+              @update:selectedModel="emit('update:selectedModel', $event)"
+          />
           <Button variant="outline" class="w-full justify-start" @click="isDialogOpen.upload = true">
             <FileInput class="mr-2" />
             Import UXF file
@@ -153,7 +169,7 @@ onMounted(async () => {
             Export to UXF / CSV
           </Button>
           <Button variant="outline" class="w-full justify-start" @click="isDialogOpen.versionDiff = true">
-            <FileOutput class="mr-2" />
+            <Diff class="mr-2" />
             Version diff
           </Button>
         </div>

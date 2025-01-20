@@ -29,18 +29,18 @@ public class RelationUtils {
      * only the bounding box. This may result in inconsistencies between Umlet and the stored
      * model.
      *
-     * @param element  The node to be checked
-     * @param endPoint One endpoint of a relation
+     * @param element   The node to be checked
+     * @param endPoint  One endpoint of a relation
      * @param tolerance Consider points within +-x pixels connected
      * @return True if the relation and the node is considered connected, false otherwise
      */
     public static boolean isConnected(Node element, Point endPoint, int tolerance) {
         Point tl = new Point(
-                element.getUmletPosition().getX() -tolerance,
-                element.getUmletPosition().getY()-tolerance);
+                element.getUmletPosition().getX() - tolerance,
+                element.getUmletPosition().getY() - tolerance);
         Point br = new Point(
-                element.getUmletPosition().getX() + element.getUmletPosition().getWidth()+tolerance,
-                element.getUmletPosition().getY() + element.getUmletPosition().getHeight()+tolerance);
+                element.getUmletPosition().getX() + element.getUmletPosition().getWidth() + tolerance,
+                element.getUmletPosition().getY() + element.getUmletPosition().getHeight() + tolerance);
 
         boolean b1 = endPoint.x() >= tl.x();
         boolean b2 = endPoint.x() <= br.x();
@@ -64,7 +64,6 @@ public class RelationUtils {
         Model res = new Model();
         res.setId(original.getId());
         res.setTags(original.getTags());
-        res.setOriginalText(original.getOriginalText());
         res.setTitle(original.getTitle());
         res.setDescription(original.getDescription());
         res.setMcmAttributes(original.getMcmAttributes());
@@ -128,7 +127,7 @@ public class RelationUtils {
             for (Node n : res.getNodes()) {
                 log.debug(n.toString());
                 // find source
-                if (RelationUtils.isConnected(n, newRelation.getStartPoint(),RELATION_CONNECTED_TOLERANCE)) {
+                if (RelationUtils.isConnected(n, newRelation.getStartPoint(), RELATION_CONNECTED_TOLERANCE)) {
                     if (forward) {
                         n.getRelations().add(newRelation);
                     }

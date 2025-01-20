@@ -73,7 +73,6 @@ public class Relation extends ElementAttributes {
         r.setType(lt);
         r.setUmletPosition(source.getUmletPosition());
         r.setUmletAttributes(source.getUmletAttributes());
-        r.setOriginalText(source.getOriginalText());
         r.setId(source.getId());
         r.setTags(source.getTags());
         r.setMcmModel(source.getMcmModel());

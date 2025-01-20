@@ -19,11 +19,10 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(classes = {
         RelativePositionDSLMapperImpl.class,
         NodeDSLMapperImpl.class,
-        PropertiesDSLMapperImpl.class,
-        PanelAttributesDSLMapperImpl.class,
+        KeyValuesDSLMapperImpl.class,
         CoordinatesDSLMapperImpl.class,
         RelationDSLMapperImpl.class,
-        RelationEndpointDSLMapperImpl.class,
+        RelationEndpointDSLMapperImpl.class
 })
 public class RelationDSLMapperImplTest {
 
@@ -43,10 +42,10 @@ public class RelationDSLMapperImplTest {
         relation.setUmletPosition(new UMLetPosition(10, 20, 30, 40));
         relation.setPprType("TestMcmType");
         relation.setType("line");
-        relation.setOriginalText("Original Text");
         relation.setMcmModel("MCM Model");
         relation.setMcmModelId("6c1d704c-7535-4020-a8a4-8ef39b9cd22e");
         relation.setUmletAttributes(new LinkedHashMap<>(Map.of("key1", "value1")));
+        relation.setMcmAttributesInlineComments(new LinkedHashMap<>(Map.of("key1", "comment1")));
 
         Node source = new Node();
         source.setId("sourceId");
@@ -59,9 +58,9 @@ public class RelationDSLMapperImplTest {
         assertEquals(relation.getDescription(), result.getDescription());
         assertNotNull(result.getProperties());
         assertEquals(2, result.getProperties().size());
+        assertEquals(relation.getMcmAttributesInlineComments().size(), result.getPropertiesInlineComments().size());
         assertEquals(relation.getPprType(), result.getPprType());
         assertEquals(relation.getType(), result.getElementType());
-        assertEquals(relation.getOriginalText(), result.getMetadata().getOriginalText());
         assertEquals(relation.getMcmModel(), result.getMcmModel());
         assertEquals(relation.getMcmModelId(), result.getMcmModelId());
 
@@ -93,11 +92,11 @@ public class RelationDSLMapperImplTest {
         relationDSL.setElementType("line");
         relationDSL.setMcmModel("MCM Model");
         relationDSL.setMcmModelId("6c1d704c-7535-4020-a8a4-8ef39b9cd22e");
+        relationDSL.setPropertiesInlineComments(List.of(new KeyValueDSL("key1", "comment1")));
 
         MetadataDSL metadata = new MetadataDSL();
         metadata.setCoordinates(new CoordinatesDSL(10, 20, 30, 40));
-        metadata.setPanelAttributes(List.of(new PanelAttributeDSL("key1", "value1")));
-        metadata.setOriginalText("Original Text");
+        metadata.setPanelAttributes(List.of(new KeyValueDSL("key1", "value1")));
 
         PositionsDSL positions = new PositionsDSL();
         positions.setRelativeStartPoint(new RelativePositionDSL(10, 20, 30, 40));
@@ -106,9 +105,9 @@ public class RelationDSLMapperImplTest {
         metadata.setPositions(positions);
         relationDSL.setMetadata(metadata);
 
-        List<PropertyDSL> properties = List.of(
-                new PropertyDSL("key1", "value1"),
-                new PropertyDSL("key2", "value2")
+        List<KeyValueDSL> properties = List.of(
+                new KeyValueDSL("key1", "value1"),
+                new KeyValueDSL("key2", "value2")
         );
         relationDSL.setProperties(properties);
 
@@ -127,13 +126,13 @@ public class RelationDSLMapperImplTest {
         assertEquals(relationDSL.getElementType(), result.getType());
         assertEquals(relationDSL.getMcmModel(), result.getMcmModel());
         assertEquals(relationDSL.getMcmModelId(), result.getMcmModelId());
+        assertEquals(relationDSL.getPropertiesInlineComments().size(), result.getMcmAttributesInlineComments().size());
 
         assertNotNull(result.getTags());
         assertEquals(relationDSL.getTags(), result.getTags());
 
         assertNotNull(result.getUmletAttributes());
         assertEquals(metadata.getPanelAttributes().size(), result.getUmletAttributes().size());
-        assertEquals(metadata.getOriginalText(), result.getOriginalText());
 
         assertNotNull(result.getMcmAttributes());
         assertEquals(relationDSL.getProperties().size(), result.getMcmAttributes().size());

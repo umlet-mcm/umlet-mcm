@@ -13,9 +13,9 @@ import java.util.List;
 @Getter
 @Setter
 public class BaseAttributesUxf {
-    protected String originalText;
     protected String description;
     protected LinkedHashMap<String, Object> mcmAttributes;
+    protected LinkedHashMap<String, String> mcmAttributesInlineComments;
 
     @Override
     public String toString() {
@@ -30,7 +30,7 @@ public class BaseAttributesUxf {
             for (var kv : mcmAttributes.entrySet()) {
                 if (kv.getValue() instanceof List<?>) {
                     sb.append("// " + kv.getKey() + ": ");
-                    if (((List<?>) kv.getValue()).size() > 0) {
+                    if (!((List<?>) kv.getValue()).isEmpty()) {
                         for (Object v : (List<?>) kv.getValue()) {
                             if (v instanceof String) { // strings should have enclosing "s when exported to uxf
                                 sb.append("\"" + v + "\"");
@@ -42,7 +42,7 @@ public class BaseAttributesUxf {
                         }
                         sb.delete(sb.length() - 2, sb.length()); // remove trailing ", "
                     }
-                    sb.append("\n");
+
                 } else {
                     if (kv.getValue() == null) {
                         continue;
@@ -52,8 +52,15 @@ public class BaseAttributesUxf {
                     if (kv.getValue() instanceof String) {
                         newVal = "\"" + kv.getValue() + "\""; // strings should have enclosing "s when exported to uxf
                     }
-                    sb.append("// " + kv.getKey() + ": " + newVal + "\n");
+                    sb.append("// " + kv.getKey() + ": " + newVal);
                 }
+
+                // add inline comment if present
+                if (mcmAttributesInlineComments != null && mcmAttributesInlineComments.get(kv.getKey()) != null) {
+                    sb.append(" ").append(mcmAttributesInlineComments.get(kv.getKey())); // the leading // is stored in the map
+                }
+
+                sb.append("\n");
             }
         }
         return sb.toString();

@@ -15,6 +15,12 @@
             <value>val1</value>
         </property>
     </properties>
+    <properties_inline_comments>
+        <property_inline_comment>
+            <key>key1</key>
+            <value>comment1</value>
+        </property_inline_comment>
+    </properties_inline_comments>
     <source>
         <id>2</id>
         <text>source</text>

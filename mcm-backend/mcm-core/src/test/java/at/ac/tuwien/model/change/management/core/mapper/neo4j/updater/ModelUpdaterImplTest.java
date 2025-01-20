@@ -39,7 +39,6 @@ class ModelUpdaterImplTest {
         val mcmAttributes = new LinkedHashMap<String, Object>();
         mcmAttributes.put("key1", "attr2");
         model.setMcmAttributes(mcmAttributes);
-        model.setOriginalText("");
 
         Node node1 = new Node();
         node1.setId("node1");
@@ -53,7 +52,6 @@ class ModelUpdaterImplTest {
         val mcmAttributes1 = new LinkedHashMap<String, Object>();
         mcmAttributes1.put("key1", "attr3");
         modelToUpdate.setMcmAttributes(mcmAttributes1);
-        modelToUpdate.setOriginalText("Original Text");
 
         Node nodeToUpdate1 = new Node();
         nodeToUpdate1.setId("node1");
@@ -66,7 +64,6 @@ class ModelUpdaterImplTest {
         assertEquals(List.of("tag1", "tag2"), modelToUpdate.getTags());
         assertEquals(mcmAttributes, modelToUpdate.getMcmAttributes());
         assertEquals(10, modelToUpdate.getZoomLevel());
-        assertEquals("Original Text", modelToUpdate.getOriginalText());
         verify(nodeUpdater, times(1)).updateNode(eq(node1), any());
     }
 

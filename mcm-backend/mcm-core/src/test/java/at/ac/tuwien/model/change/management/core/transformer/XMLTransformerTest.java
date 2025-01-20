@@ -38,7 +38,7 @@ public class XMLTransformerTest {
         modelDSL.setDescription("A test description");
         modelDSL.setTags(Collections.singletonList("testTag"));
 
-        PropertyDSL property = new PropertyDSL();
+        KeyValueDSL property = new KeyValueDSL();
         property.setKey("propKey");
         property.setValue("propValue");
         modelDSL.setProperties(Collections.singletonList(property));

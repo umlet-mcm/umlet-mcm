@@ -21,12 +21,17 @@ public class BaseAttributesUxfTest {
         mcmAttrs.put("key5", null);
         attr.setMcmAttributes(mcmAttrs);
 
+        LinkedHashMap<String, String> inlineComments = new LinkedHashMap<>();
+        inlineComments.put("key1", "// comment1");
+        inlineComments.put("key4", "//comment2");
+        attr.setMcmAttributesInlineComments(inlineComments);
+
         String exp = """
                 Description
-                // key1: "val"
+                // key1: "val" // comment1
                 // key2: 1
                 // key3: 1, 2, 3, 4
-                // key4: "s1", "s2"
+                // key4: "s1", "s2" //comment2
                 """;
         assertEquals(exp, attr.toString());
     }

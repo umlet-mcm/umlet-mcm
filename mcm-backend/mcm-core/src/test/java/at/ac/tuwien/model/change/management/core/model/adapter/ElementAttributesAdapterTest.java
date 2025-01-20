@@ -17,8 +17,6 @@ public class ElementAttributesAdapterTest {
             <<EQIP>>
             AssemblyStation
             // -----------
-            // PPR type: "GHG PPR Module Resource Equipment"
-            // -----------
             // id: "Resource Equipment ID Default"
             description
             // tags: "t1", "t2"
@@ -33,15 +31,18 @@ public class ElementAttributesAdapterTest {
 
     @BeforeAll
     static void init() {
-        exp1.setOriginalText(testAttributes1);
         exp1.setDescription("""
-                        <<EQIP>>
-                        AssemblyStation
-                        description
-                        """);
+                // -----------
+                <<EQIP>>
+                AssemblyStation
+                // -----------
+                description
+                // -----------
+                // light violet
+                // -----------
+                """);
 
         LinkedHashMap<String, Object> mcmAttrs = new LinkedHashMap<>();
-        mcmAttrs.put("PPR type", "GHG PPR Module Resource Equipment");
         mcmAttrs.put("id", "Resource Equipment ID Default");
         ArrayList<String> tags = new ArrayList<>();
         tags.add("t1");
@@ -50,15 +51,14 @@ public class ElementAttributesAdapterTest {
         mcmAttrs.put("eqipID", 1);
         exp1.setMcmAttributes(mcmAttrs);
 
-        HashMap<String, String> umletAttrs= new HashMap<>();
+        HashMap<String, String> umletAttrs = new HashMap<>();
         umletAttrs.put("bg", "#ccccff");
         exp1.setUmletAttributes(umletAttrs);
     }
 
     @Test
-    void testUnmarshal(){
+    void testUnmarshal() {
         var res = testAdapter.unmarshal(testAttributes1);
-        Assertions.assertEquals(exp1.getOriginalText(), res.getOriginalText());
         Assertions.assertEquals(exp1.getDescription(), res.getDescription());
         Assertions.assertEquals(exp1.getMcmAttributes(), res.getMcmAttributes());
         Assertions.assertEquals(exp1.getUmletAttributes(), res.getUmletAttributes());

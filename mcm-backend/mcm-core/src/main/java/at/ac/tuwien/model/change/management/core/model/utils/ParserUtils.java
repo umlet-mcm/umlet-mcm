@@ -1,25 +1,32 @@
 package at.ac.tuwien.model.change.management.core.model.utils;
 
+import at.ac.tuwien.model.change.management.core.model.intermediary.BaseAttributesUxf;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 public class ParserUtils {
     public static final String ATTRIBUTE_VALUE_DELIM = ",";
+    public static final Pattern MCM_ATTRIBUTE_DECLARATION_PATTERN = Pattern.compile("^\\/\\/\\s*([a-zA-Z_][a-zA-Z0-9_]*)\\s*:(.*)");
+    public static final Pattern MCM_ATTRIBUTE_DECLARATION_PATTERN_WITH_INLINE_COMMENT = Pattern.compile("^\\/\\/\\s*([a-zA-Z_][a-zA-Z0-9_]*)\\s*:(.*)(\\/\\/.*)");
 
     /**
-     * Get MCM attributes from the commented out lines. Such lines start with "//" and each line
+     * Get MCM attributes and inline comments from the commented out lines. Such lines start with "//" and each line
      * contains a "key: value" pair. Multiple values are parsed into lists, floats and ints are
      * converted automatically.
      *
      * @param text The text that contains the commented out attributes.
-     * @return Attributes as key-value pairs.
+     * @return Map of attributes, key: attribute key, value: a pair of the value for the attribute and the inline comment.
      */
-    public static LinkedHashMap<String, Object> extractAttributesFromComments(String text) {
-        LinkedHashMap<String, Object> attrs = new LinkedHashMap<>();
+    public static LinkedHashMap<String, Pair<Object, String>> extractAttributesFromComments(String text) {
+        LinkedHashMap<String, Pair<Object, String>> attrs = new LinkedHashMap<>();
         if (text == null || text.isEmpty()) {
             return attrs;
         }
@@ -32,14 +39,39 @@ public class ParserUtils {
                 continue;
             }
 
-            var prop = getMcmKeyValue(line.substring(2).trim()); // remove the leading "//"
+            Object[] prop = getMcmKeyValueInlineComment(line.trim());
             if (prop == null) {
                 continue;
             }
-            attrs.put((String) prop[0], prop[1]);
+
+            if (prop.length != 3) {
+                continue; // shouldn't happen
+            }
+
+            attrs.put((String) prop[0], new ImmutablePair<>(prop[1], (String) prop[2]));
         }
 
         return attrs;
+    }
+
+    /**
+     * Extract and parse mcm attributes and the inline comments
+     * @param attributes target where the attributes and the inline comments should be stored
+     * @param text raw text that can contain mcm attributes
+     */
+    public static void populateMcmAttributesAndInlineComments(BaseAttributesUxf attributes, String text){
+        LinkedHashMap<String, Pair<Object, String>> attrs = ParserUtils.extractAttributesFromComments(text);
+        LinkedHashMap<String, Object> attrsNoComments = new LinkedHashMap<>();
+        LinkedHashMap<String, String> attrsComments = new LinkedHashMap<>();
+        // split into two maps
+        for (var kv : attrs.entrySet()) {
+            attrsNoComments.put(kv.getKey(), kv.getValue().getLeft());
+            if(kv.getValue().getRight() != null){
+                attrsComments.put(kv.getKey(), kv.getValue().getRight());
+            }
+        }
+        attributes.setMcmAttributes(attrsNoComments);
+        attributes.setMcmAttributesInlineComments(attrsComments);
     }
 
     /**
@@ -57,7 +89,12 @@ public class ParserUtils {
         String[] lines = textWithComments.split("\n");
         for (String line : lines) {
             if (!line.startsWith("//") && !line.contains("=")) {
-                out.append(line + "\n");
+                out.append(line).append("\n");
+            } else if (line.startsWith("//")) {
+                Matcher matcher = MCM_ATTRIBUTE_DECLARATION_PATTERN.matcher(line);
+                if (!matcher.matches()) {
+                    out.append(line).append("\n"); // line is a simple comment, add to output
+                }
             }
         }
         return out.toString();
@@ -98,7 +135,7 @@ public class ParserUtils {
      * @param s The string that might contain a valid key-value.
      * @return The extracted key-value pair or null if no valid attribute was found.
      */
-    private static Object[] getMcmKeyValue(String s) {
+    private static Object[] getMcmKeyValueInlineComment(String s) {
         if (s.isEmpty()) {
             return null;
         }
@@ -107,22 +144,45 @@ public class ParserUtils {
             return null;
         }
 
-        Object[] res = new Object[2];
-        var kv = s.split(":");
-        if (kv.length == 1) {
-            log.warn("Could not parse panel attribute: '" + s + "', no value found for key '" + kv[0] + "'");
+        Object[] res = new Object[3];
+
+        Matcher matcherWithIC = MCM_ATTRIBUTE_DECLARATION_PATTERN_WITH_INLINE_COMMENT.matcher(s);
+
+        String key;
+        String value;
+        String inlineComment;
+
+        if (matcherWithIC.matches()) {
+            key = matcherWithIC.group(1).trim();
+            value = matcherWithIC.group(2);
+            inlineComment = matcherWithIC.group(3);
+        } else {
+            Matcher matcher = MCM_ATTRIBUTE_DECLARATION_PATTERN.matcher(s);
+            if (!matcher.matches()) {
+                return null;
+            }
+
+            key = matcher.group(1).trim();
+            value = matcher.group(2);
+            inlineComment = null;
+        }
+
+        if (value == null || value.isEmpty()) {
+            log.warn("Could not parse panel attribute: '{}', no value found for key '{}'", s, key);
             return null;
         }
 
-        res[0] = kv[0].trim();
+        res[0] = key;
         // check if the value is a list
-        if (kv[1].contains(ATTRIBUTE_VALUE_DELIM)) {
-            var values = kv[1].split(ATTRIBUTE_VALUE_DELIM);
+        if (value.contains(ATTRIBUTE_VALUE_DELIM)) {
+            var values = value.split(ATTRIBUTE_VALUE_DELIM);
             // try to parse the values and covert to list
             res[1] = Arrays.stream(values).map(v -> ParserUtils.tryParseString(v.trim())).toList();
         } else {
-            res[1] = ParserUtils.tryParseString(kv[1].trim());
+            res[1] = ParserUtils.tryParseString(value.trim());
         }
+
+        res[2] = inlineComment; // null if there's no inline comment
 
         return res;
     }
@@ -165,8 +225,8 @@ public class ParserUtils {
             return "";
         }
 
-        var blocks = description.split("-{1,2}|-\\.\\.?");
-        return blocks[0];
+        var blocks = description.split("^-{1,2}|-\\.\\.?");
+        return blocks[0].trim();
     }
 
     /**
@@ -175,7 +235,7 @@ public class ParserUtils {
     public static String getDescription(String textWithTitle) {
         String title = getTitle(textWithTitle);
         if (!title.isEmpty()) {
-            return textWithTitle.replace(title, "");
+            return textWithTitle.replaceFirst(title, "").trim();
         }
 
         return textWithTitle;

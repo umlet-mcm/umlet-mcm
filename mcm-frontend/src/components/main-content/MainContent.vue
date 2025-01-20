@@ -3,10 +3,10 @@ import {Button} from '@/components/ui/button'
 import QueryEditor from "@/components/main-content/QueryEditor.vue"
 import GraphVisualisation from "@/components/main-content/GraphVisualisation.vue"
 import {ref, watch} from "vue"
-import {HelpCircle, LoaderCircleIcon, Play} from 'lucide-vue-next'
+import {FileOutput, HelpCircle, LoaderCircleIcon, Play, Table2} from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
 import {Node, Relation} from "@/types/Node.ts";
-import {sendRequest} from "@/api/graphDB.ts";
+import {exportQueryToCsv, exportQueryToUxf, sendRequest} from "@/api/graphDB.ts";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import QueryResult from "@/components/main-content/QueryResult.vue";
 import {parseResponseGraph} from "@/components/main-content/responseGraphVisualization.ts";
@@ -42,6 +42,7 @@ const activeTab = ref('full')
 const messageGraph = ref<string | undefined>("Query result cannot be displayed as a Model")
 const isLoadingQuery = ref(false)
 let queryExecutionTimestamp: string | undefined;
+const queryGeneratedGraph = ref<string | undefined>(undefined)
 
 // functions
 /**
@@ -97,9 +98,11 @@ const executeQuery = async () => {
 
 // when the response changes, parse it to a graph
 watch(() => queryResponse.value, async (newValue) => {
+  queryGeneratedGraph.value = undefined
   if (newValue.length > 0) {
     if(props.selectedModel) {
-      queryGraph.value = await parseResponseGraph(newValue, props.selectedModel)
+      queryGraph.value = await parseResponseGraph(newValue)
+      queryGeneratedGraph.value = query.value
       if(queryGraph.value.nodes.length === 0) {
         queryGraph.value = undefined
         messageGraph.value = "Response model is empty"
@@ -141,7 +144,8 @@ watch(() => queryResponse.value, async (newValue) => {
     <Tabs default-value="full" v-model:model-value="activeTab" class="h-full w-full overflow-hidden p-2">
       <TabsList>
         <TabsTrigger value="full">Current Model</TabsTrigger>
-        <TabsTrigger value="request">Response as model</TabsTrigger>
+        <TabsTrigger value="request">Response as selected Model</TabsTrigger>
+        <TabsTrigger value="requestfull">Response all Models</TabsTrigger>
         <TabsTrigger value="table">Response as table</TabsTrigger>
         <TabsTrigger value="json">Response as JSON</TabsTrigger>
       </TabsList>
@@ -158,11 +162,37 @@ watch(() => queryResponse.value, async (newValue) => {
           </div>
         </div>
       </TabsContent>
-      <TabsContent value="request" class="h-[95%]" :force-mount="true">
+      <TabsContent value="request" class="h-[95%] relative" :force-mount="true">
+        <div v-if="queryGraph && selectedModel" class="h-full w-full">
+          <GraphVisualisation
+              :model-to-display="{
+                      ...queryGraph,
+                      nodes: queryGraph.nodes.filter(n =>
+                          selectedModel!.nodes.map(m => m.id).includes(n.id)
+                      )
+                  }"
+              @update:selectedEntity="emit('update:selectedEntity', $event)"/>
+        </div>
+        <div v-else class="h-full w-full">
+          <div class="flex-1 flex justify-center h-full">
+            <p class="text-muted-foreground self-center">{{messageGraph}}</p>
+          </div>
+        </div>
+      </TabsContent>
+
+      <TabsContent value="requestfull" class="h-[95%] relative" :force-mount="true">
         <div v-if="queryGraph" class="h-full w-full">
           <GraphVisualisation
               :model-to-display="queryGraph"
               @update:selectedEntity="emit('update:selectedEntity', $event)"/>
+          <div class="absolute top-0 right-0 m-2">
+            <Button class="p-2 m-1" size="icon" v-tooltip="'Export query result to UXF'" @click="exportQueryToUxf(queryGeneratedGraph!, 'QueryUXF')">
+              <FileOutput />
+            </Button>
+            <Button class="p-2 m-1" size="icon" v-tooltip="'Export query result to CSV'" @click="exportQueryToCsv(queryGeneratedGraph!, 'QueryCSV')">
+              <Table2 />
+            </Button>
+          </div>
         </div>
         <div v-else class="h-full w-full">
           <div class="flex-1 flex justify-center h-full">

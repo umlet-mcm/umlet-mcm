@@ -129,7 +129,7 @@ onMounted(async () => {
         <div class="space-y-2">
           <Button variant="outline" class="w-full justify-start" @click="$router.push({name:'home'})">
             <FileUp class="mr-2" />
-            Select configuration
+            Open configuration
           </Button>
           <Button variant="outline" class="w-full justify-start" @click="placeholder">
             <Save class="mr-2" />

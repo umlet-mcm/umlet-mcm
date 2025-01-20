@@ -39,7 +39,7 @@ const createProject = async (data: { name: string }) => {
     }
     await router.push({name: 'mainview', params: {id: createdConfig.name}})
   } catch (error:any) {
-    form.setFieldError('configName', 'Error creating project: ' + error.response?.data?.message || error.message);
+    form.setFieldError('configName', 'Error creating project: ' + error.response?.data?.message || error.response?.data || error.message);
   }
   isLoadingValidate.value = false
 }

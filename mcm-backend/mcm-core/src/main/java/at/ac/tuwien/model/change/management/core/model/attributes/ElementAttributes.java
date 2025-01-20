@@ -26,7 +26,7 @@ public abstract class ElementAttributes extends BaseAttributes {
     /**
      * key=value attributes extracted from panel_attributes. E.g. background color
      */
-    protected LinkedHashMap<String, String> umletAttributes;
+    protected LinkedHashMap<String, String> umletAttributes = new LinkedHashMap<>();
 
     @Nullable
     protected String pprType;

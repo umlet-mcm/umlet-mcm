@@ -1,7 +1,9 @@
 package at.ac.tuwien.model.change.management.core.mapper.neo4j;
 
 import at.ac.tuwien.model.change.management.core.model.Relation;
+import at.ac.tuwien.model.change.management.graphdb.entities.NodeEntity;
 import at.ac.tuwien.model.change.management.graphdb.entities.RelationEntity;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.neo4j.driver.Value;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 
 @Component
+@Slf4j
 public class RelationEntityMapperImpl implements RelationEntityMapper {
 
     @Autowired
@@ -42,7 +45,12 @@ public class RelationEntityMapperImpl implements RelationEntityMapper {
         relationEntity.setUmletProperties( relation.getUmletAttributes() );
         if(relation.getTags() != null)
             relationEntity.setTags( new HashSet<>(relation.getTags()));
-        relationEntity.setTarget( nodeMapper.toEntity( relation.getTarget() ) );
+        if(relation.getTarget() == null) {
+            log.info("Relation has no target node");
+            relationEntity.setTarget( new NodeEntity() );
+        }
+        else
+            relationEntity.setTarget( nodeMapper.toEntity( relation.getTarget() ) );
 
         return relationEntity;
     }

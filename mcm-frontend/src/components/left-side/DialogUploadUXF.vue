@@ -49,7 +49,7 @@ const emit = defineEmits<{
 const router = useRouter()
 const errorMessage = ref<string | undefined>(undefined)
 const selectedFile = ref(undefined)
-const uploadLocation = ref("model")
+const uploadLocation = ref("Model")
 const newConfig = ref<Configuration | undefined>(undefined)
 const uploadedName = ref("")
 const isLoadingValidate = ref(false)
@@ -63,7 +63,7 @@ const closeDialog = () => {
   errorMessage.value = undefined
   selectedFile.value = undefined
   isLoadingValidate.value = false
-  uploadLocation.value = "model"
+  uploadLocation.value = "Model"
   uploadedName.value = ""
   emit('update:isOpen', false)
 }
@@ -150,17 +150,17 @@ const loadNewConfiguration = () => {
             <CardContent class="p-4 space-y-4">
               <div class="space-y-2">
                 <div class="mb-4">
-                  <label class="text-sm font-medium">Model name</label>
+                  <label class="text-sm font-medium">{{ uploadLocation }} name</label>
                   <Input id="uploadedName" type="text" placeholder="Name" v-model="uploadedName"/>
                 </div>
                 <label class="text-sm font-medium">Upload as?</label>
                   <RadioGroup v-model="uploadLocation">
                     <div class="flex items-center space-x-2">
-                      <RadioGroupItem id="model" value="model" />
+                      <RadioGroupItem id="model" value="Model" />
                       <label for="model" class="text-sm">New model within current configuration</label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <RadioGroupItem id="configuration" value="configuration" />
+                      <RadioGroupItem id="configuration" value="Configuration" />
                       <label for="configuration" class="text-sm">New model configuration</label>
                     </div>
                   </RadioGroup>

@@ -41,6 +41,7 @@ const queryNum = ref(0)
 const activeTab = ref('full')
 const messageGraph = ref<string | undefined>("Query result cannot be displayed as a Model")
 const isLoadingQuery = ref(false)
+const isLoadingUXFCSV = ref(false)
 let queryExecutionTimestamp: string | undefined;
 const queryGeneratedGraph = ref<string | undefined>(undefined)
 
@@ -95,6 +96,19 @@ const executeQuery = async () => {
   await executeMultipleQuery(formattedQuery.split(";").filter(Boolean))
   isLoadingQuery.value = false
 };
+
+const uxfCsvExportFull = async (type:string) => {
+  isLoadingUXFCSV.value = true
+  try {
+    if(queryGeneratedGraph.value)
+      if(type == "uxf") await exportQueryToUxf(queryGeneratedGraph.value, 'QueryUXF')
+      else await exportQueryToCsv(queryGeneratedGraph.value, 'QueryCSV')
+  } catch (error: any) {
+    // todo add error pop up
+  }
+  isLoadingUXFCSV.value = false;
+}
+
 
 // when the response changes, parse it to a graph
 watch(() => queryResponse.value, async (newValue) => {
@@ -186,11 +200,23 @@ watch(() => queryResponse.value, async (newValue) => {
               :model-to-display="queryGraph"
               @update:selectedEntity="emit('update:selectedEntity', $event)"/>
           <div class="absolute top-0 right-0 m-2">
-            <Button class="p-2 m-1" size="icon" v-tooltip="'Export query result to UXF'" @click="exportQueryToUxf(queryGeneratedGraph!, 'QueryUXF')">
-              <FileOutput />
+            <Button
+                class="p-2 m-1"
+                size="icon"
+                v-tooltip="'Export query result to UXF'"
+                @click="uxfCsvExportFull('uxf')"
+                :disabled="isLoadingUXFCSV">
+              <LoaderCircleIcon v-if="isLoadingUXFCSV" class="animate-spin"/>
+              <FileOutput v-else/>
             </Button>
-            <Button class="p-2 m-1" size="icon" v-tooltip="'Export query result to CSV'" @click="exportQueryToCsv(queryGeneratedGraph!, 'QueryCSV')">
-              <Table2 />
+            <Button
+                class="p-2 m-1"
+                size="icon"
+                v-tooltip="'Export query result to CSV'"
+                @click="uxfCsvExportFull('csv')"
+                :disabled="isLoadingUXFCSV">
+              <LoaderCircleIcon v-if="isLoadingUXFCSV" class="animate-spin"/>
+              <Table2 v-else/>
             </Button>
           </div>
         </div>

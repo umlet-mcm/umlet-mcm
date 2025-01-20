@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
-import {GitGraph, Settings} from "lucide-vue-next";
+import {Settings} from "lucide-vue-next";
 import {Button} from "@/components/ui/button";
 import {Configuration} from "@/types/Configuration.ts";
 import {Model} from "@/types/Model.ts";
@@ -68,6 +68,10 @@ async function confirmLoadVersion() {
   }
 }
 
+const rejectLoadVersion = () => {
+  selectedVersion.value = props.selectedConfiguration.version
+}
+
 /*
   * Watchers
   * When the version change it means either the user selected a new version or a new configuration was loaded
@@ -75,6 +79,12 @@ async function confirmLoadVersion() {
 watch(() => props.selectedConfiguration.version, async (newVersion, oldVersion) => {
   if (newVersion !== oldVersion) {
     selectedVersion.value = props.selectedConfiguration.version
+  }
+})
+
+watch(() => selectedVersion.value, (newVersion, oldVersion) => {
+  if (newVersion !== oldVersion && newVersion !== props.selectedConfiguration.version) {
+    isDialogOpen.value.confirmation = true
   }
 })
 </script>
@@ -102,9 +112,6 @@ watch(() => props.selectedConfiguration.version, async (newVersion, oldVersion) 
           </SelectGroup>
         </SelectContent>
       </Select>
-      <Button v-if="selectedVersion !== props.selectedConfiguration.version" class="p-2" size="icon" v-tooltip="'Checkout'" @click="isDialogOpen.confirmation = true">
-        <GitGraph />
-      </Button>
     </div>
   </div>
 
@@ -117,6 +124,7 @@ watch(() => props.selectedConfiguration.version, async (newVersion, oldVersion) 
   <!-- Alert dialog to load a new configuration version -->
   <AlertConfirmation
       :on-confirm="confirmLoadVersion"
+      :on-reject="rejectLoadVersion"
       dialog-title="Load this version?"
       dialog-description=""
       dialog-content="All of your unsaved modifications will be deleted."

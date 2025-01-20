@@ -3,8 +3,9 @@ import {Configuration} from "@/types/Configuration";
 import {Model} from "@/types/Model.ts";
 import {DiffObject} from "@/types/DiffObject.ts";
 
+
 const apiClient = axios.create({
-    baseURL: '/api/v1/configurations',
+    baseURL: AppConfig.apiBaseUrl + '/api/v1/configurations',
     headers: {
         'Content-Type': 'application/json'
     }

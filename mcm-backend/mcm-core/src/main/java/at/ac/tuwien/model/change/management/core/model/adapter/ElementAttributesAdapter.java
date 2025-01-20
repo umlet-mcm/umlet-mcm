@@ -17,10 +17,9 @@ public class ElementAttributesAdapter extends XmlAdapter<String, ElementAttribut
             return attributes;
         }
 
-        attributes.setOriginalText(text);
         attributes.setDescription(ParserUtils.extractText(text));
         attributes.setUmletAttributes(ParserUtils.extractUmletAttributes(text));
-        attributes.setMcmAttributes(ParserUtils.extractAttributesFromComments(text));
+        ParserUtils.populateMcmAttributesAndInlineComments(attributes, text);
 
         return attributes;
     }

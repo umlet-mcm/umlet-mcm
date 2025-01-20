@@ -27,7 +27,11 @@ public class ModelDSL {
 
     @XmlElementWrapper(name = "properties")
     @XmlElement(name = "property")
-    private List<PropertyDSL> properties;
+    private List<KeyValueDSL> properties;
+
+    @XmlElementWrapper(name = "properties_inline_comments")
+    @XmlElement(name = "property_inline_comment")
+    private List<KeyValueDSL> propertiesInlineComments;
 
     @XmlElement(name = "metadata")
     private MetadataDSL metadata;

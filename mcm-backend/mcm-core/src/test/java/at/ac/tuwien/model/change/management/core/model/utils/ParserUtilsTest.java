@@ -1,9 +1,12 @@
 package at.ac.tuwien.model.change.management.core.model.utils;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +17,7 @@ public class ParserUtilsTest {
         String in1 = """
                 Title
                 // ck1: "val1"
-                // ck2: 123
+                // ck2: 123 // comment
                 // ------
                 // a:
                 //
@@ -23,11 +26,11 @@ public class ParserUtilsTest {
                 fg=#ffffff
                 """;
 
-        var exp1 = new HashMap<>();
-        exp1.put("ck1", "val1");
-        exp1.put("ck2", 123);
-        exp1.put("ck4", "asd");
-        exp1.put("ck5", List.of("val", 12, "asd"));
+        var exp1 = new LinkedHashMap<String, Pair<Object, String>>();
+        exp1.put("ck1", new ImmutablePair<>("val1", null));
+        exp1.put("ck2", new ImmutablePair<>(123, "// comment"));
+        exp1.put("ck4", new ImmutablePair<>("asd", null));
+        exp1.put("ck5", new ImmutablePair<>(List.of("val", 12, "asd"), null));
 
         Assertions.assertDoesNotThrow(() -> ParserUtils.extractAttributesFromComments(in1));
 

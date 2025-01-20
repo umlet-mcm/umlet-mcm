@@ -421,10 +421,10 @@ public class ConfigurationControllerIntegrationTest {
                 Collections.emptySet(),
                 modelDTO.id(),
                 modelDTO.tags(),
-                modelDTO.originalText(),
                 modelDTO.title() + "-modified",
                 modelDTO.description(),
                 modelDTO.mcmAttributes(),
+                modelDTO.mcmAttributesInlineComments(),
                 modelDTO.zoomLevel()
         )).collect(Collectors.toSet());
 

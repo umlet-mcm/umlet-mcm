@@ -20,10 +20,10 @@ public abstract class MapperTest {
                 relationDTOs,
                 id,
                 List.of("tag1", "tag2"),
-                "original text",
                 "title",
                 "description",
                 new LinkedHashMap<>(Map.of("key1", "value1", "key2", "value2")),
+                new LinkedHashMap<>(Map.of("key1", "comment1", "key2", "comment2")),
                 "mcmModel",
                 modelID,
                 new LinkedHashMap<>(Map.of("key1", "value1", "key2", "value2")),
@@ -46,10 +46,10 @@ public abstract class MapperTest {
                 new PointDTO(100, 100),
                 id,
                 List.of("relationTag1"),
-                "Original relation text",
                 "Relation Title",
                 "Relation Description",
                 new LinkedHashMap<>(),
+                new LinkedHashMap<>(Map.of("key1", "comment1", "key2", "comment2")),
                 "MCM_Model_Relation_1",
                 modelId,
                 new LinkedHashMap<>(),
@@ -62,10 +62,10 @@ public abstract class MapperTest {
                 nodeDTOs,
                 id,
                 List.of("tag1", "tag2"),
-                "original text",
                 "title",
                 "description",
                 new LinkedHashMap<>(Map.of("key1", "value1", "key2", "value2")),
+                new LinkedHashMap<>(Map.of("key1", "comment1", "key2", "comment2")),
                 20
         );
     }
@@ -74,7 +74,6 @@ public abstract class MapperTest {
         Node node = new Node();
         node.setId(id);
         node.setTags(List.of("tag1", "tag2"));
-        node.setOriginalText("Original text of the node");
         node.setTitle("Node Title");
         node.setDescription("Node Description");
         node.setMcmAttributes(new LinkedHashMap<>(Map.of("key1", "value1", "key2", "value2")));
@@ -100,7 +99,6 @@ public abstract class MapperTest {
         relation.setMcmModel("model-123");
         relation.setMcmModelId(modelId);
         relation.setUmletAttributes(new LinkedHashMap<>(Map.of("key1", "value1", "key2", "value2")));
-        relation.setOriginalText("Original text of the relation");
         relation.setPprType("ppr-type");
         relation.setUmletPosition(new UMLetPosition(1, 2, 3, 4));
         relation.setRelativeEndPoint(new RelativePosition(1, 2, 3, 4));

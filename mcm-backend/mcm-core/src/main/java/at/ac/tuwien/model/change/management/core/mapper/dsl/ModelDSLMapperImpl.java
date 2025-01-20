@@ -6,13 +6,11 @@ import at.ac.tuwien.model.change.management.core.model.dsl.ModelDSL;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
-
 @Component
 @AllArgsConstructor
 public class ModelDSLMapperImpl implements ModelDSLMapper {
 
-    private final PropertiesDSLMapper propertiesDSLMapper;
+    private final KeyValuesDSLMapper keyValuesDSLMapper;
 
     @Override
     public ModelDSL toDSL(Model model) {
@@ -21,11 +19,11 @@ public class ModelDSLMapperImpl implements ModelDSLMapper {
         modelDSL.setTitle(model.getTitle());
         modelDSL.setDescription(model.getDescription());
         modelDSL.setTags(model.getTags());
-        modelDSL.setProperties(propertiesDSLMapper.toDSL(model.getMcmAttributes()));
+        modelDSL.setProperties(keyValuesDSLMapper.toObjectDSL(model.getMcmAttributes()));
+        modelDSL.setPropertiesInlineComments(keyValuesDSLMapper.toStringDSL(model.getMcmAttributesInlineComments()));
         modelDSL.setZoomLevel(model.getZoomLevel());
 
         MetadataDSL metadataDSL = new MetadataDSL();
-        metadataDSL.setOriginalText(model.getOriginalText());
 
         modelDSL.setMetadata(metadataDSL);
 
@@ -39,10 +37,8 @@ public class ModelDSLMapperImpl implements ModelDSLMapper {
         model.setDescription(modelDSL.getDescription());
         model.setTitle(modelDSL.getTitle());
         model.setTags(modelDSL.getTags());
-        model.setMcmAttributes(propertiesDSLMapper.fromDSL(modelDSL.getProperties()));
-        model.setOriginalText(Optional.ofNullable(modelDSL.getMetadata())
-                .map(MetadataDSL::getOriginalText)
-                .orElse(null));
+        model.setMcmAttributes(keyValuesDSLMapper.fromObjectDSL(modelDSL.getProperties()));
+        model.setMcmAttributesInlineComments(keyValuesDSLMapper.fromStringDSL(modelDSL.getPropertiesInlineComments()));
         model.setZoomLevel(modelDSL.getZoomLevel());
         return model;
     }

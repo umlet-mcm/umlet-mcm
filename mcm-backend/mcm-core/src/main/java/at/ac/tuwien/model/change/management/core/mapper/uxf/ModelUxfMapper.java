@@ -64,7 +64,6 @@ public interface ModelUxfMapper {
             relationElement.setElementType("Relation");
             ElementAttributesUxf elAttrs = new ElementAttributesUxf();
             elAttrs.setUmletAttributes(r.getUmletAttributes());
-            elAttrs.setOriginalText(r.getOriginalText());
             elAttrs.setDescription(r.getTitle() + r.getDescription());
             elAttrs.setMcmAttributes(r.getMcmAttributes());
             relationElement.setAttributes(elAttrs);

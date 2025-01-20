@@ -4,12 +4,15 @@ import at.ac.tuwien.model.change.management.server.dto.*;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.lang.Nullable;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public final class DtoGen{
+public final class DtoGen {
     private static final int MAX_TITLE_LENGTH = 10;
     private static final int MAX_DESCRIPTION_LENGTH = 20;
     private static final int MAX_TAG_NUMBER = 5;
@@ -139,7 +142,12 @@ public final class DtoGen{
                         .toList(),
                 RandomStringUtils.randomAlphabetic(MAX_DESCRIPTION_LENGTH),
                 RandomStringUtils.randomAlphabetic(MAX_TITLE_LENGTH),
-                RandomStringUtils.randomAlphabetic(MAX_DESCRIPTION_LENGTH),
+                IntStream.range(0, getRandomInt(MAX_MCM_ATTRIBUTE_NUMBER + 1)).boxed().collect(Collectors.toMap(
+                        k -> RandomStringUtils.randomAlphabetic(MAX_MCM_ATTRIBUTE_KEY_LENGTH),
+                        v -> RandomStringUtils.randomAlphabetic(MAX_MCM_ATTRIBUTE_VALUE_LENGTH),
+                        (ex, rep) -> rep,
+                        LinkedHashMap::new
+                )),
                 IntStream.range(0, getRandomInt(MAX_MCM_ATTRIBUTE_NUMBER + 1)).boxed().collect(Collectors.toMap(
                         k -> RandomStringUtils.randomAlphabetic(MAX_MCM_ATTRIBUTE_KEY_LENGTH),
                         v -> RandomStringUtils.randomAlphabetic(MAX_MCM_ATTRIBUTE_VALUE_LENGTH),
@@ -164,7 +172,12 @@ public final class DtoGen{
                         .toList(),
                 RandomStringUtils.randomAlphabetic(MAX_DESCRIPTION_LENGTH),
                 RandomStringUtils.randomAlphabetic(MAX_TITLE_LENGTH),
-                RandomStringUtils.randomAlphabetic(MAX_DESCRIPTION_LENGTH),
+                IntStream.range(0, getRandomInt(MAX_MCM_ATTRIBUTE_NUMBER + 1)).boxed().collect(Collectors.toMap(
+                        k -> RandomStringUtils.randomAlphabetic(MAX_MCM_ATTRIBUTE_KEY_LENGTH),
+                        v -> RandomStringUtils.randomAlphabetic(MAX_MCM_ATTRIBUTE_VALUE_LENGTH),
+                        (ex, rep) -> rep,
+                        LinkedHashMap::new
+                )),
                 IntStream.range(0, getRandomInt(MAX_MCM_ATTRIBUTE_NUMBER + 1)).boxed().collect(Collectors.toMap(
                         k -> RandomStringUtils.randomAlphabetic(MAX_MCM_ATTRIBUTE_KEY_LENGTH),
                         v -> RandomStringUtils.randomAlphabetic(MAX_MCM_ATTRIBUTE_VALUE_LENGTH),
@@ -202,7 +215,12 @@ public final class DtoGen{
                         .toList(),
                 RandomStringUtils.randomAlphabetic(MAX_DESCRIPTION_LENGTH),
                 RandomStringUtils.randomAlphabetic(MAX_TITLE_LENGTH),
-                RandomStringUtils.randomAlphabetic(MAX_DESCRIPTION_LENGTH),
+                IntStream.range(0, getRandomInt(MAX_MCM_ATTRIBUTE_NUMBER + 1)).boxed().collect(Collectors.toMap(
+                        k -> RandomStringUtils.randomAlphabetic(MAX_MCM_ATTRIBUTE_KEY_LENGTH),
+                        v -> RandomStringUtils.randomAlphabetic(MAX_MCM_ATTRIBUTE_VALUE_LENGTH),
+                        (ex, rep) -> rep,
+                        LinkedHashMap::new
+                )),
                 IntStream.range(0, getRandomInt(MAX_MCM_ATTRIBUTE_NUMBER + 1)).boxed().collect(Collectors.toMap(
                         k -> RandomStringUtils.randomAlphabetic(MAX_MCM_ATTRIBUTE_KEY_LENGTH),
                         v -> RandomStringUtils.randomAlphabetic(MAX_MCM_ATTRIBUTE_VALUE_LENGTH),

@@ -2,6 +2,8 @@ package at.ac.tuwien.model.change.management.core.service;
 
 import at.ac.tuwien.model.change.management.core.exception.*;
 import at.ac.tuwien.model.change.management.core.model.Configuration;
+import at.ac.tuwien.model.change.management.core.model.versioning.BaseAttributesDiff;
+import at.ac.tuwien.model.change.management.core.utils.ConfigurationProcessor;
 import at.ac.tuwien.model.change.management.core.utils.ConfigurationUtils;
 import at.ac.tuwien.model.change.management.git.exception.RepositoryAccessException;
 import at.ac.tuwien.model.change.management.git.exception.RepositoryAlreadyExistsException;
@@ -11,6 +13,7 @@ import at.ac.tuwien.model.change.management.git.repository.VersionControlReposit
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -25,7 +28,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     private final GraphDBService graphDBService;
 
     @Override
-    public Configuration createConfiguration(@NonNull Configuration configuration) {
+    public Configuration createConfiguration(@NonNull Configuration configuration, boolean loadIntoGraphDB) {
         try {
             log.debug("Creating configuration '{}'.", configuration.getName());
             validateNewConfiguration(configuration);
@@ -34,10 +37,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             var savedConfiguration = configurationRepository.saveConfiguration(configuration);
             log.info("Created configuration '{}'.", configuration.getName());
 
-            // Load the configuration into the graph database
-            graphDBService.clearDatabase();
-            graphDBService.loadConfiguration(savedConfiguration);
-            log.info("Loaded configuration '{}' into graph database.", configuration.getName());
+            if (loadIntoGraphDB) {
+                loadConfigurationIntoGraphDB(savedConfiguration);
+            }
 
             return savedConfiguration;
         } catch (RepositoryAlreadyExistsException e) {
@@ -49,30 +51,21 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     @Override
-    public Configuration updateConfiguration(@NonNull Configuration configuration) {
+    public Configuration updateConfiguration(@NonNull Configuration configuration, boolean loadIntoGraphDB) {
         try {
             log.debug("Updating configuration '{}'.", configuration.getName());
             validateExistingConfiguration(configuration);
             configuration.setName(ConfigurationUtils.sanitizeConfigurationName(configuration.getName()));
-            var currentVersion = versionControlRepository.getCurrentVersion(configuration.getName());
-            var updateVersion = Optional.ofNullable(configuration.getVersion()).orElseThrow(() ->
-                    new ConfigurationValidationException("Configuration '" + configuration.getName() +
-                            "' cannot be updated, because its version is not specified."));
-            if (! updateVersion.equals(currentVersion)) {
-                throw new ConfigurationUpdateException("Version of configuration '" + configuration.getName() +
-                        "' does not match the current version. Merging of divergent versions is not yet supported.");
-            }
             var savedConfiguration = configurationRepository.saveConfiguration(configuration);
             log.info("Updated configuration '{}'.", configuration.getName());
 
-            // Load the configuration into the graph database
-            graphDBService.clearDatabase();
-            graphDBService.loadConfiguration(savedConfiguration);
-            log.info("Loaded configuration '{}' into graph database.", configuration.getName());
+            if (loadIntoGraphDB) {
+                loadConfigurationIntoGraphDB(savedConfiguration);
+            }
 
             return savedConfiguration;
         } catch (RepositoryDoesNotExistException e) {
-            throw new ConfigurationDoesNotExistException("Configuration '" + configuration.getName() + "' does not exist.", e);
+            throw new ConfigurationDoesNotExistException("Could not update configuration '" + configuration.getName() + "' because it was not found.", e);
         } catch (RepositoryAccessException e) {
             throw new ConfigurationUpdateException("Failed to update configuration '" + configuration.getName() + "'.", e);
         }
@@ -91,16 +84,40 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     @Override
-    public Configuration getConfigurationByName(@NonNull String name) {
-        log.debug("Finding configuration '{}'.", name);
+    public Configuration getConfigurationByName(@NonNull String name, boolean loadIntoGraphDB) {
+        log.debug("Finding current version of configuration '{}'.", name);
         var sanitizedName = ConfigurationUtils.sanitizeConfigurationName(name);
         try {
-            var foundConfiguration = configurationRepository.findConfigurationByName(sanitizedName)
-                    .orElseThrow(() -> new ConfigurationNotFoundException("Configuration '" + sanitizedName + "' does not exist."));
-            log.info("Found configuration '{}'.", sanitizedName);
+            var foundConfiguration = configurationRepository.findCurrentVersionOfConfigurationByName(sanitizedName)
+                    .orElseThrow(() -> new ConfigurationNotFoundException("Current version of configuration '" + sanitizedName + "' could not be found."));
+            log.info("Found current version of configuration '{}'.", sanitizedName);
+
+            if (loadIntoGraphDB) {
+                loadConfigurationIntoGraphDB(foundConfiguration);
+            }
+
             return foundConfiguration;
         } catch (RepositoryAccessException e) {
-            throw new ConfigurationGetException("Failed to access configuration '" + sanitizedName + "'.", e);
+            throw new ConfigurationGetException("Failed to access current version of configuration '" + sanitizedName + "'.", e);
+        }
+    }
+
+    @Override
+    public Configuration getConfigurationVersion(@NonNull String name, @NonNull String version, boolean loadIntoGraphDB) {
+        log.debug("Finding configuration '{}' with version '{}'.", name, version);
+        var sanitizedName = ConfigurationUtils.sanitizeConfigurationName(name);
+        try {
+            var foundConfiguration = configurationRepository.findSpecifiedVersionOfConfigurationByName(sanitizedName, version)
+                    .orElseThrow(() -> new ConfigurationNotFoundException("Version '" + version + "' of configuration '" + sanitizedName + "' could not be found."));
+            log.info("Found configuration version '{}' of configuration '{}'.", version, sanitizedName);
+
+            if (loadIntoGraphDB) {
+                loadConfigurationIntoGraphDB(foundConfiguration);
+            }
+
+            return foundConfiguration;
+        } catch (RepositoryAccessException e) {
+            throw new ConfigurationGetException("Failed to access version '" + version + "' of configuration '" + sanitizedName + "'.", e);
         }
     }
 
@@ -116,59 +133,136 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         }
     }
 
+    @Override
+    public List<String> listConfigurationVersions(@NonNull String configurationName) {
+        try {
+            log.debug("Listing all versions of configuration '{}'.", configurationName);
+            var sanitizedName = ConfigurationUtils.sanitizeConfigurationName(configurationName);
+            var versions = versionControlRepository.listVersions(sanitizedName);
+            log.info("Listed {} versions of configuration '{}'.", versions.size(), sanitizedName);
+            return versions;
+        } catch (RepositoryAccessException e) {
+            throw new ConfigurationGetException("Failed to list all versions of configuration '" + configurationName + "'.", e);
+        }
+    }
+
+    @Override
+    public List<BaseAttributesDiff> compareConfigurationVersions(@NonNull String name, @NonNull String oldVersion, @NonNull String newVersion, boolean includeUnchanged) {
+        try {
+            log.debug("Comparing versions '{}' and '{}' of configuration '{}'.", oldVersion, newVersion, name);
+            var sanitizedName = ConfigurationUtils.sanitizeConfigurationName(name);
+            var configurationContents = configurationRepository.compareConfigurationVersions(sanitizedName, oldVersion, newVersion, includeUnchanged);
+            var diffs = new ArrayList<BaseAttributesDiff>();
+            diffs.addAll(configurationContents.getModels());
+            diffs.addAll(configurationContents.getNodes());
+            diffs.addAll(configurationContents.getRelations());
+            log.info("Created comparison of versions '{}' and '{}' of configuration '{}'.", oldVersion, newVersion, name);
+            return diffs;
+        } catch (RepositoryDoesNotExistException e) {
+            throw new ConfigurationDoesNotExistException("Could not compare versions because configuration '" + name + "' was not found.", e);
+        } catch (RepositoryAccessException e) {
+            throw new ConfigurationComparisonException("Failed to compare versions '" + oldVersion +
+                    "' and '" + newVersion + "' of configuration '" + name + "'.", e);
+        }
+    }
+
+    @Override
+    public Configuration checkoutConfigurationVersion(@NonNull String name, @NonNull String version, boolean loadIntoGraphDB) {
+        try {
+            log.debug("Checking out version '{}' of configuration '{}'.", version, name);
+            var sanitizedName = ConfigurationUtils.sanitizeConfigurationName(name);
+            versionControlRepository.checkoutVersion(sanitizedName, version);
+            var configuration = getConfigurationVersion(sanitizedName, version);
+            log.info("Checked out version '{}' of configuration '{}'.", version, sanitizedName);
+
+            if (loadIntoGraphDB) {
+                loadConfigurationIntoGraphDB(configuration);
+            }
+
+            return configuration;
+        } catch (RepositoryDoesNotExistException e) {
+            throw new ConfigurationDoesNotExistException("Could not checkout because configuration '" + name + "' was not found.", e);
+        } catch (RepositoryAccessException e) {
+            throw new ConfigurationCheckoutException("Failed to checkout version '" + version + "' of configuration '" + name + "'.", e);
+        }
+    }
+
+    @Override
+    public Configuration resetConfigurationVersion(@NonNull String name, @Nullable String version, boolean loadIntoGraphDB) {
+        try {
+            log.debug("Resetting configuration '{}' to {}.", name,
+                    version == null ? "current version" : "version '" + version + "'");
+            var sanitizedName = ConfigurationUtils.sanitizeConfigurationName(name);
+            var resetVersion = version == null
+                    ? versionControlRepository.getCurrentVersion(sanitizedName)
+                    .orElseThrow(() -> new ConfigurationVersionDoesNotExistException("No versions exist for configuration '" + sanitizedName + "'."))
+                    : version;
+            versionControlRepository.resetToVersion(sanitizedName, resetVersion);
+            var configuration = getConfigurationVersion(sanitizedName, resetVersion);
+            log.info("Reset configuration '{}' to version '{}'.", sanitizedName, version);
+
+            if (loadIntoGraphDB) {
+                loadConfigurationIntoGraphDB(configuration);
+            }
+
+            return configuration;
+        } catch (RepositoryDoesNotExistException e) {
+            throw new ConfigurationDoesNotExistException("Could not reset because configuration '" + name + "' was not found.", e);
+        } catch (RepositoryAccessException e) {
+            throw new ConfigurationResetException("Failed to reset configuration '" + name + "'.", e);
+        }
+    }
+
     private void validateNewConfiguration(Configuration configuration) {
         if (configuration.getVersion() != null) {
             throw new ConfigurationValidationException("New configuration cannot have a version.");
         }
 
-        var elementIDs = new ArrayList<String>();
-        for (var model : tryAccessCollection(configuration.getModels())) {
-            if (model.getId() != null) elementIDs.add(model.getId());
-            for (var node : tryAccessCollection(model.getNodes())) {
-                if (node.getId() != null) elementIDs.add(node.getId());
-                if (node.getMcmModelId() != null && ! node.getMcmModelId().equals(model.getId())) {
-                    throw new ConfigurationValidationException("Node does not belong to the model it is assigned to.");
-                }
-                for (var relation : tryAccessCollection(node.getRelations())) {
-                    if (relation.getId() != null) elementIDs.add(relation.getId());
-                    if (relation.getMcmModelId() != null && ! relation.getMcmModelId().equals(model.getId())) {
-                        throw new ConfigurationValidationException("Relation does not belong to the model it is assigned to.");
-                    }
-                }
-            }
-        }
-        checkForDuplicateElementIDs(elementIDs);
+        processModelElementIDs(configuration);
     }
 
     private void validateExistingConfiguration(Configuration configuration) {
+        processModelElementIDs(configuration);
+    }
+
+    private void processModelElementIDs(Configuration configuration) {
         var elementIDs = new ArrayList<String>();
-        for (var model : tryAccessCollection(configuration.getModels())) {
+        var configurationProcessor = new ConfigurationProcessor(configuration);
+        configurationProcessor.processModels(model -> {
             if (model.getId() != null) elementIDs.add(model.getId());
-            for (var node : tryAccessCollection(model.getNodes())) {
-                if (node.getId() != null) elementIDs.add(node.getId());
-                if (node.getMcmModelId() == null) node.setMcmModelId(model.getId());
-                else if (! node.getMcmModelId().equals(model.getId())) {
-                    throw new ConfigurationValidationException("Node does not belong to the model it is assigned to.");
-                }
-                for (var relation : tryAccessCollection(node.getRelations())) {
-                    if (relation.getId() != null) elementIDs.add(relation.getId());
-                    if (relation.getMcmModelId() == null) relation.setMcmModelId(model.getId());
-                    else if (! relation.getMcmModelId().equals(model.getId())) {
-                        throw new ConfigurationValidationException("Relation does not belong to the model it is assigned to.");
-                    }
-                }
+        });
+
+        configurationProcessor.processNodes((node, model) -> {
+            if (node.getId() != null) elementIDs.add(node.getId());
+            if (node.getMcmModelId() == null) node.setMcmModelId(model.getId());
+            else if (!node.getMcmModelId().equals(model.getId())) {
+                throw new ConfigurationValidationException("Node '" + node.getId() + "' does not belong to the model it is assigned to.");
             }
-        }
-        checkForDuplicateElementIDs(elementIDs);
+        });
+
+        configurationProcessor.processRelations((relation, node) -> {
+            if (relation.getId() != null) elementIDs.add(relation.getId());
+            if (relation.getMcmModelId() == null) relation.setMcmModelId(node.getMcmModelId());
+            else if (!relation.getMcmModelId().equals(node.getMcmModelId())) {
+                throw new ConfigurationValidationException("Relation '" + relation.getId() + "' does not belong to the model it is assigned to.");
+            }
+        });
+
+        checkForDuplicateIDs(elementIDs);
     }
 
-    private void checkForDuplicateElementIDs(List<String> elementIDs) {
-        if (elementIDs.size() != new HashSet<>(elementIDs).size()) {
-            throw new ConfigurationValidationException("Configuration contains duplicate element IDs");
+    private void checkForDuplicateIDs(List<String> ids) {
+        var numberOfIDsIncludingDuplicates = ids.size();
+        var numberOfIDsWithoutDuplicates = new HashSet<>(ids).size();
+        if (numberOfIDsIncludingDuplicates != numberOfIDsWithoutDuplicates) {
+            throw new ConfigurationValidationException("Configuration contains " + (numberOfIDsIncludingDuplicates - numberOfIDsWithoutDuplicates) + " duplicate element IDs.");
         }
     }
 
-    private <T> Collection<T> tryAccessCollection(Collection<T> collection) {
-        return Optional.ofNullable(collection).orElseGet(Collections::emptyList);
+    private void loadConfigurationIntoGraphDB(Configuration configuration) {
+        // Load the configuration into the graph database
+        graphDBService.clearDatabase();
+        graphDBService.loadConfiguration(configuration);
+        log.info("Loaded configuration '{}' into graph database.", configuration.getName());
     }
 }

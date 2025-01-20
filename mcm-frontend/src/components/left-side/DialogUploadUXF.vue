@@ -18,6 +18,7 @@ import {uploadUxfToConfiguration, uploadUxfToModel} from "@/api/files.ts";
 import AlertConfirmation from "@/components/left-side/AlertConfirmation.vue";
 import {LoaderCircleIcon} from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
+import { useToast } from '@/components/ui/toast/use-toast'
 
 /**
  * @param {Boolean} isOpen, dialog visibility
@@ -54,6 +55,7 @@ const newConfig = ref<Configuration | undefined>(undefined)
 const uploadedName = ref("")
 const isLoadingValidate = ref(false)
 const isDialogOpen = ref({confirmation: false}) // confirmation dialog for deletion
+const { toast } = useToast()
 
 //functions
 /**
@@ -97,6 +99,11 @@ const validateButton = async () => {
       const newModel = newConfig.value.models.find(m => !props.currentConfiguration.models.map(m => m.id).includes(m.id))
       emit('update:currentConfiguration', newConfig.value)
       if(newModel) emit('update:currentModel', newModel)
+
+      toast({
+        title: 'New version has been created',
+        duration: 3000,
+      });
     }
     closeDialog()
   } catch (error: any) {

@@ -41,6 +41,9 @@ dependencies {
     testImplementation(libs.neo4j.harness) {
         exclude(group = "org.neo4j", module = "neo4j-slf4j-provider")
     }
+
+    // testing utilities for JGit
+    testImplementation(libs.jgit.junit)
 }
 
 tasks.test {

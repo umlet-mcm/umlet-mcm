@@ -53,7 +53,8 @@ const compareVersions = async () => {
   isLoading.value = true
   try {
     const diffResult = await compareTwoVersions(props.currentConfiguration.name, firstSelected.value, secondSelected.value)
-    const diffJson = parse(diffResult)
+    // join all the diffs into a single string
+    const diffJson = parse(diffResult.map((diff) => diff.content).join('\n'))
 
     if(diffJson.length === 0) {
       errorMessage.value = "No differences found between the two versions"

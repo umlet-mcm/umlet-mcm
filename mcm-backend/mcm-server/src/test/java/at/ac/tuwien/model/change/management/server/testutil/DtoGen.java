@@ -95,7 +95,7 @@ public final class DtoGen {
         }
         return new ConfigurationDTO(
                 name,
-                version,
+                new ConfigurationVersionDTO(version, null, null),
                 models
         );
     }

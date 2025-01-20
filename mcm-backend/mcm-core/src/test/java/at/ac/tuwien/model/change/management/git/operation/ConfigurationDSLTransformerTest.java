@@ -1,10 +1,7 @@
 package at.ac.tuwien.model.change.management.git.operation;
 
 import at.ac.tuwien.model.change.management.core.exception.DSLException;
-import at.ac.tuwien.model.change.management.core.model.Configuration;
-import at.ac.tuwien.model.change.management.core.model.Model;
-import at.ac.tuwien.model.change.management.core.model.Node;
-import at.ac.tuwien.model.change.management.core.model.Relation;
+import at.ac.tuwien.model.change.management.core.model.*;
 import at.ac.tuwien.model.change.management.core.transformer.DSLTransformer;
 import at.ac.tuwien.model.change.management.core.utils.ConfigurationContents;
 import at.ac.tuwien.model.change.management.git.exception.RepositoryReadException;
@@ -30,13 +27,15 @@ public class ConfigurationDSLTransformerTest {
 
     @Mock
     @SuppressWarnings("unused") //actually is needed - just to prevent a nullpointer exception
-    private ConfigurationIDGenerator mockIDGenerator;
+    private IdGenerator mockIDGenerator;
 
     @InjectMocks
     ConfigurationDSLTransformerImpl configurationDSLTransformer;
 
     private static final String TEST_CONFIGURATION_NAME = "testConfiguration";
-    private static final String TEST_CONFIGURATION_VERSION = "v1.0.0";
+    private static final String TEST_CONFIGURATION_HASH = "v1.0.0";
+    private static final String TEST_CONFIGURATION_VERSION_NAME = "v1.0.0";
+    private static final String TEST_CONFIGURATION_VERSION_CUSTOM_NAME = "custom-name";
 
     @Test
     public void testParseToConfiguration_emptyContents_shouldReturnEmptyConfiguration() throws DSLException {
@@ -62,7 +61,7 @@ public class ConfigurationDSLTransformerTest {
                 Collections.emptySet(),
                 Collections.emptySet(),
                 TEST_CONFIGURATION_NAME,
-                TEST_CONFIGURATION_VERSION
+                new ConfigurationVersion(TEST_CONFIGURATION_HASH, TEST_CONFIGURATION_VERSION_NAME, TEST_CONFIGURATION_VERSION_CUSTOM_NAME)
         );
 
         assertNameAndVersionMatchTestConstants(configuration);
@@ -83,7 +82,7 @@ public class ConfigurationDSLTransformerTest {
                 Collections.emptySet(),
                 Collections.emptySet(),
                 TEST_CONFIGURATION_NAME,
-                TEST_CONFIGURATION_VERSION
+                new ConfigurationVersion(TEST_CONFIGURATION_HASH, TEST_CONFIGURATION_VERSION_NAME, TEST_CONFIGURATION_VERSION_CUSTOM_NAME)
         );
 
         assertNameAndVersionMatchTestConstants(configuration);
@@ -112,7 +111,7 @@ public class ConfigurationDSLTransformerTest {
                 Set.of(nodeDSL),
                 Collections.emptySet(),
                 TEST_CONFIGURATION_NAME,
-                TEST_CONFIGURATION_VERSION
+                new ConfigurationVersion(TEST_CONFIGURATION_HASH, TEST_CONFIGURATION_VERSION_NAME, TEST_CONFIGURATION_VERSION_CUSTOM_NAME)
         );
 
         assertNameAndVersionMatchTestConstants(configuration);
@@ -148,7 +147,7 @@ public class ConfigurationDSLTransformerTest {
                 Set.of(nodeDSL),
                 Set.of(relationDSL),
                 TEST_CONFIGURATION_NAME,
-                TEST_CONFIGURATION_VERSION
+                new ConfigurationVersion(TEST_CONFIGURATION_HASH, TEST_CONFIGURATION_VERSION_NAME, TEST_CONFIGURATION_VERSION_CUSTOM_NAME)
         );
 
         assertNameAndVersionMatchTestConstants(configuration);
@@ -176,7 +175,7 @@ public class ConfigurationDSLTransformerTest {
                 Set.of(nodeDSL),
                 Collections.emptySet(),
                 TEST_CONFIGURATION_NAME,
-                TEST_CONFIGURATION_VERSION
+                TEST_CONFIGURATION_HASH
         )).isInstanceOf(RepositoryReadException.class);
 
         verify(mockTransformer).parseToModel(modelDSL);
@@ -212,7 +211,11 @@ public class ConfigurationDSLTransformerTest {
         var configurationContents = new ConfigurationContents<String, String, String>();
         configurationContents.addModel(modelDSL);
 
-        var configuration = configurationDSLTransformer.parseToConfiguration(configurationContents, TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION);
+        var configuration = configurationDSLTransformer.parseToConfiguration(
+                configurationContents,
+                TEST_CONFIGURATION_NAME,
+                new ConfigurationVersion(TEST_CONFIGURATION_HASH, TEST_CONFIGURATION_VERSION_NAME, TEST_CONFIGURATION_VERSION_CUSTOM_NAME)
+        );
 
         assertNameAndVersionMatchTestConstants(configuration);
         Assertions.assertThat(configuration.getModels()).containsExactly(model);
@@ -397,15 +400,16 @@ public class ConfigurationDSLTransformerTest {
         verify(mockTransformer).parseToNodeDSL(node);
         verify(mockTransformer).parseToRelationDSL(relation, node);
     }
-
-
+    
     private void assertNameAndVersionAreNull(Configuration configuration) {
         Assertions.assertThat(configuration.getName()).isNull();
-        Assertions.assertThat(configuration.getVersion()).isNull();
+        Assertions.assertThat(configuration.getVersionHash()).isNull();
     }
 
     private void assertNameAndVersionMatchTestConstants(Configuration configuration) {
         Assertions.assertThat(configuration.getName()).isEqualTo(TEST_CONFIGURATION_NAME);
-        Assertions.assertThat(configuration.getVersion()).isEqualTo(TEST_CONFIGURATION_VERSION);
+        Assertions.assertThat(configuration.getVersionHash()).isEqualTo(TEST_CONFIGURATION_HASH);
+        Assertions.assertThat(configuration.getVersionName()).isEqualTo(TEST_CONFIGURATION_VERSION_NAME);
+        Assertions.assertThat(configuration.getVersionCustomName()).isEqualTo(TEST_CONFIGURATION_VERSION_CUSTOM_NAME);
     }
 }

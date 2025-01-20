@@ -1,9 +1,6 @@
 package at.ac.tuwien.model.change.management.git.operation;
 
-import at.ac.tuwien.model.change.management.core.model.Configuration;
-import at.ac.tuwien.model.change.management.core.model.Model;
-import at.ac.tuwien.model.change.management.core.model.Node;
-import at.ac.tuwien.model.change.management.core.model.Relation;
+import at.ac.tuwien.model.change.management.core.model.*;
 import at.ac.tuwien.model.change.management.core.model.attributes.BaseAttributes;
 import at.ac.tuwien.model.change.management.core.model.versioning.ModelDiff;
 import at.ac.tuwien.model.change.management.core.model.versioning.NodeDiff;
@@ -35,6 +32,7 @@ public class ConfigurationRepositoryActionsImpl implements ConfigurationReposito
     private static final String EMPTY_METADATA_REGEX = "<metadata/>";
 
     private final ConfigurationDSLTransformer configurationDSLTransformer;
+    private final VersionNameGenerator versionNameGenerator;
 
     @Override
     public List<Path> writeConfigurationToWorkingDirectory(
@@ -55,6 +53,10 @@ public class ConfigurationRepositoryActionsImpl implements ConfigurationReposito
         log.debug("Reading current configuration from repository: {}", repository.getName());
         return repository.getCurrentRepositoryVersion().map(version -> {
             var configuration = parseRepositoryVersionToConfiguration(repository.getName(), repository.getEncoding(), version);
+            var generatedName = findName(version.tags(), true);
+            var customName = findName(version.tags(), false);
+
+            configuration.setVersion(new ConfigurationVersion(version.id(), generatedName, customName));
             log.debug("Read current configuration {} from repository.", configuration.getName());
             return configuration;
         }).or(() -> {
@@ -118,6 +120,33 @@ public class ConfigurationRepositoryActionsImpl implements ConfigurationReposito
         return configurationContents;
     }
 
+    @Override
+    public String commitConfigurationChanges(@NonNull ManagedRepository managedRepository, @NonNull String commitMessage, String customTag) {
+        log.debug("Committing configuration changes to repository: {}", managedRepository.getName());
+        var changes = managedRepository.versioning().stageAll();
+        var commitHash = managedRepository.versioning().commit(defaultCommitMessage(
+                        managedRepository.getName(), changes),
+                true
+        );
+        var existingTags = managedRepository.versioning().listTags();
+        var newAutoVersionTag = versionNameGenerator.findNextVersionName(existingTags);
+        managedRepository.versioning().tagCommit(commitHash, newAutoVersionTag);
+
+        if (customTag != null && !customTag.equals(newAutoVersionTag)) {
+            managedRepository.versioning().tagCommit(commitHash, customTag);
+        }
+        log.info("Committed {} configuration changes to repository: {}", changes, managedRepository.getName());
+
+        return commitHash;
+    }
+
+    @Override
+    public void renameConfigurationRepository(@NonNull ManagedRepository repository, @NonNull String newName) {
+        log.debug("Renaming repository '{}' to '{}'", repository.getName(), newName);
+        repository.renameRepository(newName);
+        log.info("Renamed repository '{}' to '{}'", repository.getName(), newName);
+    }
+
     private Set<ManagedRepositoryFile> generateRepositoryFiles(
             ConfigurationContents<DSLElement<Model>, DSLElement<Node>, DSLElement<Relation>> configurationContents
     ) {
@@ -148,7 +177,11 @@ public class ConfigurationRepositoryActionsImpl implements ConfigurationReposito
             ManagedRepositoryVersion version
     ) {
         var configurationDSL = getRepositoryContents(version.objects(), encoding);
-        return configurationDSLTransformer.parseToConfiguration(configurationDSL, name, version.id());
+        var versionName = findName(version.tags(), true);
+        var versionCustomName = findName(version.tags(), false);
+        var configurationVersion = new ConfigurationVersion(version.id(), versionName, versionCustomName);
+
+        return configurationDSLTransformer.parseToConfiguration(configurationDSL, name, configurationVersion);
     }
 
     private ConfigurationContents<String, String, String> getRepositoryContents(Collection<ManagedRepositoryObject> objects, Charset encoding) {
@@ -215,4 +248,14 @@ public class ConfigurationRepositoryActionsImpl implements ConfigurationReposito
         return Path.of(path).getFileName().toString().replace(FILE_EXTENSION, "");
     }
 
+    private String defaultCommitMessage(String configurationName, int numberOfChanges) {
+        return "Updated configuration '" + configurationName + "' with " + numberOfChanges + " changes staged";
+    }
+
+    private String findName(List<String> tags, boolean isGenerated) {
+        return tags.stream()
+                .filter(tag -> isGenerated == versionNameGenerator.isAutoGeneratedVersionName(tag))
+                .findFirst()
+                .orElse(null);
+    }
 }

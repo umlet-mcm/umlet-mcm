@@ -2,7 +2,10 @@ package at.ac.tuwien.model.change.management.testutil.assertion;
 
 import at.ac.tuwien.model.change.management.core.model.Configuration;
 import lombok.NonNull;
-import org.assertj.core.api.*;
+import org.assertj.core.api.AbstractObjectAssert;
+import org.assertj.core.api.AbstractStringAssert;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
 
 public class ConfigurationAssert extends AbstractObjectAssert<ConfigurationAssert, Configuration> {
@@ -27,15 +30,27 @@ public class ConfigurationAssert extends AbstractObjectAssert<ConfigurationAsser
         return this;
     }
 
+    public ConfigurationAssert hasVersionCustomName(@NonNull String customName) {
+        isNotNull();
+        Assertions.assertThat(actual.getVersionCustomName()).isEqualTo(customName);
+        return this;
+    }
+
+    public ConfigurationAssert hasVersionName(@NonNull String name) {
+        isNotNull();
+        Assertions.assertThat(actual.getVersionName()).isEqualTo(name);
+        return this;
+    }
+
     public ConfigurationAssert hasVersion(@NonNull String otherVersion) {
         isNotNull();
-        Assertions.assertThat(actual.getVersion()).isEqualTo(otherVersion);
+        Assertions.assertThat(actual.getVersionHash()).isEqualTo(otherVersion);
         return this;
     }
 
     public ConfigurationAssert hasValidVersion() {
         isNotNull();
-        Assertions.assertThat(actual.getVersion())
+        Assertions.assertThat(actual.getVersionHash())
                 .isNotNull()
                 .isNotBlank()
                 .hasSize(40);
@@ -49,7 +64,7 @@ public class ConfigurationAssert extends AbstractObjectAssert<ConfigurationAsser
 
     public AbstractStringAssert<?> version() {
         isNotNull();
-        return this.extracting(Configuration::getVersion).asInstanceOf(InstanceOfAssertFactories.STRING);
+        return this.extracting(Configuration::getVersionHash).asInstanceOf(InstanceOfAssertFactories.STRING);
     }
 
     private static RecursiveComparisonConfiguration recursiveFieldsComparison() {

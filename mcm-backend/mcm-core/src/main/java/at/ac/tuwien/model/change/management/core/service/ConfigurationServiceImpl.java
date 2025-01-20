@@ -16,7 +16,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -80,6 +82,32 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             log.info("Deleted configuration '{}'.", sanitizedName);
         } catch (RepositoryAccessException e) {
             throw new ConfigurationDeleteException("Failed to delete configuration '" + sanitizedName + "'.", e);
+        }
+    }
+
+    @Override
+    public Configuration renameConfiguration(@NonNull String currentName, @NonNull String newName) {
+        log.debug("Renaming configuration '{}' to '{}'.", currentName, newName);
+
+        var sanitizedCurrentName = ConfigurationUtils.sanitizeConfigurationName(currentName);
+        var sanitizedNewName = ConfigurationUtils.sanitizeConfigurationName(newName);
+
+        if (sanitizedCurrentName.equals(sanitizedNewName)) {
+            return configurationRepository.findCurrentVersionOfConfigurationByName(sanitizedCurrentName)
+                    .orElseThrow(() -> new ConfigurationNotFoundException("Configuration '" + sanitizedCurrentName + "' not found."));
+        }
+
+        try {
+            configurationRepository.renameConfiguration(sanitizedCurrentName, sanitizedNewName);
+            log.info("Renamed configuration '{}' to '{}'.", sanitizedCurrentName, sanitizedNewName);
+
+            return configurationRepository.findCurrentVersionOfConfigurationByName(sanitizedNewName)
+                    .orElseThrow(() -> new ConfigurationNotFoundException("Failed to rename configuration '" + sanitizedCurrentName + "' to '" + sanitizedNewName + "'.\n"
+                            + "Renamed version of configuration '" + sanitizedNewName + "' could not be found."));
+        } catch (RepositoryAlreadyExistsException e) {
+            throw new ConfigurationAlreadyExistsException("Configuration with name '" + sanitizedNewName + "' already exists.", e);
+        } catch (RepositoryAccessException e) {
+            throw new ConfigurationRenameException("Failed to rename configuration '" + sanitizedCurrentName + "' to '" + sanitizedNewName + "'.", e);
         }
     }
 
@@ -214,7 +242,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     private void validateNewConfiguration(Configuration configuration) {
-        if (configuration.getVersion() != null) {
+        if (configuration.getVersionHash() != null) {
             throw new ConfigurationValidationException("New configuration cannot have a version.");
         }
 

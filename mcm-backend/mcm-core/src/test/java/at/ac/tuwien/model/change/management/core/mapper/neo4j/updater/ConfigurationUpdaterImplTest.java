@@ -1,6 +1,7 @@
 package at.ac.tuwien.model.change.management.core.mapper.neo4j.updater;
 
 import at.ac.tuwien.model.change.management.core.model.Configuration;
+import at.ac.tuwien.model.change.management.core.model.ConfigurationVersion;
 import at.ac.tuwien.model.change.management.core.model.Model;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,7 +37,7 @@ class ConfigurationUpdaterImplTest {
         model1.setId("1");
         models.add(model1);
         configuration.setModels(models);
-        configuration.setVersion("123");
+        configuration.setVersion(new ConfigurationVersion("123", null, null));
 
         Configuration configurationToUpdate = new Configuration();
         configurationToUpdate.setName("OldConfig");
@@ -45,12 +46,12 @@ class ConfigurationUpdaterImplTest {
         modelToUpdate1.setId("1");
         modelsToUpdate.add(modelToUpdate1);
         configurationToUpdate.setModels(modelsToUpdate);
-        configurationToUpdate.setVersion("456");
+        configurationToUpdate.setVersion(new ConfigurationVersion("456", null, null));
 
         configurationUpdater.updateConfiguration(configuration, configurationToUpdate);
 
         assertEquals("NewConfig", configurationToUpdate.getName());
-        assertEquals("456", configurationToUpdate.getVersion());
+        assertEquals("456", configurationToUpdate.getVersionHash());
         verify(modelUpdater, times(1)).updateModel(model1, modelToUpdate1);
         assertEquals(1, configurationToUpdate.getModels().size());
     }

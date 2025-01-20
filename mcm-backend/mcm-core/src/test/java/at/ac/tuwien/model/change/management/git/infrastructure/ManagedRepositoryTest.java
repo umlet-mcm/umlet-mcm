@@ -1,6 +1,7 @@
 package at.ac.tuwien.model.change.management.git.infrastructure;
 
 import at.ac.tuwien.model.change.management.git.exception.RepositoryAccessException;
+import at.ac.tuwien.model.change.management.git.exception.RepositoryAlreadyExistsException;
 import at.ac.tuwien.model.change.management.git.exception.RepositoryDeleteException;
 import at.ac.tuwien.model.change.management.git.exception.RepositoryWriteException;
 import at.ac.tuwien.model.change.management.git.util.PathUtils;
@@ -332,9 +333,9 @@ public class ManagedRepositoryTest {
 
         Assertions.assertThat(currentVersion).usingRecursiveComparison().isEqualTo(secondVersion);
         Assertions.assertThat(currentVersion).hasValueSatisfying(v -> {
-                    Assertions.assertThat(v.id()).isEqualTo(secondVersionID);
-                    Assertions.assertThat(v.objects()).hasSize(2);
-                });
+            Assertions.assertThat(v.id()).isEqualTo(secondVersionID);
+            Assertions.assertThat(v.objects()).hasSize(2);
+        });
     }
 
     @Test
@@ -395,6 +396,29 @@ public class ManagedRepositoryTest {
         verify(spyJGitRepository, times(1)).close();
     }
 
+    @Test
+    public void testRename_repositoryExists_shouldRenameRepository() {
+        initTestRepository();
+        var newName = "newName";
+        testRepository.renameRepository(newName);
+        Assertions.assertThat(getWorkTree()).doesNotExist();
+        Assertions.assertThat(testRepository.getName()).isEqualTo(newName);
+        Assertions.assertThat(getWorkTree(newName)).exists();
+    }
+
+    @Test
+    public void testRename_newNameExists_shouldThrowException() {
+        initTestRepository();
+        var newName = testName;
+        Assertions.assertThatThrownBy(() -> testRepository.renameRepository(newName))
+                .isInstanceOf(RepositoryAlreadyExistsException.class);
+    }
+
+    @Test
+    public void testRename_repositoryNotExists_shouldNotThrowException() {
+        Assertions.assertThatCode(() -> testRepository.renameRepository("newName")).doesNotThrowAnyException();
+    }
+
     @SneakyThrows(IOException.class)
     private Repository getjGitRepository() {
         return new FileRepositoryBuilder()
@@ -412,6 +436,10 @@ public class ManagedRepositoryTest {
 
     private Path getWorkTree() {
         return tempDir.resolve(testName);
+    }
+
+    private Path getWorkTree(String name) {
+        return tempDir.resolve(name);
     }
 
     private void initTestRepository() {

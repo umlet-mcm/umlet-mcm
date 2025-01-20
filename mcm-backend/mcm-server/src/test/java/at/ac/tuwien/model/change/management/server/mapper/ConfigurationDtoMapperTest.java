@@ -1,10 +1,12 @@
 package at.ac.tuwien.model.change.management.server.mapper;
 
 import at.ac.tuwien.model.change.management.core.model.Configuration;
+import at.ac.tuwien.model.change.management.core.model.ConfigurationVersion;
 import at.ac.tuwien.model.change.management.core.model.Model;
 import at.ac.tuwien.model.change.management.core.model.Relation;
 import at.ac.tuwien.model.change.management.core.model.attributes.BaseAttributes;
 import at.ac.tuwien.model.change.management.server.dto.ConfigurationDTO;
+import at.ac.tuwien.model.change.management.server.dto.ConfigurationVersionDTO;
 import at.ac.tuwien.model.change.management.server.dto.ModelDTO;
 import at.ac.tuwien.model.change.management.server.dto.RelationDTO;
 import at.ac.tuwien.model.change.management.server.testutil.DtoGen;
@@ -31,14 +33,14 @@ class ConfigurationDtoMapperTest extends MapperTest {
     void testToDto() {
         Configuration configuration = new Configuration();
         configuration.setName("Test Config");
-        configuration.setVersion("1.0");
+        configuration.setVersion(new ConfigurationVersion("1.0", null, null));
         configuration.setModels(Set.of(new Model()));
 
         ConfigurationDTO dto = mapper.toDto(configuration);
 
         assertNotNull(dto);
         assertEquals(configuration.getName(), dto.name());
-        assertEquals(configuration.getVersion(), dto.version());
+        assertEquals(configuration.getVersionHash(), dto.version().hash());
         assertNotNull(dto.models());
         assertFalse(dto.models().isEmpty());
     }
@@ -49,7 +51,7 @@ class ConfigurationDtoMapperTest extends MapperTest {
 
         ConfigurationDTO dto = new ConfigurationDTO(
                 "Test Config",
-                "1.0",
+                new ConfigurationVersionDTO("1.0", null, null),
                 Set.of(modelDTO)
         );
 
@@ -57,7 +59,7 @@ class ConfigurationDtoMapperTest extends MapperTest {
 
         assertNotNull(configuration);
         assertEquals("Test Config", configuration.getName());
-        assertEquals("1.0", configuration.getVersion());
+        assertEquals("1.0", configuration.getVersionHash());
         assertNotNull(configuration.getModels());
         assertFalse(configuration.getModels().isEmpty());
     }

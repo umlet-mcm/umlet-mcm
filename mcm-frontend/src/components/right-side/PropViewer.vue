@@ -2,6 +2,7 @@
 import {Node, Relation} from "@/types/Node.ts";
 import {TableBody, TableCell, TableHead, TableRow, Table} from "@/components/ui/table";
 import {HelpCircle} from "lucide-vue-next";
+import {prettyPrint} from "@/lib/utils.ts";
 
 /**
  * @param {Node | Relation} selectedEntity, selected entity (optional)
@@ -18,7 +19,7 @@ defineProps({
   <div class="space-y-2 p-2 h-full flex flex-col">
     <div class="flex items-center justify-between space-y-2">
       <h2 class="text-lg font-semibold">
-        Properties{{ selectedEntity?.title ? `: ${selectedEntity.title}` : '' }}
+        Properties {{ selectedEntity?.title ? `: ${prettyPrint(selectedEntity.title)}` : '' }}
       </h2>
     </div>
     <div v-if="selectedEntity" class="rounded-md border">
@@ -43,6 +44,14 @@ defineProps({
           <TableRow v-for="[key, value] in Object.entries({...selectedEntity.umletAttributes})">
             <TableCell class="font-medium w-1/3">{{ key }}</TableCell>
             <TableCell class="w-2/3">{{ value }}</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell class="font-medium w-1/3">&lt;Full name&gt;</TableCell>
+            <TableCell class="w-2/3">{{ selectedEntity.title }}</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell class="font-medium w-1/3">&lt;Full description&gt;</TableCell>
+            <TableCell class="w-2/3">{{ selectedEntity.description }}</TableCell>
           </TableRow>
         </TableBody>
       </Table>

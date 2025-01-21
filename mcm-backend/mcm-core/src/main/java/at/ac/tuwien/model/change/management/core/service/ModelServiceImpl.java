@@ -1,10 +1,15 @@
 package at.ac.tuwien.model.change.management.core.service;
 
 import at.ac.tuwien.model.change.management.core.exception.ModelNotFoundException;
+import at.ac.tuwien.model.change.management.core.mapper.uxf.ModelUxfMapper;
 import at.ac.tuwien.model.change.management.core.model.Configuration;
 import at.ac.tuwien.model.change.management.core.model.Model;
+import at.ac.tuwien.model.change.management.core.model.intermediary.ModelUxf;
+import at.ac.tuwien.model.change.management.core.model.utils.PositionUtils;
+import at.ac.tuwien.model.change.management.core.model.utils.RelationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Service;
 
 import java.util.Iterator;
@@ -33,5 +38,18 @@ public class ModelServiceImpl implements ModelService {
         }
 
         throw new ModelNotFoundException("Model with id '" + modelId + "' not found");
+    }
+
+    @Override
+    public List<Model> alignModels(List<Model> models) {
+        ModelUxfMapper modelUxfMapper = Mappers.getMapper(ModelUxfMapper.class);
+        List<ModelUxf> modelUxfs = models.stream().map(modelUxfMapper::fromModel).toList();
+
+        PositionUtils.alignModels(modelUxfs);
+
+        return modelUxfs.stream().map(m->{
+            Model model = modelUxfMapper.toModel(m);
+            return RelationUtils.processRelations(model);
+        }).toList();
     }
 }

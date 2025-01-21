@@ -10,17 +10,17 @@ import java.util.LinkedHashMap;
 public interface ElementUxfMapper {
 
     // no explicit mapping for mcmAttributes, the custom function below will handle them
-    @Mapping(source = "attributes.originalText", target = "originalText")
     @Mapping(source = "attributes.description", target = "description")
     @Mapping(source = "attributes.umletAttributes", target = "umletAttributes")
     @Mapping(source = "umletPosition", target = "umletPosition")
+    @Mapping(source = "attributes.mcmAttributesInlineComments", target = "mcmAttributesInlineComments")
     Node toNode(ElementUxf element, @Context int zoomLevel);
 
     // explicit mapping for mcmAttributes needed because the custom mapping function only handles the extracted fields
     @Mapping(source = "mcmAttributes", target = "attributes.mcmAttributes")
     @Mapping(source = "umletAttributes", target = "attributes.umletAttributes")
-    @Mapping(source = "originalText", target = "attributes.originalText")
     @Mapping(source = "umletPosition", target = "umletPosition")
+    @Mapping(source = "mcmAttributesInlineComments", target = "attributes.mcmAttributesInlineComments")
     ElementUxf fromNode(Node node, @Context int zoomLevel);
 
     @AfterMapping

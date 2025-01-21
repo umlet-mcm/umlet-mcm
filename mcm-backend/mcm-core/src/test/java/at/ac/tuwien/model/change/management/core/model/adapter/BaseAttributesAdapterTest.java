@@ -33,12 +33,12 @@ public class BaseAttributesAdapterTest {
 
     @BeforeAll
     static void init() {
-        exp1.setOriginalText(testAttributes1);
 
         exp1.setDescription("""
                 Laser Welding Quality Control
                 Cause-Effect Network and
                 Product-Process-Resource Asset Network
+                // -----------
                 text
                 """);
 
@@ -53,11 +53,10 @@ public class BaseAttributesAdapterTest {
     @Test
     void testUnmarshal() {
         var res = testAdapter.unmarshal(testAttributes1);
-        Assertions.assertEquals(exp1.getOriginalText(), res.getOriginalText());
         Assertions.assertEquals(exp1.getDescription(), res.getDescription());
         Assertions.assertEquals(exp1.getMcmAttributes(), res.getMcmAttributes());
 
-        Assertions.assertEquals(Map.of("id",12),testAdapter.unmarshal(testAttributes2).getMcmAttributes());
+        Assertions.assertEquals(Map.of("id", 12), testAdapter.unmarshal(testAttributes2).getMcmAttributes());
 
         Assertions.assertNotNull(testAdapter.unmarshal(""));
     }

@@ -142,6 +142,10 @@ public class ManagedRepositoryVersioning {
      * @return the hash of the created commit
      */
     public String commit(@NonNull String referenceToUpdate, @NonNull String message, boolean stageModifiedFiles) {
+        if (!isInitialized()) {
+            throw new RepositoryVersioningException("Cannot commit changes in uninitialized repository: " + name);
+        }
+
         // we want to update the HEAD, if HEAD and reference match
         // because in that case we want to move both HEAD and reference
         var headCommitId = resolveHead().orElse(ObjectId.zeroId());
@@ -151,11 +155,6 @@ public class ManagedRepositoryVersioning {
         var parentCommit = updateMatchesHead
                 ? (headCommitId.equals(ObjectId.zeroId()) ? null : headCommitId)
                 : updateReferenceID;
-
-
-        if (!isInitialized()) {
-            throw new RepositoryVersioningException("Cannot commit changes in uninitialized repository: " + name);
-        }
 
         log.debug("Committing changes with message '{}' in repository: {}", message, name);
         if (message.isBlank()) {
@@ -312,6 +311,80 @@ public class ManagedRepositoryVersioning {
             // we prefer to wrap this in our own exception though. So catching that here as well
             throw new RepositoryVersioningException("Failed to reset to version '" + version + "' in repository: " + name, e);
         }
+    }
+
+    /**
+     * Tag the specified commit in the repository.
+     */
+    public void tagCommit(@NonNull String commit, @NonNull String tagName) {
+        if (!isInitialized()) {
+            throw new RepositoryVersioningException("Cannot tag commit in uninitialized repository: " + name);
+        }
+
+        try (var git = Git.wrap(repository)) {
+            log.debug("Tagging commit '{}' with tag '{}' in repository: {}", commit, tagName, name);
+            git.tag().setObjectId(resolveCommit(commit)
+                    .orElseThrow(() -> new RepositoryVersioningException("Commit '" + commit + "' not found in repository: " + name)))
+                    .setName(tagName)
+                    .call();
+            log.debug("Tagged commit '{}' with tag '{}' in repository: {}", commit, tagName, name);
+        } catch (GitAPIException e) {
+            throw new RepositoryVersioningException("Failed to tag commit '" + commit + "' with tag '" + tagName + "' in repository: " + name, e);
+        }
+    }
+
+    /**
+     * List all tags in the repository.
+     * @return a list of tag names in the repository
+     */
+    public List<String> listTags(){
+        log.debug("Listing tags in repository: {}", name);
+        if (!isInitialized()) {
+            throw new RepositoryVersioningException("Cannot list tags in uninitialized repository: " + name);
+        }
+        var tags = listTags(null);
+        log.debug("Listed {} tags in repository: {}", tags.size(), name);
+        return tags;
+    }
+
+    /**
+     * List all tags for a specific commit in the repository.
+     * @param forCommit the commit to list tags for
+     * @return a list of tag names for the specified commit in the repository
+     */
+    public List<String> listTagsForCommit(@NonNull String forCommit) {
+        log.debug("Listing tags for commit '{}' in repository: {}", forCommit, name);
+        if (!isInitialized()) {
+            throw new RepositoryVersioningException("Cannot list tags in uninitialized repository: " + name);
+        }
+        var commit = resolveCommit(forCommit)
+                .orElseThrow(() -> new RepositoryVersioningException("Commit '" + forCommit + "' not found in repository " +
+                        "when trying to list its tags: " + name));
+        var tags = listTags(commit);
+        log.debug("Listed {} tags for commit '{}' in repository: {}", tags.size(), forCommit, name);
+        return tags;
+    }
+
+    private List<String> listTags(@Nullable ObjectId forCommit) {
+        try (var git = Git.wrap(repository)) {
+            var listTagsCommand = git.tagList();
+            if (forCommit != null) {
+                listTagsCommand.setContains(forCommit);
+            }
+            return listTagsCommand.call().stream()
+                    .map(Ref::getName)
+                    .map(this::stripTags)
+                    .toList();
+        } catch (GitAPIException e) {
+            throw new RepositoryVersioningException("Failed to list tags in repository: " + name, e);
+        } catch (IOException e) {
+            throw new RepositoryVersioningException("Failed to list tags in repository '" + name +
+                    "' for commit '" + forCommit.getName() + "'", e);
+        }
+    }
+
+    private String stripTags(String tagName) {
+        return tagName.replace(Constants.R_TAGS, "");
     }
 
     private Optional<ObjectId> resolveHead() {

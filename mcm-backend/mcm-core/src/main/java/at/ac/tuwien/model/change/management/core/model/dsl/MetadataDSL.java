@@ -13,12 +13,10 @@ import java.util.List;
 @Setter
 @XmlAccessorType(XmlAccessType.FIELD)
 public class MetadataDSL {
-    @XmlElement(name = "original_text")
-    private String originalText;
 
     @XmlElementWrapper(name = "panel_attributes")
     @XmlElement(name = "panel_attribute")
-    private List<PanelAttributeDSL> panelAttributes;
+    private List<KeyValueDSL> panelAttributes;
 
     @XmlElementWrapper(name = "additional_attributes")
     @XmlElement(name = "additional_attribute", type = String.class)

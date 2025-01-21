@@ -40,6 +40,8 @@ public class ModelDSLTest {
         assertEquals(2, model.getTags().size());
         assertEquals("key1", model.getProperties().getFirst().getKey());
         assertEquals("val1", model.getProperties().getFirst().getValue());
-        assertEquals("ModelModeldescription", model.getMetadata().getOriginalText().replace(" ", "").replace("\n", ""));
+        assertEquals(1, model.getPropertiesInlineComments().size());
+        assertEquals("key1", model.getPropertiesInlineComments().getFirst().getKey());
+        assertEquals("comment1", model.getPropertiesInlineComments().getFirst().getValue());
     }
 }

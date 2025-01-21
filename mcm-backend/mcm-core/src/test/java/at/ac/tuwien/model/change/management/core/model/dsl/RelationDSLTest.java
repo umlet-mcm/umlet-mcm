@@ -43,6 +43,10 @@ public class RelationDSLTest {
         assertEquals("key1", relation.getProperties().getFirst().getKey());
         assertEquals("val1", relation.getProperties().getFirst().getValue());
 
+        assertEquals(1, relation.getPropertiesInlineComments().size());
+        assertEquals("key1", relation.getPropertiesInlineComments().getFirst().getKey());
+        assertEquals("comment1", relation.getPropertiesInlineComments().getFirst().getValue());
+
         assertEquals("1", relation.getId());
         assertEquals("Relation", relation.getTitle());
 

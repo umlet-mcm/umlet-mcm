@@ -1,17 +1,19 @@
 package at.ac.tuwien.model.change.management.git.operation;
 
+import at.ac.tuwien.model.change.management.core.exception.ConfigurationValidationException;
 import at.ac.tuwien.model.change.management.core.model.attributes.BaseAttributes;
-import at.ac.tuwien.model.change.management.git.annotation.GitComponent;
-import at.ac.tuwien.model.change.management.git.exception.RepositoryWriteException;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
-@GitComponent
-public class ConfigurationIDGeneratorImpl implements ConfigurationIDGenerator {
+@Service
+@RequiredArgsConstructor
+public class IdGeneratorImpl implements IdGenerator {
 
     @Override
     public String setID(@NonNull BaseAttributes configurationElement, boolean allowOverwrite) {
@@ -23,7 +25,8 @@ public class ConfigurationIDGeneratorImpl implements ConfigurationIDGenerator {
             log.debug("Generated new ID for model element: {}", configurationElement.getTitle());
             return configurationElement.getId();
         }
-        throw new RepositoryWriteException("ID already set for model element, but override was not allowed: " + configurationElement.getTitle());
+        throw new ConfigurationValidationException("ID already set for model element '" + configurationElement.getTitle() +
+                "' but should not have been");
     }
 
     @Override

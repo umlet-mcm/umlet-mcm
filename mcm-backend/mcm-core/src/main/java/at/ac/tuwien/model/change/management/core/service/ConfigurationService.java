@@ -36,13 +36,15 @@ public interface ConfigurationService {
 
     /**
      * Delete a configuration with the given name
+     *
      * @param name the name of the configuration to delete
      */
     void deleteConfiguration(@NonNull String name);
 
     /**
      * Get the most recent version a configuration by its name
-     * @param name the name of the configuration
+     *
+     * @param name            the name of the configuration
      * @param loadIntoGraphDB whether the configuration should also automatically be loaded into the graph database
      * @return the most recent version of the configuration with the given name
      */
@@ -50,8 +52,9 @@ public interface ConfigurationService {
 
     /**
      * Get a specific version of a configuration by its name and version
-     * @param name the name of the configuration
-     * @param version the version of the configuration
+     *
+     * @param name            the name of the configuration
+     * @param version         the version of the configuration
      * @param loadIntoGraphDB whether the configuration should also automatically be loaded into the graph database
      * @return the configuration with the given name and version
      */
@@ -59,12 +62,14 @@ public interface ConfigurationService {
 
     /**
      * Get the most recent versions of all configurations
+     *
      * @return a list of the most recent versions of all configurations
      */
     List<Configuration> getAllConfigurations();
 
     /**
      * List all versions of a configuration by its name
+     *
      * @param name the name of the configuration
      * @return a list of all versions of the configuration with the given name
      */
@@ -72,9 +77,10 @@ public interface ConfigurationService {
 
     /**
      * Compare two versions of a configuration by their identifiers
-     * @param name the name of the configuration
-     * @param oldVersion the old version of the configuration
-     * @param newVersion the new version of the configuration
+     *
+     * @param name             the name of the configuration
+     * @param oldVersion       the old version of the configuration
+     * @param newVersion       the new version of the configuration
      * @param includeUnchanged whether to include unchanged models, nodes or relations in the comparison results
      *                         if set to true, these will be included as "UNCHANGED" diff entries with the content simply
      *                         set to the XML representation of the model, node or relation (i.e., not including any Git headers or hunks)
@@ -89,8 +95,9 @@ public interface ConfigurationService {
 
     /**
      * Checkout a specific version of a configuration by its name
-     * @param name the name of the configuration
-     * @param version the version to `git checkout`
+     *
+     * @param name            the name of the configuration
+     * @param version         the version to `git checkout`
      * @param loadIntoGraphDB whether the configuration should also automatically be loaded into the graph database
      * @return the configuration with the given name and version
      * NOTE that this is - as currently implemented - is actual `git checkout`
@@ -100,8 +107,9 @@ public interface ConfigurationService {
 
     /**
      * Reset a configuration to a specific version by its name
-     * @param name the name of the configuration to reset
-     * @param version the version to reset to
+     *
+     * @param name            the name of the configuration to reset
+     * @param version         the version to reset to
      * @param loadIntoGraphDB whether the configuration should also automatically be loaded into the graph database
      * @return the configuration with the given name and version that it has been reset to
      * NOTE that this is - as currently implemented - is actual `git reset`
@@ -112,6 +120,7 @@ public interface ConfigurationService {
     /**
      * Get the current version of the configuration by its name
      * automatically load it into the graph database
+     *
      * @param configuration the configuration to get the current version of
      * @return the current version of the configuration
      */
@@ -122,6 +131,7 @@ public interface ConfigurationService {
     /**
      * Update an existing configuration
      * automatically load it into the graph database
+     *
      * @param configuration the configuration to update
      * @return the updated configuration
      */
@@ -132,6 +142,7 @@ public interface ConfigurationService {
     /**
      * Get the most recent version of a configuration by its name
      * do NOT load it into the graph database
+     *
      * @param name the name of the configuration
      * @return the most recent version of the configuration with the given name
      */
@@ -142,7 +153,8 @@ public interface ConfigurationService {
     /**
      * Get a specific version of a configuration by its name and version
      * do NOT load it into the graph database
-     * @param name the name of the configuration
+     *
+     * @param name    the name of the configuration
      * @param version the version of the configuration
      * @return the configuration with the given name and version
      */
@@ -154,7 +166,8 @@ public interface ConfigurationService {
     /**
      * Checkout a specific version of a configuration by its name
      * do NOT load it into the graph database
-     * @param name the name of the configuration
+     *
+     * @param name    the name of the configuration
      * @param version the version to `git checkout`
      * @return the configuration with the given name and version
      */
@@ -165,7 +178,8 @@ public interface ConfigurationService {
     /**
      * Reset a configuration to a specific version by its name
      * do NOT load it into the graph database
-     * @param name the name of the configuration to reset
+     *
+     * @param name    the name of the configuration to reset
      * @param version the version to reset to
      * @return the configuration with the given name and version that it has been reset to
      */
@@ -173,4 +187,11 @@ public interface ConfigurationService {
         return resetConfigurationVersion(name, version, false);
     }
 
+    /**
+     * Rename a configuration with the given name
+     *
+     * @param currentName the current name of the configuration
+     * @param newName     the new name of the configuration
+     */
+    Configuration renameConfiguration(@NonNull String currentName, @NonNull String newName);
 }

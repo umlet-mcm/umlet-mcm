@@ -1,10 +1,12 @@
 import axios from "axios"
-import {Configuration} from "@/types/Configuration";
-import {Model} from "@/types/Model.ts";
-import {DiffObject} from "@/types/DiffObject.ts";
+import { Configuration } from "@/types/Configuration";
+import { Model } from "@/types/Model.ts";
+import { DiffObject } from "@/types/DiffObject.ts";
+import { AppConfig } from "@/config";
+
 
 const apiClient = axios.create({
-    baseURL: '/api/v1/configurations',
+    baseURL: AppConfig.apiBaseUrl + '/api/v1/configurations',
     headers: {
         'Content-Type': 'application/json'
     }
@@ -119,7 +121,7 @@ export const getConfigurationVersion = async (name: string, version: string): Pr
     try {
         const response = await apiClient.get(`/${name}/versions/${version}`);
         return response.data
-    } catch(error) {
+    } catch (error) {
         throw error;
     }
 }

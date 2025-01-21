@@ -5,11 +5,13 @@ import at.ac.tuwien.model.change.management.core.model.versioning.ModelDiff;
 import at.ac.tuwien.model.change.management.core.model.versioning.NodeDiff;
 import at.ac.tuwien.model.change.management.core.model.versioning.RelationDiff;
 import at.ac.tuwien.model.change.management.core.utils.ConfigurationContents;
-import at.ac.tuwien.model.change.management.git.infrastructure.ManagedRepository;
-import at.ac.tuwien.model.change.management.git.operation.ConfigurationRepositoryActions;
 import at.ac.tuwien.model.change.management.git.annotation.GitComponent;
-import at.ac.tuwien.model.change.management.git.exception.*;
+import at.ac.tuwien.model.change.management.git.exception.RepositoryAlreadyExistsException;
+import at.ac.tuwien.model.change.management.git.exception.RepositoryDoesNotExistException;
+import at.ac.tuwien.model.change.management.git.exception.RepositoryVersioningException;
+import at.ac.tuwien.model.change.management.git.infrastructure.ManagedRepository;
 import at.ac.tuwien.model.change.management.git.infrastructure.RepositoryManager;
+import at.ac.tuwien.model.change.management.git.operation.ConfigurationRepositoryActions;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,12 +41,23 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
     }
 
     @Override
+    public void renameConfiguration(@NonNull String currentName, @NonNull String newName) throws RepositoryAlreadyExistsException {
+        log.debug("Renaming repository for configuration '{}' to '{}'.", currentName, newName);
+
+        repositoryManager.consumeRepository(currentName, repository -> {
+            repositoryActions.renameConfigurationRepository(repository, newName);
+            log.info("Renamed repository for configuration '{}' to '{}'.", currentName, newName);
+        });
+    }
+
+
+    @Override
     public Optional<Configuration> findCurrentVersionOfConfigurationByName(@NonNull String name) {
         log.debug("Finding current version of configuration '{}'.", name);
         return withExistingConfiguration(name, repository -> {
             var optionalConfiguration = repositoryActions.readCurrentConfigurationVersion(repository);
             optionalConfiguration.ifPresentOrElse(
-                    configuration -> log.info("Found current version '{}' of configuration '{}'.", configuration.getVersion(), name),
+                    configuration -> log.info("Found current version '{}' of configuration '{}'.", configuration.getVersionHash(), name),
                     () -> log.warn("Current version of configuration '{}' could not be found.", name)
             );
             return optionalConfiguration;
@@ -57,7 +70,7 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
         return withExistingConfiguration(name, repository -> {
             var optionalConfiguration = repositoryActions.readConfigurationVersion(repository, version);
             optionalConfiguration.ifPresentOrElse(
-                    configuration -> log.info("Found version '{}' of configuration '{}'.", configuration.getVersion(), name),
+                    configuration -> log.info("Found version '{}' of configuration '{}'.", configuration.getVersionHash(), name),
                     () -> log.warn("Version '{}' of configuration '{}' could not be found.", version, name)
             );
             return optionalConfiguration;
@@ -87,10 +100,13 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
             repositoryActions.clearConfigurationRepository(repository);
             repositoryActions.writeConfigurationToWorkingDirectory(repository, configuration);
             var filesCount = repository.versioning().stageAll();
-            var version = repository.versioning().commit(
+            var version = repositoryActions.commitConfigurationChanges(
+                    repository,
                     "Updated configuration '" + configuration.getName() + "' with " + filesCount + " entries",
-                    true
+                    configuration.getVersionCustomName()
             );
+
+
             log.info("Created new version '{}' of configuration: {}.", version, configuration.getName());
             return repositoryActions.readCurrentConfigurationVersion(repository)
                     .orElseThrow(() -> new RepositoryVersioningException("Failed to read new version '" +

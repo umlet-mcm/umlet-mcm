@@ -1,10 +1,7 @@
 package at.ac.tuwien.model.change.management.core.service;
 
 import at.ac.tuwien.model.change.management.core.exception.*;
-import at.ac.tuwien.model.change.management.core.model.Configuration;
-import at.ac.tuwien.model.change.management.core.model.Model;
-import at.ac.tuwien.model.change.management.core.model.Node;
-import at.ac.tuwien.model.change.management.core.model.Relation;
+import at.ac.tuwien.model.change.management.core.model.*;
 import at.ac.tuwien.model.change.management.core.model.versioning.ModelDiff;
 import at.ac.tuwien.model.change.management.core.model.versioning.NodeDiff;
 import at.ac.tuwien.model.change.management.core.model.versioning.RelationDiff;
@@ -59,7 +56,7 @@ public class ConfigurationServiceTest {
     @Test
     public void testCreateConfiguration_configurationWithVersion_shouldThrowConfigurationValidationException() {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
-        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+        configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
 
         Assertions.assertThatThrownBy(() -> configurationService.createConfiguration(configuration, false))
                 .isInstanceOf(ConfigurationValidationException.class)
@@ -135,7 +132,7 @@ public class ConfigurationServiceTest {
     @Test
     public void testUpdateConfiguration_emptyConfiguration_shouldUpdateConfiguration() {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
-        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+        configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
 
         when(configurationRepository.saveConfiguration(configuration)).thenReturn(configuration);
 
@@ -158,7 +155,7 @@ public class ConfigurationServiceTest {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
         configuration.setModels(Set.of(model1, model2));
 
-        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+        configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
 
         Assertions.assertThatThrownBy(() -> configurationService.updateConfiguration(configuration, false))
                 .isInstanceOf(ConfigurationValidationException.class)
@@ -168,7 +165,7 @@ public class ConfigurationServiceTest {
     @Test
     public void testUpdateConfiguration_updateThrowsConfigurationDoesNotExistException_shouldThrowConfigurationDoesNotExistException() {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
-        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+        configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
 
         when(configurationRepository.saveConfiguration(configuration)).thenThrow(new ConfigurationDoesNotExistException(""));
 
@@ -179,7 +176,7 @@ public class ConfigurationServiceTest {
     @Test
     public void testUpdateConfiguration_updateThrowsRepositoryAccessException_shouldThrowConfigurationUpdateException() {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
-        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+        configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
 
         when(configurationRepository.saveConfiguration(configuration)).thenThrow(new RepositoryAccessException(TEST_CONFIGURATION_NAME));
 
@@ -190,7 +187,7 @@ public class ConfigurationServiceTest {
     @Test
     public void testUpdateConfiguration_loadIntoGraphDBFalse_shouldNotLoadIntoGraphDB() {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
-        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+        configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
 
         when(configurationRepository.saveConfiguration(configuration)).thenReturn(configuration);
 
@@ -202,7 +199,7 @@ public class ConfigurationServiceTest {
     @Test
     public void testUpdateConfiguration_loadIntoGraphDBTrue_shouldLoadIntoGraphDB() {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
-        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+        configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
 
         when(configurationRepository.saveConfiguration(configuration)).thenReturn(configuration);
 
@@ -214,7 +211,7 @@ public class ConfigurationServiceTest {
     @Test
     public void testUpdateConfiguration_loadIntoGraphDBDefaultBehavior_shouldLoadIntoGraphDB() {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
-        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+        configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
 
         when(configurationRepository.saveConfiguration(configuration)).thenReturn(configuration);
 
@@ -301,7 +298,7 @@ public class ConfigurationServiceTest {
     @Test
     public void testGetConfigurationVersion_existingConfigurationVersion_shouldReturnConfiguration() {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
-        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+        configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
         when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
 
         var retrievedConfiguration = configurationService.getConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false);
@@ -332,7 +329,7 @@ public class ConfigurationServiceTest {
     @Test
     public void testGetConfigurationVersion_loadIntoGraphDBFalse_shouldNotLoadIntoGraphDB() {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
-        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+        configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
         when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
 
         configurationService.getConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false);
@@ -343,7 +340,7 @@ public class ConfigurationServiceTest {
     @Test
     public void testGetConfigurationVersion_loadIntoGraphDBTrue_shouldLoadIntoGraphDB() {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
-        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+        configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
         when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
 
         configurationService.getConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, true);
@@ -354,7 +351,7 @@ public class ConfigurationServiceTest {
     @Test
     public void testGetConfigurationVersion_loadIntoGraphDBDefaultBehavior_shouldNotLoadIntoGraphDB() {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
-        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+        configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
         when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
 
         configurationService.getConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION);
@@ -462,7 +459,7 @@ public class ConfigurationServiceTest {
     @Test
     public void testCheckoutConfigurationVersion_existingConfiguration_shouldReturnConfiguration() {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
-        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+        configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
 
         when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
 
@@ -495,7 +492,7 @@ public class ConfigurationServiceTest {
     @Test
     public void testCheckoutConfigurationVersion_loadIntoGraphDBFalse_shouldNotLoadIntoGraphDB() {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
-        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+        configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
 
         when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
 
@@ -507,7 +504,7 @@ public class ConfigurationServiceTest {
     @Test
     public void testCheckoutConfigurationVersion_loadIntoGraphDBTrue_shouldLoadIntoGraphDB() {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
-        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+        configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
 
         when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
 
@@ -519,7 +516,7 @@ public class ConfigurationServiceTest {
     @Test
     public void testCheckoutConfigurationVersion_loadIntoGraphDBDefaultBehavior_shouldNotLoadIntoGraphDB() {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
-        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+        configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
 
         when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
 
@@ -531,7 +528,7 @@ public class ConfigurationServiceTest {
     @Test
     public void testResetConfigurationVersion_existingConfiguration_shouldReturnConfiguration() {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
-        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+        configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
 
         when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
 
@@ -564,7 +561,7 @@ public class ConfigurationServiceTest {
     @Test
     public void testResetConfigurationVersion_loadIntoGraphDBFalse_shouldNotLoadIntoGraphDB() {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
-        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+        configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
 
         when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
 
@@ -576,7 +573,7 @@ public class ConfigurationServiceTest {
     @Test
     public void testResetConfigurationVersion_loadIntoGraphDBTrue_shouldLoadIntoGraphDB() {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
-        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+        configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
 
         when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
 
@@ -588,7 +585,7 @@ public class ConfigurationServiceTest {
     @Test
     public void testResetConfigurationVersion_loadIntoGraphDBDefaultBehavior_shouldNotLoadIntoGraphDB() {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
-        configuration.setVersion(TEST_CONFIGURATION_VERSION);
+        configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
 
         when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
 
@@ -597,7 +594,6 @@ public class ConfigurationServiceTest {
         verifyNoInteractions(graphDBService);
     }
 
-
     private Configuration getEmptyConfiguration(String name) {
         var configuration = new Configuration();
         configuration.setName(name);
@@ -605,7 +601,7 @@ public class ConfigurationServiceTest {
     }
 
     @SafeVarargs
-    private<T> List<T> combineLists (List<? extends T>... lists) {
+    private <T> List<T> combineLists(List<? extends T>... lists) {
         List<T> combined = new ArrayList<>();
         for (List<? extends T> l : lists) {
             combined.addAll(l);

@@ -11,6 +11,7 @@ dependencies {
     annotationProcessor(libs.mapstruct.processor)
     implementation(libs.spring.boot.starter.web)
     implementation(libs.spring.boot.starter.validation)
+    implementation(libs.spring.boot.starter.actuator)
     testImplementation(libs.spring.boot.starter.test)
     implementation(libs.gson)
     testImplementation(libs.apache.commons.lang3)

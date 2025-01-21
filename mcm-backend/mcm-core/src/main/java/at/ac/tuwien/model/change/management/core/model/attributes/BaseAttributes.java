@@ -18,11 +18,6 @@ public abstract class BaseAttributes {
     protected List<String> tags;
 
     /**
-     * The full content of panel_attributes for elements or help_text for a model.
-     */
-    protected String originalText;
-
-    /**
      * The beginning of the panel_attributes (or help_text) until the first horizontal line ("--").
      * Comments and Umlet attributes are removed.
      */
@@ -38,6 +33,12 @@ public abstract class BaseAttributes {
      * Custom, non-Umlet related and non-reserved attributes defined in the comments.
      */
     protected LinkedHashMap<String, Object> mcmAttributes;
+
+    /**
+     * For each MCM attribute key store the corresponding inline comment or null
+     * if there's no comment
+     */
+    protected LinkedHashMap<String, String> mcmAttributesInlineComments;
 
     public void updateDescriptionAndTitle(String descriptionWithTitle) {
         this.description = ParserUtils.getDescription(descriptionWithTitle);

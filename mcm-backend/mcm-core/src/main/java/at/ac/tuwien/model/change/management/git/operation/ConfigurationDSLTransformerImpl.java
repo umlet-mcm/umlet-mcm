@@ -1,10 +1,7 @@
 package at.ac.tuwien.model.change.management.git.operation;
 
 import at.ac.tuwien.model.change.management.core.exception.DSLException;
-import at.ac.tuwien.model.change.management.core.model.Configuration;
-import at.ac.tuwien.model.change.management.core.model.Model;
-import at.ac.tuwien.model.change.management.core.model.Node;
-import at.ac.tuwien.model.change.management.core.model.Relation;
+import at.ac.tuwien.model.change.management.core.model.*;
 import at.ac.tuwien.model.change.management.core.transformer.DSLTransformer;
 import at.ac.tuwien.model.change.management.core.utils.ConfigurationContents;
 import at.ac.tuwien.model.change.management.core.utils.ConfigurationProcessor;
@@ -27,7 +24,7 @@ import java.util.stream.Collectors;
 public class ConfigurationDSLTransformerImpl implements ConfigurationDSLTransformer {
 
     private final DSLTransformer dslTransformer;
-    private final ConfigurationIDGenerator configurationIDGenerator;
+    private final IdGenerator idGenerator;
 
     @Override
     public Configuration parseToConfiguration(
@@ -35,7 +32,7 @@ public class ConfigurationDSLTransformerImpl implements ConfigurationDSLTransfor
             @NonNull Set<String> nodes,
             @NonNull Set<String> relations,
             @Nullable String configurationName,
-            @Nullable String configurationVersion) {
+            @Nullable ConfigurationVersion configurationVersion) {
         log.debug("Parsing configuration with name '{}' and version '{}', " +
                         "consisting of {} models, {} nodes and {} relations.",
                 configurationName, configurationVersion, models.size(), nodes.size(), relations.size());
@@ -138,7 +135,7 @@ public class ConfigurationDSLTransformerImpl implements ConfigurationDSLTransfor
 
     private String serializeModel(Model model) {
         try {
-            if (model.getId() == null) configurationIDGenerator.setID(model);
+            if (model.getId() == null) idGenerator.setID(model);
             return dslTransformer.parseToModelDSL(model);
         } catch (DSLException e) {
             throw new RepositoryWriteException("Failed to serialize model to DSL: " + model.getId(), e);
@@ -147,7 +144,7 @@ public class ConfigurationDSLTransformerImpl implements ConfigurationDSLTransfor
 
     private String serializeNode(Node node, Model model) {
         try {
-            if (node.getId() == null) configurationIDGenerator.setID(node);
+            if (node.getId() == null) idGenerator.setID(node);
             if (node.getMcmModelId() == null) node.setMcmModelId(model.getId());
             return dslTransformer.parseToNodeDSL(node);
         } catch (DSLException e) {
@@ -157,7 +154,7 @@ public class ConfigurationDSLTransformerImpl implements ConfigurationDSLTransfor
 
     private String serializeRelation(Relation relation, Node source) {
         try {
-            if (relation.getId() == null) configurationIDGenerator.setID(relation);
+            if (relation.getId() == null) idGenerator.setID(relation);
             if (relation.getMcmModelId() == null) relation.setMcmModelId(source.getMcmModelId());
             return dslTransformer.parseToRelationDSL(relation, source);
         } catch (DSLException e) {

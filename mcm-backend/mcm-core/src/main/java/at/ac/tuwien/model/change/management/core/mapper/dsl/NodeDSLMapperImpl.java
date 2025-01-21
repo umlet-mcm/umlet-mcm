@@ -9,9 +9,8 @@ import org.springframework.stereotype.Component;
 @Component
 @AllArgsConstructor
 public class NodeDSLMapperImpl implements NodeDSLMapper {
-    private final PanelAttributesDSLMapper panelAttributesDSLMapper;
     private final CoordinatesDSLMapper coordinatesDSLMapper;
-    private final PropertiesDSLMapper propertiesDSLMapper;
+    private final KeyValuesDSLMapper keyValuesDSLMapper;
 
     @Override
     public NodeDSL toDSL(Node node) {
@@ -20,8 +19,7 @@ public class NodeDSLMapperImpl implements NodeDSLMapper {
         }
 
         MetadataDSL metadataDSL = new MetadataDSL();
-        metadataDSL.setOriginalText(node.getOriginalText());
-        metadataDSL.setPanelAttributes(panelAttributesDSLMapper.toDSL(node.getUmletAttributes()));
+        metadataDSL.setPanelAttributes(keyValuesDSLMapper.toStringDSL(node.getUmletAttributes()));
         metadataDSL.setAdditionalAttributes(node.getGeneratedAttributes());
         metadataDSL.setCoordinates(coordinatesDSLMapper.toDSL(node.getUmletPosition()));
 
@@ -33,7 +31,8 @@ public class NodeDSLMapperImpl implements NodeDSLMapper {
         nodeDSL.setDescription(node.getDescription());
         nodeDSL.setElementType(node.getElementType());
         nodeDSL.setPprType(node.getPprType());
-        nodeDSL.setProperties(propertiesDSLMapper.toDSL(node.getMcmAttributes()));
+        nodeDSL.setProperties(keyValuesDSLMapper.toObjectDSL(node.getMcmAttributes()));
+        nodeDSL.setPropertiesInlineComments(keyValuesDSLMapper.toStringDSL(node.getMcmAttributesInlineComments()));
         nodeDSL.setTags(node.getTags());
         nodeDSL.setMetadata(metadataDSL);
 
@@ -57,12 +56,12 @@ public class NodeDSLMapperImpl implements NodeDSLMapper {
 
         if (nodeDSL.getMetadata() != null) {
             node.setUmletPosition(coordinatesDSLMapper.fromDSL(nodeDSL.getMetadata().getCoordinates()));
-            node.setUmletAttributes(panelAttributesDSLMapper.fromDSL(nodeDSL.getMetadata().getPanelAttributes()));
+            node.setUmletAttributes(keyValuesDSLMapper.fromStringDSL(nodeDSL.getMetadata().getPanelAttributes()));
             node.setGeneratedAttributes(nodeDSL.getMetadata().getAdditionalAttributes());
-            node.setOriginalText(nodeDSL.getMetadata().getOriginalText());
         }
 
-        node.setMcmAttributes(propertiesDSLMapper.fromDSL(nodeDSL.getProperties()));
+        node.setMcmAttributes(keyValuesDSLMapper.fromObjectDSL(nodeDSL.getProperties()));
+        node.setMcmAttributesInlineComments(keyValuesDSLMapper.fromStringDSL(nodeDSL.getPropertiesInlineComments()));
         node.setTags(nodeDSL.getTags());
 
         return node;

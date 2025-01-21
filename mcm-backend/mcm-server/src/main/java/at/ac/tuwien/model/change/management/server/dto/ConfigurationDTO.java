@@ -6,7 +6,7 @@ import java.util.Set;
 
 public record ConfigurationDTO(
         @NotBlank String name,
-        String version,
+        ConfigurationVersionDTO version,
         Set<ModelDTO> models
 ) {
 }

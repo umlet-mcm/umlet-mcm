@@ -35,7 +35,6 @@ public class NodeDtoMapperTest extends MapperTest {
         assertNotNull(dto);
         assertEquals(node.getId(), dto.id());
         assertEquals(node.getTags(), dto.tags());
-        assertEquals(node.getOriginalText(), dto.originalText());
         assertEquals(node.getTitle(), dto.title());
         assertEquals(node.getDescription(), dto.description());
         assertEquals(node.getMcmAttributes(), dto.mcmAttributes());
@@ -62,7 +61,6 @@ public class NodeDtoMapperTest extends MapperTest {
         assertNotNull(node);
         assertEquals(nodeDTO.id(), node.getId());
         assertEquals(nodeDTO.tags(), node.getTags());
-        assertEquals(nodeDTO.originalText(), node.getOriginalText());
         assertEquals(nodeDTO.title(), node.getTitle());
         assertEquals(nodeDTO.description(), node.getDescription());
         assertEquals(nodeDTO.mcmAttributes(), node.getMcmAttributes());

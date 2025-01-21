@@ -26,6 +26,7 @@ spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-star
 spring-boot-starter-data-neo4j = { module = "org.springframework.boot:spring-boot-starter-data-neo4j" }
 spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web" }
 spring-boot-starter-validation = { module = "org.springframework.boot:spring-boot-starter-validation" }
+spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator"}
 commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
 neo4j-harness = { module = "org.neo4j.test:neo4j-harness", version.ref = "neo4j-harness" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }

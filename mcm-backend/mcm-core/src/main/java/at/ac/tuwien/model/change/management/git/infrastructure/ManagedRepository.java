@@ -2,9 +2,9 @@ package at.ac.tuwien.model.change.management.git.infrastructure;
 
 import at.ac.tuwien.model.change.management.git.exception.*;
 import at.ac.tuwien.model.change.management.git.util.PathUtils;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.lib.Constants;
@@ -22,11 +22,11 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class ManagedRepository implements AutoCloseable {
     private final Repository repository;
     @Getter
-    private final String name;
+    private String name;
     @Getter
     private final Charset encoding;
     @Getter
@@ -37,6 +37,7 @@ public class ManagedRepository implements AutoCloseable {
 
     /**
      * Check if the repository exists.
+     *
      * @return true if the repository exists, false otherwise
      */
     public boolean exists() {
@@ -46,6 +47,7 @@ public class ManagedRepository implements AutoCloseable {
     /**
      * Write files to the repository.
      * The file path is concatenated to the working directory of the repository.
+     *
      * @param files the files to write, including both their path and String content
      * @return a list of the written files as Path objects
      */
@@ -57,6 +59,7 @@ public class ManagedRepository implements AutoCloseable {
     /**
      * Delete files or directories from the repository.
      * Recursively deletes the file or directory at the given path and - if it is a directory - all its contents.
+     *
      * @param files the files or directories to delete
      */
     public void deleteRepositoryFiles(@NonNull Path... files) {
@@ -74,6 +77,7 @@ public class ManagedRepository implements AutoCloseable {
 
     /**
      * Get the current version of the repository.
+     *
      * @return the current version of the repository, or an empty Optional if the repository does not exist
      */
     public Optional<ManagedRepositoryVersion> getCurrentRepositoryVersion() {
@@ -87,6 +91,7 @@ public class ManagedRepository implements AutoCloseable {
 
     /**
      * Get a specific version of the repository.
+     *
      * @param version the version to get
      * @return the version of the repository, or an empty Optional if the repository does not exist
      */
@@ -105,6 +110,7 @@ public class ManagedRepository implements AutoCloseable {
             }
             var commit = repository.parseCommit(objectId);
             var commitHash = commit.getName();
+            var commitTags = versioning().listTagsForCommit(commitHash);
 
             try (var treeWalk = new TreeWalk(repository)) {
                 treeWalk.addTree(commit.getTree());
@@ -115,8 +121,8 @@ public class ManagedRepository implements AutoCloseable {
                     objects.add(new ManagedRepositoryObject(treeWalk, repository, encoding));
                 }
 
-                log.debug("Found {} objects for version '{}' in repository: {}", objects.size(), commitHash, name);
-                return Optional.of(new ManagedRepositoryVersion(commitHash, objects));
+                log.debug("Found {} objects for version '{}' in repository: {}", objects.size(), commitHash, getName());
+                return Optional.of(new ManagedRepositoryVersion(commitHash, commitTags, objects));
             }
         } catch (IOException e) {
             throw new RepositoryReadException("Failed to read repository version: " + version, e);
@@ -131,6 +137,19 @@ public class ManagedRepository implements AutoCloseable {
             PathUtils.deleteFilesRecursively(workDir);
         } catch (IOException e) {
             throw new RepositoryDeleteException("Failed to delete repository: " + name, e);
+        }
+    }
+
+    /**
+     * Rename the repository.
+     */
+    public void renameRepository(String newName) {
+        try {
+            PathUtils.renameFile(workDir, workDir.resolveSibling(newName));
+            name = newName;
+            log.debug("Renamed repository: {} to: {}", name, newName);
+        } catch (IOException e) {
+            throw new RepositoryRenameException("Failed to rename repository: " + name + " to: " + newName, e);
         }
     }
 

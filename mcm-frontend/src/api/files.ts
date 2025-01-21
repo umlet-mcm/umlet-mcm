@@ -1,8 +1,9 @@
 import axios from "axios"
 import {Configuration} from "@/types/Configuration.ts";
+import { AppConfig } from "@/config";
 
 const apiClient = axios.create({
-    baseURL: '/api/v1',
+    baseURL: AppConfig.apiBaseUrl + '/api/v1',
     headers: {
         'Content-Type': 'multipart/form-data'
     }

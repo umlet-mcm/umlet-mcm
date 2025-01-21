@@ -1,11 +1,9 @@
 package at.ac.tuwien.model.change.management.git.operation;
 
-import at.ac.tuwien.model.change.management.core.model.Configuration;
-import at.ac.tuwien.model.change.management.core.model.Model;
-import at.ac.tuwien.model.change.management.core.model.Node;
-import at.ac.tuwien.model.change.management.core.model.Relation;
+import at.ac.tuwien.model.change.management.core.model.*;
 import at.ac.tuwien.model.change.management.core.model.attributes.BaseAttributes;
 import at.ac.tuwien.model.change.management.core.utils.ConfigurationContents;
+import at.ac.tuwien.model.change.management.git.exception.RepositoryAlreadyExistsException;
 import at.ac.tuwien.model.change.management.git.exception.RepositoryReadException;
 import at.ac.tuwien.model.change.management.git.infrastructure.*;
 import org.assertj.core.api.Assertions;
@@ -20,6 +18,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
@@ -41,6 +40,9 @@ public class ConfigurationRepositoryActionsTest {
     @Mock
     private ConfigurationDSLTransformer mockTransformer;
 
+    @Mock
+    private VersionNameGenerator mockVersionNameGenerator;
+
     @InjectMocks
     private ConfigurationRepositoryActionsImpl configurationRepositoryActions;
 
@@ -48,14 +50,16 @@ public class ConfigurationRepositoryActionsTest {
 
     private final static String TEST_CONFIGURATION_NAME = "test";
 
-    private final static String TEST_CONFIGURATION_VERSION = "v1.0.0";
+    private final static String TEST_CONFIGURATION_HASH = "v1.0.0";
+
+    private final static ConfigurationVersion TEST_CONFIGURATION_VER = new ConfigurationVersion(TEST_CONFIGURATION_HASH, null, null);
 
     private final static Charset encoding = StandardCharsets.UTF_8;
 
     @BeforeEach
     public void setup() {
         testConfig.setName(TEST_CONFIGURATION_NAME);
-        testConfig.setVersion(TEST_CONFIGURATION_VERSION);
+        testConfig.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_HASH, null, null));
         lenient().when(mockRepository.getName()).thenReturn(TEST_CONFIGURATION_NAME);
         lenient().when(mockRepository.getEncoding()).thenReturn(encoding);
         lenient().when(mockRepository.versioning()).thenReturn(mockVersioning);
@@ -104,7 +108,7 @@ public class ConfigurationRepositoryActionsTest {
 
     @Test
     public void testReadCurrentConfigurationVersion_emptyRepository_shouldReturnEmptyConfiguration() {
-        mockConfigurationRead(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, true);
+        mockConfigurationRead(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_HASH, true);
         var optionalConfiguration = configurationRepositoryActions.readCurrentConfigurationVersion(mockRepository);
 
         Assertions.assertThat(optionalConfiguration).hasValueSatisfying(configuration -> {
@@ -113,14 +117,14 @@ public class ConfigurationRepositoryActionsTest {
         });
 
         verify(mockRepository).getCurrentRepositoryVersion();
-        verify(mockTransformer).parseToConfiguration(argThat(this::contentsEmpty), eq(TEST_CONFIGURATION_NAME), eq(TEST_CONFIGURATION_VERSION));
+        verify(mockTransformer).parseToConfiguration(argThat(this::contentsEmpty), eq(TEST_CONFIGURATION_NAME), eq(TEST_CONFIGURATION_VER));
     }
 
     @Test
     public void testReadCurrentConfigurationVersion_repositoryWithModel_shouldReturnConfigurationWithModel() {
         var model = new Model();
 
-        mockConfigurationRead(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, true, model);
+        mockConfigurationRead(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_HASH, true, model);
         var optionalConfiguration = configurationRepositoryActions.readCurrentConfigurationVersion(mockRepository);
 
         Assertions.assertThat(optionalConfiguration).hasValueSatisfying(configuration -> {
@@ -129,7 +133,7 @@ public class ConfigurationRepositoryActionsTest {
         });
 
         verify(mockRepository).getCurrentRepositoryVersion();
-        verify(mockTransformer).parseToConfiguration(argThat(c -> contentsSize(c, 1)), eq(TEST_CONFIGURATION_NAME), eq(TEST_CONFIGURATION_VERSION));
+        verify(mockTransformer).parseToConfiguration(argThat(c -> contentsSize(c, 1)), eq(TEST_CONFIGURATION_NAME), eq(TEST_CONFIGURATION_VER));
     }
 
     @Test
@@ -137,8 +141,8 @@ public class ConfigurationRepositoryActionsTest {
         var node = new Node();
         var model = getModel(node);
 
-        mockConfigurationRead(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, true, model, node);
-        var optionalConfiguration= configurationRepositoryActions.readCurrentConfigurationVersion(mockRepository);
+        mockConfigurationRead(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_HASH, true, model, node);
+        var optionalConfiguration = configurationRepositoryActions.readCurrentConfigurationVersion(mockRepository);
 
         Assertions.assertThat(optionalConfiguration).hasValueSatisfying(configuration -> {
             assertNameAndVersionMatchTestConstants(configuration);
@@ -147,7 +151,7 @@ public class ConfigurationRepositoryActionsTest {
         });
 
         verify(mockRepository).getCurrentRepositoryVersion();
-        verify(mockTransformer).parseToConfiguration(argThat(c -> contentsSize(c, 2)), eq(TEST_CONFIGURATION_NAME), eq(TEST_CONFIGURATION_VERSION));
+        verify(mockTransformer).parseToConfiguration(argThat(c -> contentsSize(c, 2)), eq(TEST_CONFIGURATION_NAME), eq(TEST_CONFIGURATION_VER));
     }
 
     @Test
@@ -156,7 +160,7 @@ public class ConfigurationRepositoryActionsTest {
         var node = getNode(relation);
         var model = getModel(node);
 
-        mockConfigurationRead(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, true, model, node, relation);
+        mockConfigurationRead(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_HASH, true, model, node, relation);
         var optionalConfiguration = configurationRepositoryActions.readCurrentConfigurationVersion(mockRepository);
 
         Assertions.assertThat(optionalConfiguration).hasValueSatisfying(configuration -> {
@@ -167,7 +171,7 @@ public class ConfigurationRepositoryActionsTest {
         });
 
         verify(mockRepository).getCurrentRepositoryVersion();
-        verify(mockTransformer).parseToConfiguration(argThat(c -> contentsSize(c, 3)), eq(TEST_CONFIGURATION_NAME), eq(TEST_CONFIGURATION_VERSION));
+        verify(mockTransformer).parseToConfiguration(argThat(c -> contentsSize(c, 3)), eq(TEST_CONFIGURATION_NAME), eq(TEST_CONFIGURATION_VER));
     }
 
     @Test
@@ -176,7 +180,7 @@ public class ConfigurationRepositoryActionsTest {
         var nodes = new Node[]{new Node(), new Node(), getNode(relation)};
         var model = getModel(nodes);
 
-        mockConfigurationRead(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, true,
+        mockConfigurationRead(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_HASH, true,
                 model, nodes[0], nodes[1], nodes[2], relation);
         var optionalConfiguration = configurationRepositoryActions.readCurrentConfigurationVersion(mockRepository);
 
@@ -188,7 +192,7 @@ public class ConfigurationRepositoryActionsTest {
         });
 
         verify(mockRepository).getCurrentRepositoryVersion();
-        verify(mockTransformer).parseToConfiguration(argThat(c -> contentsSize(c, 5)), eq(TEST_CONFIGURATION_NAME), eq(TEST_CONFIGURATION_VERSION));
+        verify(mockTransformer).parseToConfiguration(argThat(c -> contentsSize(c, 5)), eq(TEST_CONFIGURATION_NAME), eq(TEST_CONFIGURATION_VER));
     }
 
     @Test
@@ -203,16 +207,16 @@ public class ConfigurationRepositoryActionsTest {
 
     @Test
     public void testReadConfigurationVersion_emptyVersionedRepository_shouldReturnEmptyList() {
-        mockConfigurationRead(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false);
-        var optionalConfiguration = configurationRepositoryActions.readConfigurationVersion(mockRepository, TEST_CONFIGURATION_VERSION);
+        mockConfigurationRead(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_HASH, false);
+        var optionalConfiguration = configurationRepositoryActions.readConfigurationVersion(mockRepository, TEST_CONFIGURATION_HASH);
 
         Assertions.assertThat(optionalConfiguration).hasValueSatisfying(configuration -> {
             assertNameAndVersionMatchTestConstants(configuration);
             Assertions.assertThat(configuration.getModels()).isEmpty();
         });
 
-        verify(mockRepository).getRepositoryVersion(TEST_CONFIGURATION_VERSION);
-        verify(mockTransformer).parseToConfiguration(argThat(this::contentsEmpty), eq(TEST_CONFIGURATION_NAME), eq(TEST_CONFIGURATION_VERSION));
+        verify(mockRepository).getRepositoryVersion(TEST_CONFIGURATION_HASH);
+        verify(mockTransformer).parseToConfiguration(argThat(this::contentsEmpty), eq(TEST_CONFIGURATION_NAME), eq(TEST_CONFIGURATION_VER));
     }
 
     @Test
@@ -221,8 +225,8 @@ public class ConfigurationRepositoryActionsTest {
         var node = getNode(relation);
         var model = getModel(node);
 
-        mockConfigurationRead(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false, model, node, relation);
-        var optionalConfiguration = configurationRepositoryActions.readConfigurationVersion(mockRepository, TEST_CONFIGURATION_VERSION);
+        mockConfigurationRead(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_HASH, false, model, node, relation);
+        var optionalConfiguration = configurationRepositoryActions.readConfigurationVersion(mockRepository, TEST_CONFIGURATION_HASH);
 
         Assertions.assertThat(optionalConfiguration).hasValueSatisfying(configuration -> {
             assertNameAndVersionMatchTestConstants(configuration);
@@ -231,19 +235,76 @@ public class ConfigurationRepositoryActionsTest {
             Assertions.assertThat(configuration.getModels()).flatExtracting(Model::getNodes).flatExtracting(Node::getRelations).containsExactly(relation);
         });
 
-        verify(mockRepository).getRepositoryVersion(TEST_CONFIGURATION_VERSION);
-        verify(mockTransformer).parseToConfiguration(argThat(c -> contentsSize(c, 3)), eq(TEST_CONFIGURATION_NAME), eq(TEST_CONFIGURATION_VERSION));
+        verify(mockRepository).getRepositoryVersion(TEST_CONFIGURATION_HASH);
+        verify(mockTransformer).parseToConfiguration(argThat(c -> contentsSize(c, 3)), eq(TEST_CONFIGURATION_NAME), eq(TEST_CONFIGURATION_VER));
     }
 
     @Test
     public void testReadConfigurationVersion_nonExistingVersion_shouldReturnEmptyOptional() {
-        when(mockRepository.getRepositoryVersion(TEST_CONFIGURATION_VERSION)).thenReturn(Optional.empty());
+        when(mockRepository.getRepositoryVersion(TEST_CONFIGURATION_HASH)).thenReturn(Optional.empty());
 
-        var optionalConfiguration = configurationRepositoryActions.readConfigurationVersion(mockRepository, TEST_CONFIGURATION_VERSION);
+        var optionalConfiguration = configurationRepositoryActions.readConfigurationVersion(mockRepository, TEST_CONFIGURATION_HASH);
 
         Assertions.assertThat(optionalConfiguration).isEmpty();
-        verify(mockRepository).getRepositoryVersion(TEST_CONFIGURATION_VERSION);
+        verify(mockRepository).getRepositoryVersion(TEST_CONFIGURATION_HASH);
         verifyNoInteractions(mockTransformer);
+    }
+
+    @Test
+    public void testReadConfigurationVersion_withVersionNames_shouldReturnConfiguration() {
+        var generatedName = "v1.0.0";
+        var customName = "custom";
+
+        when(mockVersionNameGenerator.isAutoGeneratedVersionName(generatedName)).thenReturn(true);
+        when(mockVersionNameGenerator.isAutoGeneratedVersionName(customName)).thenReturn(false);
+
+        mockConfigurationRead(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_HASH, generatedName, customName, false);
+
+        var configuration = configurationRepositoryActions.readConfigurationVersion(mockRepository, TEST_CONFIGURATION_HASH);
+
+        Assertions.assertThat(configuration).isPresent();
+
+        Assertions.assertThat(configuration).hasValueSatisfying(config -> {
+            assertNameAndVersionMatchTestConstants(config);
+            Assertions.assertThat(config.getVersion().customName()).isEqualTo(customName);
+            Assertions.assertThat(config.getVersion().name()).isEqualTo(generatedName);
+        });
+    }
+
+    @Test
+    public void testReadConfigurationVersion_withCustomName_shouldReturnConfiguration() {
+        var customName = "custom";
+
+        when(mockVersionNameGenerator.isAutoGeneratedVersionName(customName)).thenReturn(false);
+
+        mockConfigurationRead(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_HASH, null, customName, false);
+
+        var configuration = configurationRepositoryActions.readConfigurationVersion(mockRepository, TEST_CONFIGURATION_HASH);
+
+        Assertions.assertThat(configuration).isPresent();
+
+        Assertions.assertThat(configuration).hasValueSatisfying(config -> {
+            assertNameAndVersionMatchTestConstants(config);
+            Assertions.assertThat(config.getVersion().customName()).isEqualTo(customName);
+        });
+    }
+
+    @Test
+    public void testReadConfigurationVersion_withVersionName_shouldReturnConfiguration() {
+        var generatedName = "v1.0.0";
+
+        when(mockVersionNameGenerator.isAutoGeneratedVersionName(generatedName)).thenReturn(true);
+
+        mockConfigurationRead(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_HASH, generatedName, null, false);
+
+        var configuration = configurationRepositoryActions.readConfigurationVersion(mockRepository, TEST_CONFIGURATION_HASH);
+
+        Assertions.assertThat(configuration).isPresent();
+
+        Assertions.assertThat(configuration).hasValueSatisfying(config -> {
+            assertNameAndVersionMatchTestConstants(config);
+            Assertions.assertThat(config.getVersion().name()).isEqualTo(generatedName);
+        });
     }
 
     @Test
@@ -482,8 +543,32 @@ public class ConfigurationRepositoryActionsTest {
         verify(mockVersioning).compareVersions(eq(version1.id()), eq(version2.id()), eq(true), any());
     }
 
+    @Test
+    public void testRenameConfiguration_shouldRenameRepository() {
+        var newName = "newName";
+        configurationRepositoryActions.renameConfigurationRepository(mockRepository, newName);
+        verify(mockRepository).renameRepository(newName);
+    }
+
+    @Test
+    public void testRenameConfiguration_newNameAlreadyExists_shouldThrowRepositoryAlreadyExistsException() {
+        var newName = "newName";
+        doThrow(new RepositoryAlreadyExistsException(newName)).when(mockRepository).renameRepository(newName);
+        Assertions.assertThatThrownBy(() -> configurationRepositoryActions.renameConfigurationRepository(mockRepository, newName))
+                .isInstanceOf(RepositoryAlreadyExistsException.class)
+                .hasMessageContaining(newName);
+    }
+
     private ManagedRepositoryVersion mockConfigurationRead(String name, String versionId, boolean currentConfiguration, BaseAttributes... elements) {
-        var version = new ManagedRepositoryVersion(versionId, getRepositoryObjects(elements));
+        return mockConfigurationRead(name, versionId, null, null, currentConfiguration, elements);
+    }
+
+    private ManagedRepositoryVersion mockConfigurationRead(String name, String versionId, String versionName, String versionCustomName, boolean currentConfiguration, BaseAttributes... elements) {
+        List<String> versionNames = Stream.of(versionName, versionCustomName)
+                .filter(Objects::nonNull)
+                .toList();
+
+        var version = new ManagedRepositoryVersion(versionId, versionNames, getRepositoryObjects(elements));
 
         if (currentConfiguration) {
             when(mockRepository.getCurrentRepositoryVersion()).thenReturn(Optional.of(version));
@@ -492,19 +577,20 @@ public class ConfigurationRepositoryActionsTest {
         }
 
         var models = Arrays.stream(elements).filter(Model.class::isInstance).toArray(Model[]::new);
+        var configVersion = new ConfigurationVersion(versionId, versionName, versionCustomName);
 
-        doReturn(getConfiguration(name, versionId, models))
+        doReturn(getConfiguration(name, configVersion, models))
                 .when(mockTransformer).parseToConfiguration(
                         argThat(c -> contentsSize(c, elements.length)),
                         eq(name),
-                        eq(versionId));
+                        eq(configVersion));
 
         return version;
     }
 
     private void assertNameAndVersionMatchTestConstants(Configuration configuration) {
         Assertions.assertThat(configuration.getName()).isEqualTo(TEST_CONFIGURATION_NAME);
-        Assertions.assertThat(configuration.getVersion()).isEqualTo(TEST_CONFIGURATION_VERSION);
+        Assertions.assertThat(configuration.getVersionHash()).isEqualTo(TEST_CONFIGURATION_HASH);
     }
 
     private boolean contentsEmpty(ConfigurationContents<?, ?, ?> content) {
@@ -515,7 +601,7 @@ public class ConfigurationRepositoryActionsTest {
         return content.getModels().size() + content.getNodes().size() + content.getRelations().size() == size;
     }
 
-    private Configuration getConfiguration(String name, String version, Model... models) {
+    private Configuration getConfiguration(String name, ConfigurationVersion version, Model... models) {
         var configuration = new Configuration();
         configuration.setName(name);
         configuration.setVersion(version);

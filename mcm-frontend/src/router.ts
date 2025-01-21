@@ -1,6 +1,7 @@
 import OpenCreateProjectView from "@/views/OpenCreateProjectView.vue";
 import MainView from "@/views/MainView.vue";
-import {createRouter, createWebHistory} from "vue-router";
+import { createRouter, createWebHashHistory, createWebHistory } from "vue-router";
+import isElectron from 'is-electron';
 import HelpView from "@/views/HelpView.vue";
 
 const routes = [
@@ -18,6 +19,8 @@ const routes = [
 ]
 
 export const router = createRouter({
-    history: createWebHistory(),
+    // history only works in hash mode in electron
+    // cf {https://nklayman.github.io/vue-cli-plugin-electron-builder/guide/commonIssues.html#blank-screen-on-builds-but-works-fine-on-serve}
+    history: isElectron() ? createWebHashHistory() : createWebHistory(),
     routes,
 })

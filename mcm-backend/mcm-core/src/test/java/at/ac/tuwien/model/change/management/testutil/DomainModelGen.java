@@ -83,7 +83,7 @@ public final class DomainModelGen {
     }
 
     public static Model generateRandomizedModel(int numberNodes, int numberRelationsPerNode) {
-        return generateRandomizedModel(numberNodes,numberNodes, numberRelationsPerNode, numberRelationsPerNode);
+        return generateRandomizedModel(numberNodes, numberNodes, numberRelationsPerNode, numberRelationsPerNode);
     }
 
     public static Model generateRandomizedModel(
@@ -131,6 +131,7 @@ public final class DomainModelGen {
 
     public static Model generateRandomizedModel() {
         var model = new Model();
+        model.setId(generateUUID());
         model.setTitle(RandomStringUtils.randomAlphabetic(MAX_TITLE_LENGTH));
         model.setDescription(RandomStringUtils.randomAlphabetic(MAX_DESCRIPTION_LENGTH));
         return model;
@@ -139,6 +140,7 @@ public final class DomainModelGen {
 
     public static Node generateRandomizedNode() {
         var node = new Node();
+        node.setId(generateUUID());
         node.setUmletPosition(generateRandomizedUMLetPosition());
         node.setTitle(RandomStringUtils.randomAlphabetic(MAX_TITLE_LENGTH));
         node.setTags((IntStream.range(0, getRandomInt(MAX_TAG_NUMBER + 1)).mapToObj(
@@ -160,6 +162,7 @@ public final class DomainModelGen {
 
     public static Relation generateRandomizedRelation(List<Node> availableTargets) {
         var relation = new Relation();
+        relation.setId(generateUUID());
         var randomTargetIndex = getRandomInt(availableTargets.size());
         relation.setTarget(availableTargets.get(randomTargetIndex));
         relation.setType(ElementType.RELATION.toString());
@@ -199,6 +202,10 @@ public final class DomainModelGen {
             throw new IllegalArgumentException("Upper bound must be non-negative.");
         }
         return upperBound == 0 ? 0 : ThreadLocalRandom.current().nextInt(upperBound);
+    }
+
+    private static String generateUUID() {
+        return UUID.randomUUID().toString();
     }
 }
 

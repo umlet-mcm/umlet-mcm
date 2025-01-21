@@ -42,6 +42,10 @@ public class NodeDSLTest {
         assertEquals("prop1", node.getProperties().getFirst().getKey());
         assertEquals("val1", node.getProperties().getFirst().getValue());
 
+        assertEquals(1, node.getPropertiesInlineComments().size());
+        assertEquals("key1", node.getPropertiesInlineComments().getFirst().getKey());
+        assertEquals("comment1", node.getPropertiesInlineComments().getFirst().getValue());
+
         assertEquals("UMLClass", node.getElementType());
         assertEquals("2", node.getId());
         assertEquals("Node", node.getTitle());

@@ -22,7 +22,8 @@ public class ConfigurationController {
 
     /**
      * Get the most recent version of a configuration by its name
-     * @param name the name of the configuration
+     *
+     * @param name            the name of the configuration
      * @param loadIntoGraphDB whether the configuration should also automatically be loaded into the graph database
      * @return the most recent version of the configuration with the given name
      */
@@ -37,6 +38,7 @@ public class ConfigurationController {
 
     /**
      * Get the most recent version of all configurations
+     *
      * @return a list of the most recent versions of all configurations
      */
     @GetMapping
@@ -47,7 +49,8 @@ public class ConfigurationController {
 
     /**
      * Create a new configuration
-     * @param dto the configuration to create
+     *
+     * @param dto             the configuration to create
      * @param loadIntoGraphDB whether the configuration should also automatically be loaded into the graph database
      * @return the created configuration
      */
@@ -62,8 +65,9 @@ public class ConfigurationController {
 
     /**
      * Update an existing configuration
-     * @param dto the configuration to update - should include the version string of the most recent configuration
-     *            version which we are trying to update
+     *
+     * @param dto             the configuration to update - should include the version string of the most recent configuration
+     *                        version which we are trying to update
      * @param loadIntoGraphDB whether the configuration should also automatically be loaded into the graph database
      * @return the updated configuration
      */
@@ -78,6 +82,7 @@ public class ConfigurationController {
 
     /**
      * Delete a configuration by its name
+     *
      * @param name the name of the configuration to delete
      * @return a response entity with no content
      */
@@ -89,8 +94,9 @@ public class ConfigurationController {
 
     /**
      * Get a specific version of a configuration by its name and version
-     * @param name the name of the configuration
-     * @param version the version of the configuration
+     *
+     * @param name            the name of the configuration
+     * @param version         the version of the configuration
      * @param loadIntoGraphDB whether the configuration should also automatically be loaded into the graph database
      * @return the configuration with the given name and version
      */
@@ -106,6 +112,7 @@ public class ConfigurationController {
 
     /**
      * List all versions of a configuration by its name
+     *
      * @param name the name of the configuration
      * @return a list of all versions of the configuration with the given name
      */
@@ -118,9 +125,10 @@ public class ConfigurationController {
     /**
      * Compare two versions of a configuration by their names
      * Produces `git diff` / unified diff style output
-     * @param name the name of the configuration
-     * @param newVersion the new version to compare with
-     * @param oldVersion the old version to compare with
+     *
+     * @param name             the name of the configuration
+     * @param newVersion       the new version to compare with
+     * @param oldVersion       the old version to compare with
      * @param includeUnchanged whether to include unchanged models, nodes or relations in the comparison results
      *                         if set to true, these will be included as "UNCHANGED" diff entries with the content simply
      *                         being the XML representation of the model, node or relation (i.e., not including any Git headers or hunks)
@@ -139,8 +147,9 @@ public class ConfigurationController {
 
     /**
      * Checkout a specific version of a configuration by its name
-     * @param name the name of the configuration
-     * @param version the version to `git checkout`
+     *
+     * @param name            the name of the configuration
+     * @param version         the version to `git checkout`
      * @param loadIntoGraphDB whether the configuration should also automatically be loaded into the graph database
      * @return the configuration with the given name and version
      */
@@ -156,8 +165,9 @@ public class ConfigurationController {
 
     /**
      * Reset a specific version of a configuration by its name
-     * @param name the name of the configuration
-     * @param version the version to reset to
+     *
+     * @param name            the name of the configuration
+     * @param version         the version to reset to
      * @param loadIntoGraphDB whether the configuration should also automatically be loaded into the graph database
      * @return the configuration with the given name and version
      */
@@ -168,6 +178,22 @@ public class ConfigurationController {
             @RequestParam(defaultValue = "false") boolean loadIntoGraphDB
     ) {
         var configuration = configurationService.resetConfigurationVersion(name, version, loadIntoGraphDB);
+        return ResponseEntity.ok(configurationDtoMapper.toDto(configuration));
+    }
+
+    /**
+     * Rename a configuration by its name
+     *
+     * @param name    the name of the configuration to rename
+     * @param newName the new name of the configuration
+     * @return the renamed configuration
+     */
+    @PutMapping("/{name}/rename")
+    public ResponseEntity<ConfigurationDTO> renameConfiguration(
+            @PathVariable String name,
+            @RequestParam String newName
+    ) {
+        var configuration = configurationService.renameConfiguration(name, newName);
         return ResponseEntity.ok(configurationDtoMapper.toDto(configuration));
     }
 }

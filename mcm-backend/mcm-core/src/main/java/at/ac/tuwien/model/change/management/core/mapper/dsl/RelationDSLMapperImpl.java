@@ -19,8 +19,7 @@ import java.util.stream.Collectors;
 @Component
 @AllArgsConstructor
 public class RelationDSLMapperImpl implements RelationDSLMapper {
-    private final PropertiesDSLMapper propertiesDSLMapper;
-    private final PanelAttributesDSLMapper panelAttributesDSLMapper;
+    private final KeyValuesDSLMapper keyValuesDSLMapper;
     private final RelationEndpointDSLMapper relationEndpointDSLMapper;
     private final CoordinatesDSLMapper coordinatesDSLMapper;
     private final RelativePositionDSLMapper relativePositionDSLMapper;
@@ -42,7 +41,8 @@ public class RelationDSLMapperImpl implements RelationDSLMapper {
         relationDSL.setPprType(relation.getPprType());
         relationDSL.setSource(sourceDSL);
         relationDSL.setTarget(targetDSL);
-        relationDSL.setProperties(propertiesDSLMapper.toDSL(relation.getMcmAttributes()));
+        relationDSL.setProperties(keyValuesDSLMapper.toObjectDSL(relation.getMcmAttributes()));
+        relationDSL.setPropertiesInlineComments(keyValuesDSLMapper.toStringDSL(relation.getMcmAttributesInlineComments()));
         relationDSL.setTags(relation.getTags());
 
         PositionsDSL positionsDSL = new PositionsDSL();
@@ -57,9 +57,8 @@ public class RelationDSLMapperImpl implements RelationDSLMapper {
 
         MetadataDSL metadataDSL = new MetadataDSL();
         metadataDSL.setCoordinates(coordinatesDSLMapper.toDSL(relation.getUmletPosition()));
-        metadataDSL.setPanelAttributes(panelAttributesDSLMapper.toDSL(relation.getUmletAttributes()));
+        metadataDSL.setPanelAttributes(keyValuesDSLMapper.toStringDSL(relation.getUmletAttributes()));
         metadataDSL.setPositions(positionsDSL);
-        metadataDSL.setOriginalText(relation.getOriginalText());
         relationDSL.setMetadata(metadataDSL);
 
         return relationDSL;
@@ -81,13 +80,13 @@ public class RelationDSLMapperImpl implements RelationDSLMapper {
         relation.setTarget(target);
         relation.setType(relationDSL.getElementType());
         relation.setPprType(relationDSL.getPprType());
-        relation.setMcmAttributes(propertiesDSLMapper.fromDSL(relationDSL.getProperties()));
+        relation.setMcmAttributes(keyValuesDSLMapper.fromObjectDSL(relationDSL.getProperties()));
+        relation.setMcmAttributesInlineComments(keyValuesDSLMapper.fromStringDSL(relationDSL.getPropertiesInlineComments()));
         relation.setTags(relationDSL.getTags());
 
         Optional.ofNullable(relationDSL.getMetadata()).ifPresent(metadata -> {
             relation.setUmletPosition(coordinatesDSLMapper.fromDSL(metadata.getCoordinates()));
-            relation.setUmletAttributes(panelAttributesDSLMapper.fromDSL(metadata.getPanelAttributes()));
-            relation.setOriginalText(metadata.getOriginalText());
+            relation.setUmletAttributes(keyValuesDSLMapper.fromStringDSL(metadata.getPanelAttributes()));
 
             Optional.ofNullable(metadata.getPositions()).ifPresent(positionsDSL -> {
                 relation.setRelativeStartPoint(

@@ -35,7 +35,6 @@ public class ElementUxfMapperTest {
         mcmAttributes.put("misc", "misc");
 
         ElementAttributesUxf attributes = new ElementAttributesUxf();
-        attributes.setOriginalText("Original Text");
         attributes.setDescription("Test Description");
         attributes.setUmletAttributes(new LinkedHashMap<>(Map.of("key", "value")));
         attributes.setMcmAttributes(mcmAttributes);
@@ -50,7 +49,7 @@ public class ElementUxfMapperTest {
         position.setWidth(4);
         element.setUmletPosition(position);
 
-        Node node = mapper.toNode(element,10);
+        Node node = mapper.toNode(element, 10);
 
         assertEquals(element.getElementType(), node.getElementType());
         assertEquals(1, node.getMcmAttributes().size());
@@ -59,7 +58,6 @@ public class ElementUxfMapperTest {
         assertEquals(mcmAttributes.get("tags"), node.getTags());
         assertEquals(mcmAttributes.get("model"), node.getMcmModel());
         assertEquals(mcmAttributes.get("pprType"), node.getPprType());
-        assertEquals(element.getAttributes().getOriginalText(), node.getOriginalText());
         assertEquals(element.getAttributes().getUmletAttributes(), node.getUmletAttributes());
         assertEquals(Map.of("misc", "misc"), node.getMcmAttributes());
         assertEquals(element.getGeneratedAttributes(), node.getGeneratedAttributes());
@@ -75,7 +73,6 @@ public class ElementUxfMapperTest {
         node.setMcmModel("model");
         node.setMcmModelId("mID");
         node.setPprType("pprType");
-        node.setOriginalText("Original Text");
         node.setDescription("Test Description");
         node.setTitle("Title");
         node.setMcmAttributes(new LinkedHashMap<>(Map.of("misc", "misc")));
@@ -95,7 +92,6 @@ public class ElementUxfMapperTest {
         assertEquals(node.getPprType(), element.getAttributes().getMcmAttributes().get(AttributeKeys.PPR_TYPE));
         assertEquals(node.getMcmAttributes().get("misc"), element.getAttributes().getMcmAttributes().get("misc"));
 
-        assertEquals(node.getOriginalText(), element.getAttributes().getOriginalText());
 
         assertEquals(node.getUmletAttributes(), element.getAttributes().getUmletAttributes());
         assertEquals(node.getGeneratedAttributes(), element.getGeneratedAttributes());

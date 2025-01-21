@@ -10,10 +10,10 @@ public record ModelDTO(
         @NotEmpty Set<NodeDTO> nodes,
         String id,
         List<String> tags,
-        String originalText,
         String title,
         String description,
         LinkedHashMap<String, Object> mcmAttributes,
+        LinkedHashMap<String, String> mcmAttributesInlineComments,
         int zoomLevel
 ) {
 }

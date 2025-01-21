@@ -30,7 +30,6 @@ class ModelDtoMapperTest extends MapperTest {
         model.setNodes(Set.of(new Node()));
         model.setId("model-123");
         model.setTags(List.of("tag1", "tag2"));
-        model.setOriginalText("Original text of the model");
         model.setTitle("Model Title");
         model.setDescription("Model Description");
         model.setMcmAttributes(new LinkedHashMap<>());
@@ -41,7 +40,6 @@ class ModelDtoMapperTest extends MapperTest {
         assertNotNull(dto);
         assertEquals(model.getId(), dto.id());
         assertEquals(model.getTags(), dto.tags());
-        assertEquals(model.getOriginalText(), dto.originalText());
         assertEquals(model.getTitle(), dto.title());
         assertEquals(model.getDescription(), dto.description());
         assertNotNull(dto.mcmAttributes());
@@ -61,7 +59,6 @@ class ModelDtoMapperTest extends MapperTest {
         assertNotNull(model);
         assertEquals(modelDTO.id(), model.getId());
         assertEquals(modelDTO.tags(), model.getTags());
-        assertEquals(modelDTO.originalText(), model.getOriginalText());
         assertEquals(modelDTO.title(), model.getTitle());
         assertEquals(modelDTO.description(), model.getDescription());
         assertEquals(modelDTO.zoomLevel(), model.getZoomLevel());

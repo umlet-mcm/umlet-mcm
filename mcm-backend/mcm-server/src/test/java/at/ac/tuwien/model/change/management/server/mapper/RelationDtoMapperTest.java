@@ -40,7 +40,6 @@ public class RelationDtoMapperTest extends MapperTest {
         assertEquals(relation.getMcmModel(), dto.mcmModel());
         assertEquals(relation.getMcmModelId(), dto.mcmModelId());
         assertEquals(relation.getUmletAttributes(), dto.umletAttributes());
-        assertEquals(relation.getOriginalText(), dto.originalText());
         assertEquals(relation.getPprType(), dto.pprType());
         assertEquals(relation.getUmletPosition().getX(), dto.umletPosition().x());
         assertEquals(relation.getRelativeEndPoint().getAbsX(), dto.relativeEndPoint().absX());
@@ -66,7 +65,6 @@ public class RelationDtoMapperTest extends MapperTest {
         assertEquals(relationDTO.mcmModel(), relation.getMcmModel());
         assertEquals(relationDTO.mcmModelId(), relation.getMcmModelId());
         assertEquals(relationDTO.mcmAttributes(), relation.getUmletAttributes());
-        assertEquals(relationDTO.originalText(), relation.getOriginalText());
         assertEquals(relationDTO.pprType(), relation.getPprType());
         assertEquals(relationDTO.umletPosition().x(), relation.getUmletPosition().getX());
         assertEquals(relationDTO.relativeEndPoint().offsetX(), relation.getRelativeEndPoint().getOffsetX());

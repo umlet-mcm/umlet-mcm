@@ -39,7 +39,6 @@ public class ModelUxfMapperTest {
         model.setId("123");
         model.setDescription("Description");
         model.setTitle("Title");
-        model.setOriginalText("Original Text");
         model.setTags(List.of("tag1", "tag2"));
         model.setMcmAttributes(new LinkedHashMap<>(Map.of("attr1", "value1")));
 
@@ -110,7 +109,6 @@ public class ModelUxfMapperTest {
 
         BaseAttributesUxf attributes = new BaseAttributesUxf();
         attributes.setDescription("Description");
-        attributes.setOriginalText("Original Text");
         attributes.setMcmAttributes(mcmAttributes);
 
         ElementUxf nodeUxf = new ElementUxf();
@@ -179,7 +177,6 @@ public class ModelUxfMapperTest {
         src.setDescription("Node Description");
         src.setUmletAttributes(new LinkedHashMap<>(Map.of("key", "value")));
         src.setMcmModel("Model");
-        src.setOriginalText("Original Text");
         src.setId("src");
         src.setTags(List.of("tag1", "tag2"));
 
@@ -207,7 +204,6 @@ public class ModelUxfMapperTest {
         relation.setUmletAttributes(new LinkedHashMap<>(Map.of("key", "value")));
         relation.setMcmModel("Model");
         relation.setPprType("Type");
-        relation.setOriginalText("Original Text");
         relation.setTags(List.of("tag1", "tag2"));
 
         relation.setUmletPosition(new UMLetPosition(10, 20, 100, 50));

@@ -59,8 +59,8 @@ public class UxfServiceTest {
     @Test
     void testCreateConfigurationFromUxf() throws UxfException {
         String in = "uxf/frag1_cost_updated.uxf";
-        assertDoesNotThrow(() -> service.createConfigurationFromUxf(getStream(in)));
-        Configuration res = service.createConfigurationFromUxf(getStream(in));
+        assertDoesNotThrow(() -> service.createConfigurationFromUxf(getStream(in), null));
+        Configuration res = service.createConfigurationFromUxf(getStream(in), null);
         assertEquals(1, res.getModels().size());
         assertEquals(7, res.getModels().stream()
                 .findFirst()
@@ -74,34 +74,35 @@ public class UxfServiceTest {
                 Optional.of(findVersionByName(invocation.getArgument(0))));
 
         String in1 = "uxf/frag1_cost_updated.uxf";
-        Configuration target = service.createConfigurationFromUxf(getStream(in1));
+        Configuration target = service.createConfigurationFromUxf(getStream(in1), null);
 
         String in2 = "uxf/frag2.uxf";
-        Configuration res = service.addUxfToConfiguration(getStream(in2), target.getName());
+        Configuration res = service.addUxfToConfiguration(getStream(in2), target.getName(), null);
 
         assertEquals(2, res.getModels().size());
 
-        assertThrows(ConfigurationException.class, () -> service.addUxfToConfiguration(getStream(in2), "invalid_uuid"));
+        assertThrows(ConfigurationException.class, () -> service.addUxfToConfiguration(getStream(in2), "invalid_uuid", null));
     }
 
     @Test
     void testExportModel() throws UxfException, ModelNotFoundException {
         String in = "uxf/frag1_cost_updated.uxf";
-        Configuration conf = service.createConfigurationFromUxf(getStream(in));
+        Configuration conf = service.createConfigurationFromUxf(getStream(in), null);
         String targetId = conf.getModels().stream().findFirst().orElseThrow().getId();
 
-        assertDoesNotThrow(() -> service.exportModel(targetId));
-        String res = service.exportModel(targetId);
+        assertDoesNotThrow(() -> service.exportModel(conf.getName(), targetId));
+        String res = service.exportModel(conf.getName(), targetId);
         assertNotNull(res);
         assertTrue(res.startsWith("<diagram>"));
 
-        assertThrows(ModelNotFoundException.class, () -> service.exportModel("invalid_uuid"));
+        assertThrows(ConfigurationNotFoundException.class, () -> service.exportModel("invalid conf","invalid_uuid"));
+        assertThrows(ModelNotFoundException.class, () -> service.exportModel(conf.getName(),"invalid_uuid"));
     }
 
     @Test
     void testExportConfiguration() throws UxfException, ConfigurationException {
         String in = "uxf/frag1_cost_updated.uxf";
-        Configuration conf = service.createConfigurationFromUxf(getStream(in));
+        Configuration conf = service.createConfigurationFromUxf(getStream(in), null);
 
         assertDoesNotThrow(() -> service.exportConfiguration(conf.getName()));
         String res = service.exportConfiguration(conf.getName());

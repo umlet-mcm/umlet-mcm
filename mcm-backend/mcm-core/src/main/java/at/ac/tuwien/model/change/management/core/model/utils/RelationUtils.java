@@ -108,6 +108,7 @@ public class RelationUtils {
                 bidirectional = true;
                 // replace the line type with the forward relation
                 newRelation.setType(splitLineType[1] + splitLineType[2]);
+                newRelation.getUmletAttributes().put(AttributeKeys.LINE_TYPE, splitLineType[1] + splitLineType[2]);
             }
 
             boolean forward = true;
@@ -168,10 +169,18 @@ public class RelationUtils {
                 newRelation.setTarget(relSource);
             }
 
+            if (relationNode.getMcmAttributes() != null) {
+                String fwdRelId = (String) relationNode.getMcmAttributes().get(AttributeKeys.FORWARD_RELATION_ID);
+                if (fwdRelId != null) {
+                    newRelation.setId(fwdRelId);
+                }
+            }
+
             // if the relation was bidirectional and the target exists create a new relation pointing
             // the opposite direction
             if (bidirectional && newRelation.getTarget() != null) {
                 Relation reverse = Relation.fromNode(relationNode, res.getZoomLevel());
+
                 if (reverse == null) {
                     log.error("Could not generate backward relation from '" + relationNode.getId() + "'");
                     continue;
@@ -179,11 +188,21 @@ public class RelationUtils {
 
                 if (splitLineType.length == 1) {
                     reverse.setType(splitLineType[0]);
+                    reverse.getUmletAttributes().put(AttributeKeys.LINE_TYPE, splitLineType[0]);
                 } else {
                     reverse.setType(splitLineType[0] + splitLineType[1]);
+                    reverse.getUmletAttributes().put(AttributeKeys.LINE_TYPE, splitLineType[0] + splitLineType[1]);
                 }
 
                 reverse.setTarget(relSource);
+
+                if (relationNode.getMcmAttributes() != null) {
+                    String bwdRelId = (String) relationNode.getMcmAttributes().get(AttributeKeys.BACKWARD_RELATION_ID);
+                    if (bwdRelId != null) {
+                        reverse.setId(bwdRelId);
+                    }
+                }
+
                 newRelation.getTarget().getRelations().add(reverse);
             }
         }
@@ -229,12 +248,28 @@ public class RelationUtils {
         }
 
         if (fw1) {
+            e1.getAttributes().getUmletAttributes().put(
+                    AttributeKeys.LINE_TYPE, split2[0] + split1[0] + split1[1]
+            );
+
             e1.getAttributes().getMcmAttributes().put(
-                    AttributeKeys.LINE_TYPE, split2[0] + split1[1] + split1[2]
+                    AttributeKeys.FORWARD_RELATION_ID, e1.getAttributes().getMcmAttributes().get(AttributeKeys.ID)
+            );
+
+            e1.getAttributes().getMcmAttributes().put(
+                    AttributeKeys.BACKWARD_RELATION_ID, e2.getAttributes().getMcmAttributes().get(AttributeKeys.ID)
             );
         } else {
+            e1.getAttributes().getUmletAttributes().put(
+                    AttributeKeys.LINE_TYPE, split1[0] + split2[0] + split2[1]
+            );
+
             e1.getAttributes().getMcmAttributes().put(
-                    AttributeKeys.LINE_TYPE, split1[0] + split2[1] + split2[2]
+                    AttributeKeys.FORWARD_RELATION_ID, e2.getAttributes().getMcmAttributes().get(AttributeKeys.ID)
+            );
+
+            e1.getAttributes().getMcmAttributes().put(
+                    AttributeKeys.BACKWARD_RELATION_ID, e1.getAttributes().getMcmAttributes().get(AttributeKeys.ID)
             );
         }
 

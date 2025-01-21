@@ -7,6 +7,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,8 +15,17 @@ import java.util.regex.Pattern;
 @Slf4j
 public class ParserUtils {
     public static final String ATTRIBUTE_VALUE_DELIM = ",";
-    public static final Pattern MCM_ATTRIBUTE_DECLARATION_PATTERN = Pattern.compile("^\\/\\/\\s*([a-zA-Z_][a-zA-Z0-9_]*)\\s*:(.*)");
-    public static final Pattern MCM_ATTRIBUTE_DECLARATION_PATTERN_WITH_INLINE_COMMENT = Pattern.compile("^\\/\\/\\s*([a-zA-Z_][a-zA-Z0-9_]*)\\s*:(.*)(\\/\\/.*)");
+    /**
+     * Matches mcm attribute declarations even if they have an inline comment
+     * The inline comment is not extractable from this pattern
+     */
+    public static final Pattern MCM_ATTRIBUTE_DECLARATION_PATTERN = Pattern.compile("^\\/\\/\\s*([a-zA-Z_][a-zA-Z0-9_-]*)\\s*:(.*)");
+
+    /**
+     * Only matches mcm attribute declarations that have an inline comment
+     * The inline comment is extractable from this pattern as capture group
+     */
+    public static final Pattern MCM_ATTRIBUTE_DECLARATION_PATTERN_WITH_INLINE_COMMENT = Pattern.compile("^\\/\\/\\s*([a-zA-Z_][a-zA-Z0-9_-]*)\\s*:(.*)(\\/\\/.*)");
 
     /**
      * Get MCM attributes and inline comments from the commented out lines. Such lines start with "//" and each line
@@ -56,17 +66,18 @@ public class ParserUtils {
 
     /**
      * Extract and parse mcm attributes and the inline comments
+     *
      * @param attributes target where the attributes and the inline comments should be stored
-     * @param text raw text that can contain mcm attributes
+     * @param text       raw text that can contain mcm attributes
      */
-    public static void populateMcmAttributesAndInlineComments(BaseAttributesUxf attributes, String text){
+    public static void populateMcmAttributesAndInlineComments(BaseAttributesUxf attributes, String text) {
         LinkedHashMap<String, Pair<Object, String>> attrs = ParserUtils.extractAttributesFromComments(text);
         LinkedHashMap<String, Object> attrsNoComments = new LinkedHashMap<>();
         LinkedHashMap<String, String> attrsComments = new LinkedHashMap<>();
         // split into two maps
         for (var kv : attrs.entrySet()) {
             attrsNoComments.put(kv.getKey(), kv.getValue().getLeft());
-            if(kv.getValue().getRight() != null){
+            if (kv.getValue().getRight() != null) {
                 attrsComments.put(kv.getKey(), kv.getValue().getRight());
             }
         }
@@ -135,7 +146,7 @@ public class ParserUtils {
      * @param s The string that might contain a valid key-value.
      * @return The extracted key-value pair or null if no valid attribute was found.
      */
-    private static Object[] getMcmKeyValueInlineComment(String s) {
+    public static Object[] getMcmKeyValueInlineComment(String s) {
         if (s.isEmpty()) {
             return null;
         }
@@ -240,4 +251,39 @@ public class ParserUtils {
 
         return textWithTitle;
     }
+
+    /**
+     * Wrap strings in "", turn lists into the delimiter separated string form.
+     * Return toString for other objects.
+     */
+    public static String formatMcmValueForExport(Object value) {
+        if (value == null) {
+            return "";
+        }
+
+        if (value instanceof String) {
+            return "\"" + value + "\"";
+        }
+
+        if (value instanceof List<?>) {
+            StringBuilder sb = new StringBuilder();
+            for (Object item : (List<?>) value) {
+                if (item instanceof String) { // strings should have enclosing "" when exported to uxf
+                    sb.append("\"" + item + "\"");
+                } else {
+                    sb.append(item);
+                }
+                sb.append(ATTRIBUTE_VALUE_DELIM + " ");
+            }
+
+            if (!((List<?>) value).isEmpty()) {
+                sb.delete(sb.length() - 2, sb.length()); // remove trailing ", "
+            }
+
+            return sb.toString();
+        }
+
+        return value.toString();
+    }
+
 }

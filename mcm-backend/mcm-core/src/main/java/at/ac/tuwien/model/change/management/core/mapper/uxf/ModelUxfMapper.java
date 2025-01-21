@@ -3,7 +3,6 @@ package at.ac.tuwien.model.change.management.core.mapper.uxf;
 import at.ac.tuwien.model.change.management.core.model.Model;
 import at.ac.tuwien.model.change.management.core.model.Node;
 import at.ac.tuwien.model.change.management.core.model.Relation;
-import at.ac.tuwien.model.change.management.core.model.attributes.AttributeKeys;
 import at.ac.tuwien.model.change.management.core.model.intermediary.ElementAttributesUxf;
 import at.ac.tuwien.model.change.management.core.model.intermediary.ElementUxf;
 import at.ac.tuwien.model.change.management.core.model.intermediary.ModelUxf;
@@ -87,9 +86,9 @@ public interface ModelUxfMapper {
         for (ElementUxf r : convertedRelations) {
             ElementUxf mergeWith = mergedList.stream()
                     .filter(o -> o.getUmletPosition().equals(r.getUmletPosition()) &&
-                            Objects.equals(
-                                    o.getAttributes().getMcmAttributes().get(AttributeKeys.ID),
-                                    r.getAttributes().getMcmAttributes().get(AttributeKeys.ID)
+                            Objects.equals( // the id is different here but checking the description should be enough
+                                    o.getAttributes().getDescription(),
+                                    r.getAttributes().getDescription()
                             ))
                     .findFirst()
                     .orElse(null);

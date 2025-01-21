@@ -10,4 +10,8 @@ public class AttributeKeys {
     public static final String LINE_WIDTH = "lw";
     public static final String BACKGROUND = "bg";
     public static final String FOREGROUND = "fg";
+    public static final String FORWARD_RELATION_ID = "fwdRelId";
+    public static final String BACKWARD_RELATION_ID = "bwdRelId";
+    public static final String CONFIGURATION_ID = "configurationId";
+    public static final String TITLE = "title";
 }

@@ -1,0 +1,1938 @@
+<diagram program="umletino" version="15.1"><zoom_level>4</zoom_level><help_text>// -----------
+Laser Welding Quality Control 
+Cause-Effect Network and 
+Product-Process-Resource Asset Network
+// -----------
+// ModelType: "PAN", "CEN", "IDE0", "UVL", "Config"
+// Version: "0.1"
+ group=IDEF0-Template-0</help_text><element><id>UMLClass</id><coordinates><x>664</x><y>100</y><w>40</w><h>12</h></coordinates><panel_attributes>// -----------
+P0 Preparation 
+// PPR-Type: "Process Phase"
+// --
+// Version: "0.1"
+
+bg=#a4a4f7
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLActor</id><coordinates><x>1024</x><y>132</y><w>32</w><h>56</h></coordinates><panel_attributes>// -----------
+Process
+engineer
+// PPR-Type: "Resource Actor Process engineer"
+// --
+// Qualification: "Expert in designing and validating lab experiment recipes."
+// --
+// Version: "0.1"
+
+bg=#ab6ee9</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLActor</id><coordinates><x>920</x><y>320</y><w>32</w><h>48</h></coordinates><panel_attributes>// -----------
+Operator
+// PPR-Type: "Resource Actor Operator"
+// --
+// Qualification: "Expert in chemical lab experiment procedures."
+// --
+// Version: "0.1"
+
+bg=#f1530d</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>804</x><y>264</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Welding robot 
+head
+// PPR-Type: "Resource Robot"
+// --
+// Version: "0.1"
+// Tags: "C10112", "C1112"
+// Property: "temperature"
+
+bg=#ccccff
+// light violet
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>664</x><y>144</y><w>44</w><h>16</h></coordinates><panel_attributes>// -----------
+P1 Quality control 
+in production 
+// PPR-Type: "Process"
+// --
+// Version: "0.1"
+
+bg=#a4a4f7
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>804</x><y>236</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Quality Control 
+Camera
+// PPR-Type: "Resource Component Camera"
+// --
+// Version: "0.1"
+// Tags: "C10112", "C1112"
+// Property: "temperature"
+
+
+bg=#ccccff
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>860</x><y>292</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Robot 
+Kinematics
+// PPR-Type: "Resource"
+// --
+// Version: "0.1"
+
+bg=#ccccff
+// light violet</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>912</x><y>236</y><w>44</w><h>16</h></coordinates><panel_attributes>Automatic Optical 
+Inspection System
+// PPR-Type: "Resource Controller"
+// --
+// Version: "0.1"
+// Tags: "C1112"
+
+
+bg=#ccccff
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>916</x><y>264</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Welding 
+Controller PLC
+// PPR-Type: "Resource Controller"
+// --
+// Version: "0.1"
+
+bg=#ccccff
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>720</x><y>120</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+T01 Initialize 
+QC module 
+// PPR-Type: "Process Sub-Process"
+// --
+// Version: "0.1"
+
+bg=#a4a4f7
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>976</x><y>164</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+QC Camera
+Data Sheet
+// PPR-Type: "Data Space Data Source"
+// --
+// Version: "0.1"
+
+bg=#cc9900
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>976</x><y>232</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Event Log
+// PPR-Type: "Data Space Operation Data Source"
+// --
+// Version: "0.1"
+
+bg=#cc9900
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>708</x><y>172</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+T11 QC classify 
+product quality
+// PPR-Type: "Process Sub-Process"
+// --
+// Version: "0.1"
+
+bg=#a4a4f7
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>756</x><y>128</y><w>56</w><h>124</h></coordinates><panel_attributes>lt=-
+// r1=Reactor
+m1=
+// r2=Heating
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+Resource</panel_attributes><additional_attributes>10;10;120;290</additional_attributes></element><element><id>Relation</id><coordinates><x>840</x><y>268</y><w>84</w><h>12</h></coordinates><panel_attributes>lt=-
+r1=
+m1=
+r2=
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+// Input product</panel_attributes><additional_attributes>10;10;190;10</additional_attributes></element><element><id>Relation</id><coordinates><x>840</x><y>240</y><w>80</w><h>12</h></coordinates><panel_attributes>lt=-
+r1=
+m1=
+r2=
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+// Input product</panel_attributes><additional_attributes>10;10;180;10</additional_attributes></element><element><id>Relation</id><coordinates><x>840</x><y>272</y><w>28</w><h>36</h></coordinates><panel_attributes>lt=-
+r1=
+m1=
+r2=
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+// Input product</panel_attributes><additional_attributes>10;10;50;70</additional_attributes></element><element><id>Relation</id><coordinates><x>696</x><y>108</y><w>36</w><h>24</h></coordinates><panel_attributes>lt=-
+// r1=Hydrogen Peroxide
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+Sub-Process</panel_attributes><additional_attributes>60;40;20;10</additional_attributes></element><element><id>Relation</id><coordinates><x>680</x><y>108</y><w>36</w><h>44</h></coordinates><panel_attributes>Pre-Process
+//
+// PPR-Type: "Relation Process-Process Pre-Process"
+// --
+// Version: "0.1"
+//
+lt=-
+// r1=P1 Initialize Lab
+m1=
+// r2=P2 Pulp Wood
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+</panel_attributes><additional_attributes>10;90;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>696</x><y>156</y><w>44</w><h>24</h></coordinates><panel_attributes>lt=-
+// r1=Hydrogen Peroxide
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+Sub-Process</panel_attributes><additional_attributes>40;40;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>976</x><y>112</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Quality
+Recipe
+// PPR-Type: "Data Space Data Source"
+// Rationale for the design of quality control for a welding process
+// Concrete recipe, based on a general design strategy
+// Consider PPR assumptions
+// --
+// Version: "0.1"
+// bg=pink
+bg=#cc9900
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>976</x><y>84</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Transformation 
+Design Approach
+// PPR-Type: "Data Space Data Source"
+// Rationale for the design of a chemical transformation process
+// May be concrete recipe, or a general design strategy
+// Consider PPR assumptions
+// --
+// Version: "0.1"
+// bg=pink
+bg=#cc9900
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>976</x><y>256</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Observation Log
+// PPR-Type: "Data Space Operation Data Source"
+// Log coming from an observer, with time, video, audio data
+// --
+// Id
+// Version 0.1
+// bg=pink
+bg=#cc9900
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLActor</id><coordinates><x>1024</x><y>228</y><w>32</w><h>48</h></coordinates><panel_attributes>// -----------
+Observer
+// PPR-Type: "Resource Actor Observer"
+// --
+// Qualification: "Expert in observing production operation procedures."
+// --
+// Version: "0.1"
+
+bg=#fda40a</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLActor</id><coordinates><x>1024</x><y>288</y><w>32</w><h>56</h></coordinates><panel_attributes>// -----------
+Production
+Manager
+// PPR-Type: "Resource Actor Manager"
+// --
+// Qualification: "Expert in managing production operation."
+// --
+// Version: "0.1"
+
+bg=#a2afb8</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>628</x><y>344</y><w>56</w><h>16</h></coordinates><panel_attributes>// -----------
+AOI system 
+classification is “wrong”
+//
+// PPR-Type: "CEN Condition Resource"
+// --
+// Version: "0.1"
+// Tags: "C1"
+//
+// Description: "Automatic Optical Inspection classification is different from rework inspection classification."
+// Condition: "logical condition using PAN concepts and equivalence classes"
+// Definition: "of concepts and equivalence classes"
+//
+bg=#ffcccc</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>648</x><y>328</y><w>96</w><h>24</h></coordinates><panel_attributes>// PPR-Type: "CEN Relation Condition-Product"
+// --
+// Version: "0.1"
+//
+lt=-
+// r1=Reactor
+m1=
+// r2=Overheated Material
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+Risk Concern</panel_attributes><additional_attributes>220;10;10;40</additional_attributes></element><element><id>UMLClass</id><coordinates><x>616</x><y>120</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Welded product 
+for QC inspection
+// PPR-Type: "Product"
+// --
+// Version: "0.1"
+//
+bg=#8fc8f8</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>676</x><y>372</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+QC 
+classification
+// PPR-Type: "Product"
+// --
+// Version: "0.1"
+//
+bg=#8fc8f8</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>652</x><y>128</y><w>32</w><h>24</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Input </panel_attributes><additional_attributes>60;40;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>664</x><y>156</y><w>40</w><h>224</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Output </panel_attributes><additional_attributes>70;540;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>820</x><y>248</y><w>12</w><h>24</h></coordinates><panel_attributes>lt=-
+r1=
+m1=
+r2=
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+// Input product</panel_attributes><additional_attributes>10;10;10;40</additional_attributes></element><element><id>UMLClass</id><coordinates><x>916</x><y>292</y><w>40</w><h>16</h></coordinates><panel_attributes>Operator HMI
+User Interface
+// PPR-Type: "Resource Interface"
+// --
+// Version: "0.1"
+// bg=pink
+bg=#ccccff
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>932</x><y>276</y><w>12</w><h>24</h></coordinates><panel_attributes>lt=-
+r1=
+m1=
+r2=
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+// Input product</panel_attributes><additional_attributes>10;40;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>976</x><y>140</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Quality Control 
+Recipe
+// PPR-Type: "Data Space Data Source"
+// Rationale for the design of quality control for a welding process
+// Concrete recipe for a technical system, based on a recipe
+// Consider PPR assumptions
+// --
+// Version: "0.1"
+//
+bg=#cc9900
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>992</x><y>124</y><w>12</w><h>24</h></coordinates><panel_attributes>lt=-
+r1=
+m1=
+r2=
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+// Input product</panel_attributes><additional_attributes>10;40;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>992</x><y>96</y><w>12</w><h>24</h></coordinates><panel_attributes>lt=-
+r1=
+m1=
+r2=
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+// Input product</panel_attributes><additional_attributes>10;40;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>976</x><y>288</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Production Plan
+// --
+// Version: "0.1"
+//
+bg=#cc9900
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>976</x><y>308</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Cost of Time and 
+Equipment
+// PPR-Type: "Data Space Operation Data Source"
+// Cost per unit of time and equipment
+// --
+// Version: "0.1"
+//
+bg=#cc9900
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>448</x><y>132</y><w>56</w><h>16</h></coordinates><panel_attributes>// -----------
+AOI system 
+classification is “wrong”
+//
+// PPR-Type: "CEN Condition Resource"
+// --
+// Version: "0.1"
+// Tags: "C1"
+//
+// Description: "Automatic Optical Inspection classification is different from rework inspection classification."
+// Condition: "logical condition using PAN concepts and equivalence classes"
+// Definition: "of concepts and equivalence classes"
+bg=#ffcccc
+// lt=.</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>328</x><y>88</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+“QC result” 
+is “correct”
+//
+// PPR-Type: "CEN Condition Resource"
+// --
+// Version: "0.1"
+// Tags: "E10"
+//
+// Description: "'QC result' matches with 'rework inspection result' (OK or NOK)."
+// Condition: "logical condition using PAN concepts and equivalence classes"
+// Definition: "of concepts and equivalence classes"
+//
+bg=#7dda5a</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>396</x><y>88</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+“QC result” is 
+“a false positive”
+//
+// PPR-Type: "CEN Condition Resource"
+// --
+// Version: "0.1"
+// Tags: "E11"
+//
+// Description: "of condition"
+// Condition: "'Wood pulp batch' is 'dark' or 'Wood pulp batch' is 'burnt'"
+// Definition: "of concepts and equivalence classes"
+//
+bg=#ffcccc
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>356</x><y>384</y><w>48</w><h>16</h></coordinates><panel_attributes>Business Goal
+Reduce Cycle Time
+//
+// PPR-Type: "CEN Condition Factor Business Process"
+// --
+// Version: "0.1"
+//
+// Description: "material generates heat"
+// Condition: "logical condition using PAN concepts and equivalence classes"
+// Definition: "of concepts and equivalence classes"
+//
+bg=#d0d9de
+// lt=.</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>420</x><y>100</y><w>48</w><h>40</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Contributes to</panel_attributes><additional_attributes>10;10;100;80</additional_attributes></element><element><id>UMLClass</id><coordinates><x>440</x><y>204</y><w>44</w><h>16</h></coordinates><panel_attributes>// -----------
+AOI AI algorithm 
+result is “wrong”
+//
+// PPR-Type: "CEN Condition Resource Component data"
+// --
+// Version: "0.1"
+// Tags: "C111"
+//
+// Description: "of condition"
+// Condition: "logical condition using PAN concepts and equivalence classes"
+// Definition: "of concepts and equivalence classes"
+//
+bg=#ffcccc
+// lt=.</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>456</x><y>144</y><w>44</w><h>68</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Contributes to</panel_attributes><additional_attributes>20;10;10;150</additional_attributes></element><element><id>UMLClass</id><coordinates><x>364</x><y>252</y><w>44</w><h>16</h></coordinates><panel_attributes>// -----------
+Insufficient input 
+to AI classification 
+//
+// PPR-Type: "CEN Condition Resource"
+// --
+// Version: "0.1"
+// Tags: "C111"
+//
+// Description: "of condition"
+// Condition: "logical condition using PAN concepts and equivalence classes"
+// Definition: "of concepts and equivalence classes"
+//
+bg=#ffcccc
+// lt=.</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>384</x><y>216</y><w>76</w><h>44</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Contributes to</panel_attributes><additional_attributes>170;10;10;90</additional_attributes></element><element><id>UMLClass</id><coordinates><x>540</x><y>232</y><w>40</w><h>16</h></coordinates><panel_attributes>Re-train AI
+//
+// PPR-Type: "CEN Treatment"
+// --
+// Version: "0.1"
+// Tags: "T111"
+//
+// Description: "of treatment"
+//
+bg=#ffcc66
+// lt=.
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>540</x><y>352</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Raise 
+production issue
+//
+// PPR-Type: "CEN Treatment"
+// --
+// Version: "0.1"
+// Tags: "T112"
+//
+// Description: "of treatment"
+//
+bg=#ffcc66
+// lt=.
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>520</x><y>352</y><w>28</w><h>20</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Treatment</panel_attributes><additional_attributes>10;30;50;20</additional_attributes></element><element><id>UMLClass</id><coordinates><x>484</x><y>280</y><w>44</w><h>16</h></coordinates><panel_attributes>// -----------
+Insufficient 
+AI training data 
+//
+// PPR-Type: "CEN Condition AI-data"
+// --
+// Version: "0.1"
+// Tags: "C1131"
+//
+// Description: "of condition"
+// Condition: "logical condition using PAN concepts and equivalence classes"
+// Definition: "of concepts and equivalence classes"
+//
+bg=#ffcccc
+// lt=.</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>500</x><y>252</y><w>44</w><h>36</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Contributes to</panel_attributes><additional_attributes>10;10;10;70</additional_attributes></element><element><id>UMLClass</id><coordinates><x>300</x><y>132</y><w>56</w><h>16</h></coordinates><panel_attributes>AOI system 
+classification is “correct”
+//
+// PPR-Type: "CEN Condition Resource"
+// --
+// Version: "0.1"
+// Tags: "C101"
+//
+// Description: "of condition"
+// Condition: "logical condition using PAN concepts and equivalence classes"
+// Definition: "of concepts and equivalence classes"
+//
+bg=#7dda5a
+// lt=.</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>336</x><y>100</y><w>48</w><h>40</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Contributes to</panel_attributes><additional_attributes>30;10;10;80</additional_attributes></element><element><id>UMLClass</id><coordinates><x>276</x><y>204</y><w>44</w><h>16</h></coordinates><panel_attributes>AOI AI algorithm 
+result is “correct”
+//
+// PPR-Type: "CEN Condition Resource Component"
+// --
+// Version: "0.1"
+// Tags: "C1011"
+//
+// Description: "of condition"
+// Condition: "logical condition using PAN concepts and equivalence classes"
+// Definition: "of concepts and equivalence classes"
+//
+bg=#7dda5a
+// lt=.</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>288</x><y>144</y><w>64</w><h>68</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Contributes to</panel_attributes><additional_attributes>120;10;10;150</additional_attributes></element><element><id>UMLClass</id><coordinates><x>288</x><y>244</y><w>44</w><h>16</h></coordinates><panel_attributes>Sufficient input 
+to AI classification 
+//
+// PPR-Type: "CEN Condition Resource"
+// --
+// Version: "0.1"
+// Tags: "C10111"
+//
+// Description: "of condition"
+// Condition: "logical condition using PAN concepts and equivalence classes"
+// Definition: "of concepts and equivalence classes"
+//
+bg=#7dda5a
+// lt=.</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>296</x><y>216</y><w>48</w><h>36</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Contributes to</panel_attributes><additional_attributes>10;10;40;70</additional_attributes></element><element><id>Relation</id><coordinates><x>648</x><y>356</y><w>44</w><h>24</h></coordinates><panel_attributes>// PPR-Type: "CEN Relation Condition-Product"
+// --
+// Version: "0.1"
+//
+lt=-
+// r1=Reactor
+m1=
+// r2=Overheated Material
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+Risk Concern</panel_attributes><additional_attributes>10;10;90;40</additional_attributes></element><element><id>UMLClass</id><coordinates><x>472</x><y>88</y><w>44</w><h>16</h></coordinates><panel_attributes>// -----------
+Waste of Rework 
+Time and Material
+//
+// PPR-Type: "CEN Condition Process"
+// --
+// Version: "0.1"
+// Tags: "C1"
+//
+// Description: "avoidable rework cell effort and material wasted due to the QC false positive results"
+// Condition: "logical condition using PAN concepts and equivalence classes"
+// Definition: "of concepts and equivalence classes"
+//
+bg=#ffcccc</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>432</x><y>88</y><w>48</w><h>16</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Contributes to</panel_attributes><additional_attributes>10;20;100;20</additional_attributes></element><element><id>UMLClass</id><coordinates><x>556</x><y>88</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Production 
+Delay
+//
+// PPR-Type: "CEN Condition KPI"
+// --
+// Version: "0.1"
+//
+// Description: "production delay and material wasted"
+// Condition: "logical condition using PAN concepts and equivalence classes"
+// Definition: "of concepts and equivalence classes"
+//
+bg=#ffcccc
+// lt=.</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>512</x><y>88</y><w>52</w><h>16</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Contributes to</panel_attributes><additional_attributes>10;20;110;20</additional_attributes></element><element><id>UMLClass</id><coordinates><x>364</x><y>352</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Short cooling 
+process
+//
+// PPR-Type: "CEN Factor Process"
+// --
+// Version: "0.1"
+//
+// Description: "short time window to control the process"
+// Condition: "logical condition using PAN concepts and equivalence classes"
+// Definition: "of concepts and equivalence classes"
+//
+bg=#d0d9de
+// lt=.</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>400</x><y>356</y><w>48</w><h>40</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Contributes to</panel_attributes><additional_attributes>40;80;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>392</x><y>280</y><w>44</w><h>16</h></coordinates><panel_attributes>// -----------
+Insufficient QC 
+picture quality 
+//
+// PPR-Type: "CEN Condition Resource Sensor Data"
+// --
+// Version: "0.1"
+// Tags: "C1111"
+//
+// Description: "of condition"
+// Condition: "logical condition using PAN concepts and equivalence classes"
+// Definition: "of concepts and equivalence classes"
+//
+bg=#ffcccc
+// lt=.</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>376</x><y>264</y><w>40</w><h>24</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Contributes to</panel_attributes><additional_attributes>10;10;80;40</additional_attributes></element><element><id>UMLClass</id><coordinates><x>452</x><y>316</y><w>44</w><h>16</h></coordinates><panel_attributes>// -----------
+QC camera issue 
+//
+// PPR-Type: "CEN Condition Resource Sensor"
+// --
+// Version: "0.1"
+// Tags: "C11111"
+//
+// Description: "of condition"
+// Condition: "logical condition using PAN concepts and equivalence classes"
+// Definition: "of concepts and equivalence classes"
+//
+bg=#ffcccc
+// lt=.</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>408</x><y>292</y><w>72</w><h>32</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Contributes to</panel_attributes><additional_attributes>10;10;160;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>480</x><y>356</y><w>44</w><h>16</h></coordinates><panel_attributes>// -----------
+Environmental 
+disturbance
+//
+// PPR-Type: "CEN Condition Environment"
+// --
+// Version: "0.1"
+// Tags: "C111111"
+//
+// Description: "of condition"
+// Condition: "logical condition using PAN concepts and equivalence classes"
+// Definition: "of concepts and equivalence classes"
+//
+bg=#ffcccc
+// lt=.</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>476</x><y>328</y><w>56</w><h>36</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Contributes to</panel_attributes><additional_attributes>10;10;70;70</additional_attributes></element><element><id>UMLClass</id><coordinates><x>416</x><y>384</y><w>52</w><h>20</h></coordinates><panel_attributes>// -----------
+Environment/System
+Temperature 
+is "high"
+//
+// PPR-Type: "CEN Condition Environment"
+// --
+// Version: "0.1"
+// Tags: "C1111111"
+//
+// Description: "of condition"
+// Condition: "logical condition using PAN concepts and equivalence classes"
+// Definition: "of concepts and equivalence classes"
+//
+bg=#ffcccc
+// lt=.</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>452</x><y>368</y><w>48</w><h>24</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Contributes to</panel_attributes><additional_attributes>100;10;10;40</additional_attributes></element><element><id>UMLClass</id><coordinates><x>540</x><y>388</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Cool environment
+//
+// PPR-Type: "CEN Treatment"
+// --
+// Version: "0.1"
+// Tags: "T113"
+//
+// Description: "of treatment"
+//
+bg=#ffcc66
+// lt=.
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>532</x><y>420</y><w>48</w><h>16</h></coordinates><panel_attributes>// -----------
+Protect QC 
+camera from heat
+//
+// PPR-Type: "CEN Treatment"
+// --
+// Version: "0.1"
+// Tags: "T113"
+//
+// Description: "of treatment"
+//
+bg=#ffcc66
+// lt=.
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>464</x><y>392</y><w>76</w><h>44</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Treatment</panel_attributes><additional_attributes>10;10;170;90</additional_attributes></element><element><id>UMLClass</id><coordinates><x>540</x><y>324</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Add Sensor
+//
+// PPR-Type: "CEN Treatment"
+// --
+// Version: "0.1"
+// Tags: "T112"
+//
+// Description: "of treatment"
+//
+bg=#ffcc66
+// lt=.
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>520</x><y>328</y><w>44</w><h>36</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Treatment</panel_attributes><additional_attributes>10;70;50;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>480</x><y>240</y><w>44</w><h>16</h></coordinates><panel_attributes>// -----------
+Insufficient 
+AI training 
+//
+// PPR-Type: "CEN Condition AI-engineering"
+// --
+// Version: "0.1"
+// Tags: "C113"
+//
+// Description: "of condition"
+// Condition: "logical condition using PAN concepts and equivalence classes"
+// Definition: "of concepts and equivalence classes"
+//
+bg=#ffcccc
+// lt=.</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>472</x><y>216</y><w>52</w><h>32</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Contributes to</panel_attributes><additional_attributes>10;10;110;60</additional_attributes></element><element><id>Relation</id><coordinates><x>380</x><y>328</y><w>44</w><h>32</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Contributes to</panel_attributes><additional_attributes>20;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>428</x><y>328</y><w>56</w><h>64</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Contributes to</panel_attributes><additional_attributes>80;10;10;140</additional_attributes></element><element><id>UMLClass</id><coordinates><x>424</x><y>252</y><w>44</w><h>16</h></coordinates><panel_attributes>// -----------
+Insufficient 
+AI input control
+//
+// PPR-Type: "CEN Condition AI-engineering"
+// --
+// Version: "0.1"
+// Tags: "C114"
+//
+// Description: "of condition"
+// Condition: "logical condition using PAN concepts and equivalence classes"
+// Definition: "of concepts and equivalence classes"
+//
+bg=#ffcccc
+// lt=.</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>448</x><y>216</y><w>44</w><h>44</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Contributes to</panel_attributes><additional_attributes>20;10;10;90</additional_attributes></element><element><id>UMLClass</id><coordinates><x>540</x><y>268</y><w>44</w><h>16</h></coordinates><panel_attributes>Compare AI input 
+to training data
+//
+// PPR-Type: "CEN Treatment"
+// --
+// Version: "0.1"
+// Tags: "T111"
+//
+// Description: "of treatment"
+//
+bg=#ffcc66
+// lt=.
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>464</x><y>260</y><w>84</w><h>20</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Treatment</panel_attributes><additional_attributes>10;10;190;30</additional_attributes></element><element><id>Relation</id><coordinates><x>520</x><y>232</y><w>28</w><h>20</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Treatment</panel_attributes><additional_attributes>10;30;50;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>224</x><y>244</y><w>52</w><h>16</h></coordinates><panel_attributes>Sufficient 
+AI training 
+//
+// PPR-Type: "CEN Condition AI-engineering"
+// --
+// Version: "0.1"
+// Tags: "C10112"
+//
+// Description: "of condition"
+// Condition: "logical condition using PAN concepts and equivalence classes"
+// Definition: "of concepts and equivalence classes"
+//
+bg=#7dda5a
+// lt=.</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>260</x><y>216</y><w>48</w><h>36</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Contributes to</panel_attributes><additional_attributes>40;10;10;70</additional_attributes></element><element><id>UMLClass</id><coordinates><x>284</x><y>280</y><w>44</w><h>16</h></coordinates><panel_attributes>// -----------
+Sufficient QC 
+picture quality 
+//
+// PPR-Type: "CEN Condition Resource Sensor Data"
+// --
+// Version: "0.1"
+// Tags: "C10111"
+//
+// Description: "of condition"
+// Condition: "logical condition using PAN concepts and equivalence classes"
+// Definition: "of concepts and equivalence classes"
+//
+bg=#7dda5a
+// lt=.</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>300</x><y>256</y><w>44</w><h>32</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Contributes to</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>364</x><y>316</y><w>52</w><h>16</h></coordinates><panel_attributes>// -----------
+System temperature 
+is "high"
+//
+// PPR-Type: "CEN Factor Resource"
+// --
+// Version: "0.1"
+//
+// Description: "short time window to control the process"
+// Condition: "logical condition using PAN concepts and equivalence classes"
+// Definition: "of concepts and equivalence classes"
+//
+bg=#d0d9de
+// lt=.</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>376</x><y>364</y><w>48</w><h>28</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Contributes to</panel_attributes><additional_attributes>30;10;10;50</additional_attributes></element><element><id>Relation</id><coordinates><x>412</x><y>316</y><w>48</w><h>16</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Contributes to</panel_attributes><additional_attributes>100;20;10;20</additional_attributes></element><element><id>UMLActor</id><coordinates><x>920</x><y>144</y><w>32</w><h>56</h></coordinates><panel_attributes>Quality 
+Manager
+// PPR-Type: "Resource Actor Quality Manager"
+// --
+// Qualification: "Expert in managing the quality of production operation."
+// --
+// Version: "0.1"
+
+bg=#fda40a</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>736</x><y>200</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+111 Position 
+QC camera
+// PPR-Type: "Process Sub-Process"
+// --
+// Id: "T111"
+// Version: "0.1"
+
+bg=#a4a4f7
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>716</x><y>184</y><w>32</w><h>24</h></coordinates><panel_attributes>lt=-
+// r1=Hydrogen Peroxide
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+Sub-Process</panel_attributes><additional_attributes>60;40;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>736</x><y>224</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+112 Start product
+classification
+// PPR-Type: "Process Sub-Process"
+// --
+// Id: "T112"
+// Version: "0.1"
+
+bg=#a4a4f7
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>736</x><y>248</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+113 Start take 
+QC picture
+// PPR-Type: "Process Sub-Process"
+// --
+// Id: "T113"
+// Version: "0.1"
+
+bg=#a4a4f7
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>736</x><y>272</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+114 Take 
+picture
+// PPR-Type: "Process Sub-Process"
+// --
+// Id: "T114"
+// Version: "0.1"
+
+bg=#a4a4f7
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>736</x><y>344</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+117 Send
+QC classification
+// PPR-Type: "Process Sub-Process"
+// --
+// Id: "T115"
+// Version: "0.1"
+
+bg=#a4a4f7
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>736</x><y>296</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+115 Send
+picture
+// PPR-Type: "Process Sub-Process"
+// --
+// Id: "T116"
+// Version: "0.1"
+
+bg=#a4a4f7
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>736</x><y>320</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+116 Classify 
+picture
+// PPR-Type: "Process Sub-Process"
+// --
+// Id: "T117"
+// Version: "0.1"
+
+bg=#a4a4f7
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>752</x><y>212</y><w>36</w><h>20</h></coordinates><panel_attributes>Pre-Process
+//
+// PPR-Type: "Relation Process-Process Pre-Process"
+// --
+// Version: "0.1"
+//
+lt=-
+// r1=P1 Initialize Lab
+m1=
+// r2=P2 Pulp Wood
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+</panel_attributes><additional_attributes>10;30;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>752</x><y>236</y><w>36</w><h>20</h></coordinates><panel_attributes>Pre-Process
+//
+// PPR-Type: "Relation Process-Process Pre-Process"
+// --
+// Version: "0.1"
+//
+lt=-
+// r1=P1 Initialize Lab
+m1=
+// r2=P2 Pulp Wood
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+</panel_attributes><additional_attributes>10;30;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>752</x><y>260</y><w>36</w><h>20</h></coordinates><panel_attributes>Pre-Process
+//
+// PPR-Type: "Relation Process-Process Pre-Process"
+// --
+// Version: "0.1"
+//
+lt=-
+// r1=P1 Initialize Lab
+m1=
+// r2=P2 Pulp Wood
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+</panel_attributes><additional_attributes>10;30;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>752</x><y>284</y><w>36</w><h>20</h></coordinates><panel_attributes>Pre-Process
+//
+// PPR-Type: "Relation Process-Process Pre-Process"
+// --
+// Version: "0.1"
+//
+lt=-
+// r1=P1 Initialize Lab
+m1=
+// r2=P2 Pulp Wood
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+</panel_attributes><additional_attributes>10;30;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>752</x><y>308</y><w>36</w><h>20</h></coordinates><panel_attributes>Pre-Process
+//
+// PPR-Type: "Relation Process-Process Pre-Process"
+// --
+// Version: "0.1"
+//
+lt=-
+// r1=P1 Initialize Lab
+m1=
+// r2=P2 Pulp Wood
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+</panel_attributes><additional_attributes>10;30;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>752</x><y>332</y><w>36</w><h>20</h></coordinates><panel_attributes>Pre-Process
+//
+// PPR-Type: "Relation Process-Process Pre-Process"
+// --
+// Version: "0.1"
+//
+lt=-
+// r1=P1 Initialize Lab
+m1=
+// r2=P2 Pulp Wood
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+</panel_attributes><additional_attributes>10;30;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>704</x><y>356</y><w>60</w><h>24</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Output </panel_attributes><additional_attributes>10;40;130;10</additional_attributes></element><element><id>Relation</id><coordinates><x>772</x><y>204</y><w>48</w><h>76</h></coordinates><panel_attributes>lt=-
+// r1=Reactor
+m1=
+// r2= Keep Temperature
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+Resource</panel_attributes><additional_attributes>10;10;80;170</additional_attributes></element><element><id>Relation</id><coordinates><x>932</x><y>248</y><w>12</w><h>24</h></coordinates><panel_attributes>lt=-
+r1=
+m1=
+r2=
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+// Input product</panel_attributes><additional_attributes>10;10;10;40</additional_attributes></element><element><id>Relation</id><coordinates><x>772</x><y>244</y><w>40</w><h>40</h></coordinates><panel_attributes>lt=-
+// r1=Reactor
+m1=
+// r2= Keep Temperature
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+Resource</panel_attributes><additional_attributes>10;80;80;10</additional_attributes></element><element><id>Relation</id><coordinates><x>772</x><y>248</y><w>48</w><h>60</h></coordinates><panel_attributes>lt=-
+// r1=Reactor
+m1=
+// r2= Keep Temperature
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+Resource</panel_attributes><additional_attributes>10;130;80;10</additional_attributes></element><element><id>Relation</id><coordinates><x>772</x><y>244</y><w>148</w><h>88</h></coordinates><panel_attributes>lt=-
+// r1=Reactor
+m1=
+// r2= Keep Temperature
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+Resource</panel_attributes><additional_attributes>10;200;350;10</additional_attributes></element><element><id>Relation</id><coordinates><x>772</x><y>248</y><w>148</w><h>112</h></coordinates><panel_attributes>lt=-
+// r1=Reactor
+m1=
+// r2= Keep Temperature
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+Resource</panel_attributes><additional_attributes>10;260;350;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>688</x><y>296</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+QC 
+picture
+// PPR-Type: "Product"
+// --
+// Version: "0.1"
+//
+bg=#8fc8f8</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>716</x><y>284</y><w>28</w><h>20</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Output </panel_attributes><additional_attributes>10;30;50;10</additional_attributes></element><element><id>Relation</id><coordinates><x>700</x><y>332</y><w>48</w><h>48</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Output </panel_attributes><additional_attributes>10;100;100;10</additional_attributes></element><element><id>Relation</id><coordinates><x>716</x><y>308</y><w>28</w><h>24</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Input </panel_attributes><additional_attributes>50;40;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>632</x><y>132</y><w>112</w><h>152</h></coordinates><panel_attributes>lt=-
+// r1=Wood Chips
+m1=
+// r2=P1 Initialize Lab
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+Input </panel_attributes><additional_attributes>260;360;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>860</x><y>176</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Environment
+// PPR-Type: "Resource Environment"
+// --
+// Version: "0.1"
+// Property: "temperature"
+
+
+bg=#ccccff
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLActor</id><coordinates><x>772</x><y>100</y><w>40</w><h>48</h></coordinates><panel_attributes>// -----------
+QC Technician
+// PPR-Type: "Resource Actor Operator"
+// --
+// Qualification: "Expert in chemical lab experiment procedures."
+// --
+// Version: "0.1"
+
+bg=#f1530d</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>700</x><y>100</y><w>96</w><h>20</h></coordinates><panel_attributes>lt=-
+// r1=Reactor
+m1=
+// r2=Heating
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+Resource</panel_attributes><additional_attributes>10;10;220;30</additional_attributes></element><element><id>UMLClass</id><coordinates><x>860</x><y>204</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Welding Cell
+// PPR-Type: "Resource Work Cell"
+// --
+// Version: "0.1"
+// Property: "temperature"
+
+
+bg=#ccccff
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>876</x><y>188</y><w>12</w><h>24</h></coordinates><panel_attributes>lt=-
+r1=
+m1=
+r2=
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+// Input product</panel_attributes><additional_attributes>10;10;10;40</additional_attributes></element><element><id>Relation</id><coordinates><x>828</x><y>212</y><w>40</w><h>32</h></coordinates><panel_attributes>lt=-
+r1=
+m1=
+r2=
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+// Input product</panel_attributes><additional_attributes>80;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>896</x><y>208</y><w>32</w><h>36</h></coordinates><panel_attributes>lt=-
+r1=
+m1=
+r2=
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+// Input product</panel_attributes><additional_attributes>10;10;60;70</additional_attributes></element><element><id>Relation</id><coordinates><x>820</x><y>180</y><w>48</w><h>64</h></coordinates><panel_attributes>lt=-
+r1=
+m1=
+r2=
+m2=
+m1pos=10,0
+r1pos=-3,-34
+r2pos=-63,30
+// Input product</panel_attributes><additional_attributes>100;10;10;140</additional_attributes></element><element><id>UMLClass</id><coordinates><x>976</x><y>204</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+AI Training 
+Data
+// PPR-Type: "Data Space Data Source"
+// --
+// Version: "0.1"
+
+bg=#cc9900
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>976</x><y>184</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+QC Camera
+Issue
+// PPR-Type: "Data Space Data Source"
+// --
+// Version: "0.1"
+
+bg=#cc9900
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>784</x><y>768</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Environment
+//
+// PPR UVL Type: "UVL resource feature (abstract)"
+// --
+// Version: "0.1"
+//
+// 
+//
+bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>784</x><y>736</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+LIDAR camera
+//
+// PPR UVL Type: "UVL resource feature"
+// --
+// Version: "0.1"
+//
+bg=#ffe106</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>580</x><y>524</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+PPR UVL root
+//
+// PPR UVL Type: "UVL feature (abstract)"
+// --
+// Version: "0.1"
+//
+// 
+//
+bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>648</x><y>524</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+PPR UVL 
+product
+//
+// PPR UVL Type: "UVL product feature (abstract)"
+// --
+// Version: "0.1"
+//
+// 
+//
+bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>648</x><y>560</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+PPR UVL 
+process
+//
+// PPR UVL Type: "UVL process feature (abstract)"
+// --
+// Version: "0.1"
+//
+// 
+//
+bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>648</x><y>708</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+PPR UVL 
+resource
+//
+// PPR UVL Type: "UVL resource feature (abstract)"
+// --
+// Version: "0.1"
+//
+// 
+//
+bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>716</x><y>560</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Car Body 
+Welding
+//
+// PPR UVL Type: "UVL process feature (abstract)"
+// --
+// Version: "0.1"
+//
+// 
+//
+bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>784</x><y>560</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Cleaning
+//
+// PPR UVL Type: "UVL process feature"
+// --
+// Version: "0.1"
+//
+bg=#ffe106</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>784</x><y>584</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Positioning
+//
+// PPR UVL Type: "UVL process feature"
+// --
+// Version: "0.1"
+//
+bg=#ffe106</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>784</x><y>608</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Welding
+//
+// PPR UVL Type: "UVL process feature"
+// --
+// Version: "0.1"
+//
+bg=#ffe106</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>784</x><y>708</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+LCD camera
+//
+// PPR UVL Type: "UVL resource feature"
+// --
+// Version: "0.1"
+//
+bg=#ffe106</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>784</x><y>632</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Quality
+Assurance
+//
+// PPR UVL Type: "UVL process feature (abstract)"
+// --
+// Version: "0.1"
+//
+// 
+//
+bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>716</x><y>708</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+QC camera
+//
+// PPR UVL Type: "UVL resource feature (abstract)"
+// --
+// Version: "0.1"
+//
+// 
+//
+bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>716</x><y>768</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+External 
+Interface
+//
+// PPR UVL Type: "UVL resource feature (abstract)"
+// --
+// Version: "0.1"
+//
+// 
+//
+bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>852</x><y>796</y><w>40</w><h>20</h></coordinates><panel_attributes>// -----------
+volatile
+temperature 
+Environment
+//
+// PPR UVL Type: "UVL resource feature (abstract)"
+// --
+// Version: "0.1"
+//
+// 
+//
+bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>852</x><y>828</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+volatile dust
+Environment
+//
+// PPR UVL Type: "UVL resource feature (abstract)"
+// --
+// Version: "0.1"
+//
+// 
+//
+bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>616</x><y>524</y><w>40</w><h>20</h></coordinates><panel_attributes>// -----------------
+UVL 
+sub-feature
+//
+// PPR UVL Type: "UVL relationship"
+//
+lt=-
+// r1=
+m1=
+// r2=P1 
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30</panel_attributes><additional_attributes>10;20;80;20</additional_attributes></element><element><id>Relation</id><coordinates><x>616</x><y>528</y><w>52</w><h>48</h></coordinates><panel_attributes>// -----------------
+UVL 
+sub-feature
+//
+// PPR UVL Type: "UVL relationship"
+//
+lt=-
+// r1=
+m1=
+// r2=P1 
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30</panel_attributes><additional_attributes>10;10;80;100</additional_attributes></element><element><id>Relation</id><coordinates><x>616</x><y>532</y><w>52</w><h>192</h></coordinates><panel_attributes>// -----------------
+UVL 
+sub-feature
+//
+// PPR UVL Type: "UVL relationship"
+//
+lt=-
+// r1=
+m1=
+// r2=P1 
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30</panel_attributes><additional_attributes>10;10;80;460</additional_attributes></element><element><id>UMLClass</id><coordinates><x>852</x><y>768</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+controlled
+Environment
+//
+// PPR UVL Type: "UVL resource feature (abstract)"
+// --
+// Version: "0.1"
+//
+// 
+//
+bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>752</x><y>560</y><w>40</w><h>20</h></coordinates><panel_attributes>// -----------------
+UVL 
+sub-feature
+//
+// PPR UVL Type: "UVL relationship"
+//
+lt=-
+// r1=
+m1=
+// r2=P1 
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30</panel_attributes><additional_attributes>10;20;80;20</additional_attributes></element><element><id>Relation</id><coordinates><x>684</x><y>560</y><w>40</w><h>20</h></coordinates><panel_attributes>// -----------------
+UVL 
+sub-feature
+//
+// PPR UVL Type: "UVL relationship"
+//
+lt=-
+// r1=
+m1=
+// r2=P1 
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30</panel_attributes><additional_attributes>10;20;80;20</additional_attributes></element><element><id>Relation</id><coordinates><x>752</x><y>568</y><w>40</w><h>32</h></coordinates><panel_attributes>// -----------------
+UVL 
+sub-feature
+//
+// PPR UVL Type: "UVL relationship"
+//
+lt=-
+// r1=
+m1=
+// r2=P1 
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30</panel_attributes><additional_attributes>10;10;80;60</additional_attributes></element><element><id>Relation</id><coordinates><x>752</x><y>568</y><w>52</w><h>56</h></coordinates><panel_attributes>// -----------------
+UVL 
+sub-feature
+//
+// PPR UVL Type: "UVL relationship"
+//
+lt=-
+// r1=
+m1=
+// r2=P1 
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30</panel_attributes><additional_attributes>10;10;80;120</additional_attributes></element><element><id>Relation</id><coordinates><x>752</x><y>572</y><w>52</w><h>76</h></coordinates><panel_attributes>// -----------------
+UVL 
+sub-feature
+//
+// PPR UVL Type: "UVL relationship"
+//
+lt=-
+// r1=
+m1=
+// r2=P1 
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30</panel_attributes><additional_attributes>10;10;80;170</additional_attributes></element><element><id>UMLClass</id><coordinates><x>648</x><y>804</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+UVL constraint
+//
+// PPR UVL Type: "UVL constraint"
+// --
+// Version: "0.1"
+//
+// UVLconstraint: "Quality Assurance =&gt; QC camera"
+//
+bg=#fff680</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>684</x><y>708</y><w>40</w><h>20</h></coordinates><panel_attributes>// -----------------
+UVL 
+sub-feature
+//
+// PPR UVL Type: "UVL relationship"
+//
+lt=-
+// r1=
+m1=
+// r2=P1 
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30</panel_attributes><additional_attributes>10;20;80;20</additional_attributes></element><element><id>Relation</id><coordinates><x>752</x><y>708</y><w>40</w><h>20</h></coordinates><panel_attributes>// -----------------
+UVL 
+alternative
+//
+// PPR UVL Type: "UVL relationship"
+//
+lt=-
+// r1=
+m1=
+// r2=P1 
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30</panel_attributes><additional_attributes>10;20;80;20</additional_attributes></element><element><id>Relation</id><coordinates><x>752</x><y>712</y><w>48</w><h>40</h></coordinates><panel_attributes>// -----------------
+UVL 
+alternative
+//
+// PPR UVL Type: "UVL relationship"
+//
+lt=-
+// r1=
+m1=
+// r2=P1 
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30</panel_attributes><additional_attributes>10;10;80;80</additional_attributes></element><element><id>Relation</id><coordinates><x>684</x><y>712</y><w>52</w><h>72</h></coordinates><panel_attributes>// -----------------
+UVL 
+sub-feature
+//
+// PPR UVL Type: "UVL relationship"
+//
+lt=-
+// r1=
+m1=
+// r2=P1 
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30</panel_attributes><additional_attributes>10;10;80;160</additional_attributes></element><element><id>Relation</id><coordinates><x>752</x><y>768</y><w>40</w><h>20</h></coordinates><panel_attributes>// -----------------
+UVL 
+sub-feature
+//
+// PPR UVL Type: "UVL relationship"
+//
+lt=-
+// r1=
+m1=
+// r2=P1 
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30</panel_attributes><additional_attributes>10;20;80;20</additional_attributes></element><element><id>Relation</id><coordinates><x>820</x><y>768</y><w>40</w><h>20</h></coordinates><panel_attributes>// -----------------
+UVL 
+alternative
+//
+// PPR UVL Type: "UVL relationship"
+//
+lt=-
+// r1=
+m1=
+// r2=P1 
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30</panel_attributes><additional_attributes>10;20;80;20</additional_attributes></element><element><id>Relation</id><coordinates><x>616</x><y>536</y><w>52</w><h>284</h></coordinates><panel_attributes>// -----------------
+UVL 
+constraints
+//
+// PPR UVL Type: "UVL relationship"
+//
+lt=-
+// r1=
+m1=
+// r2=P1 
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30</panel_attributes><additional_attributes>10;10;80;690</additional_attributes></element><element><id>Relation</id><coordinates><x>820</x><y>632</y><w>40</w><h>20</h></coordinates><panel_attributes>// -----------------
+UVL 
+alternative
+//
+// PPR UVL Type: "UVL relationship"
+//
+lt=-
+// r1=
+m1=
+// r2=P1 
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30</panel_attributes><additional_attributes>10;20;80;20</additional_attributes></element><element><id>UMLClass</id><coordinates><x>852</x><y>632</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+QA human 
+inspection
+//
+// PPR UVL Type: "UVL process feature"
+// --
+// Version: "0.1"
+//
+bg=#ffe106</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>852</x><y>656</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+QA AI optical 
+inspection
+//
+// PPR UVL Type: "UVL process feature"
+// --
+// Version: "0.1"
+//
+bg=#ffe106</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>820</x><y>636</y><w>40</w><h>36</h></coordinates><panel_attributes>// -----------------
+UVL 
+alternative
+//
+// PPR UVL Type: "UVL relationship"
+//
+lt=-
+// r1=
+m1=
+// r2=P1 
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30</panel_attributes><additional_attributes>10;10;80;70</additional_attributes></element><element><id>UMLClass</id><coordinates><x>648</x><y>836</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+UVL constraint
+//
+// PPR UVL Type: "UVL constraint"
+// --
+// Version: "0.1"
+//
+// UVLconstraint: "Welding =&gt; Quality Assurance"
+//
+bg=#fff680</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>820</x><y>772</y><w>48</w><h>40</h></coordinates><panel_attributes>// -----------------
+UVL 
+alternative
+//
+// PPR UVL Type: "UVL relationship"
+//
+lt=-
+// r1=
+m1=
+// r2=P1 
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30</panel_attributes><additional_attributes>10;10;80;80</additional_attributes></element><element><id>Relation</id><coordinates><x>820</x><y>772</y><w>48</w><h>72</h></coordinates><panel_attributes>// -----------------
+UVL 
+alternative
+//
+// PPR UVL Type: "UVL relationship"
+//
+lt=-
+// r1=
+m1=
+// r2=P1 
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30</panel_attributes><additional_attributes>10;10;80;160</additional_attributes></element><element><id>Relation</id><coordinates><x>656</x><y>816</y><w>36</w><h>28</h></coordinates><panel_attributes>// -----------------
+UVL 
+constraints
+//
+// PPR UVL Type: "UVL relationship"
+//
+lt=-
+// r1=
+m1=
+// r2=P1 
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>Relation</id><coordinates><x>656</x><y>848</y><w>36</w><h>28</h></coordinates><panel_attributes>// -----------------
+UVL 
+constraints
+//
+// PPR UVL Type: "UVL relationship"
+//
+lt=-
+// r1=
+m1=
+// r2=P1 
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>UMLClass</id><coordinates><x>648</x><y>868</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+UVL constraint
+//
+// PPR UVL Type: "UVL constraint"
+// --
+// Version: "0.1"
+//
+// UVLconstraint: "volatile temperature Environment =&gt; temperature monitoring"
+//
+bg=#fff680</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>716</x><y>808</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Monitoring 
+Devices
+//
+// PPR UVL Type: "UVL resource feature (abstract)"
+// --
+// Version: "0.1"
+//
+// 
+//
+bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>684</x><y>716</y><w>52</w><h>104</h></coordinates><panel_attributes>// -----------------
+UVL 
+sub-feature
+//
+// PPR UVL Type: "UVL relationship"
+//
+lt=-
+// r1=
+m1=
+// r2=P1 
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30</panel_attributes><additional_attributes>10;10;80;240</additional_attributes></element><element><id>UMLClass</id><coordinates><x>784</x><y>808</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Temperature
+Sensor
+//
+// PPR UVL Type: "UVL resource feature (abstract)"
+// --
+// Version: "0.1"
+//
+// 
+//
+bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>752</x><y>808</y><w>40</w><h>20</h></coordinates><panel_attributes>// -----------------
+UVL 
+sub-feature
+//
+// PPR UVL Type: "UVL relationship"
+//
+lt=-
+// r1=
+m1=
+// r2=P1 
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30</panel_attributes><additional_attributes>10;20;80;20</additional_attributes></element><element><id>Relation</id><coordinates><x>656</x><y>880</y><w>36</w><h>28</h></coordinates><panel_attributes>// -----------------
+UVL 
+constraints
+//
+// PPR UVL Type: "UVL relationship"
+//
+lt=-
+// r1=
+m1=
+// r2=P1 
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>UMLClass</id><coordinates><x>648</x><y>900</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+UVL constraint
+//
+// PPR UVL Type: "UVL constraint"
+// --
+// Version: "0.1"
+//
+// UVLconstraint: "temperature monitoring =&gt; Temperature Sensor"
+//
+bg=#fff680</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>716</x><y>664</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Monitoring
+//
+// PPR UVL Type: "UVL process feature (abstract)"
+// --
+// Version: "0.1"
+//
+// 
+//
+bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>784</x><y>664</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Temperature
+Monitoring
+//
+// PPR UVL Type: "UVL process feature (abstract)"
+// --
+// Version: "0.1"
+//
+// 
+//
+bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>684</x><y>568</y><w>52</w><h>108</h></coordinates><panel_attributes>// -----------------
+UVL 
+sub-feature
+//
+// PPR UVL Type: "UVL relationship"
+//
+lt=-
+// r1=
+m1=
+// r2=P1 
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30</panel_attributes><additional_attributes>10;10;80;250</additional_attributes></element><element><id>Relation</id><coordinates><x>752</x><y>664</y><w>40</w><h>20</h></coordinates><panel_attributes>// -----------------
+UVL 
+sub-feature
+//
+// PPR UVL Type: "UVL relationship"
+//
+lt=-
+// r1=
+m1=
+// r2=P1 
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30</panel_attributes><additional_attributes>10;20;80;20</additional_attributes></element><element><id>UMLUseCase</id><coordinates><x>888</x><y>656</y><w>12</w><h>8</h></coordinates><panel_attributes>// -----------
+A
+//
+// PPR UVL Type: "UVL operator"
+// --
+// Version: "0.1"
+//
+//
+bg=#ff8f2b</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLUseCase</id><coordinates><x>888</x><y>664</y><w>12</w><h>8</h></coordinates><panel_attributes>// -----------
+B
+//
+// PPR-Type: "configuration tag"
+// --
+// Version: "0.1"
+//
+//
+bg=#586ff0</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLUseCase</id><coordinates><x>820</x><y>712</y><w>12</w><h>8</h></coordinates><panel_attributes>// -----------
+A
+//
+// PPR UVL Type: "UVL operator"
+// --
+// Version: "0.1"
+//
+//
+bg=#ff8f2b</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLUseCase</id><coordinates><x>820</x><y>740</y><w>12</w><h>8</h></coordinates><panel_attributes>// -----------
+B
+//
+// PPR-Type: "configuration tag"
+// --
+// Version: "0.1"
+//
+//
+bg=#586ff0</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLUseCase</id><coordinates><x>888</x><y>800</y><w>12</w><h>8</h></coordinates><panel_attributes>// -----------
+B
+//
+// PPR-Type: "configuration tag"
+// --
+// Version: "0.1"
+//
+//
+bg=#586ff0</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLUseCase</id><coordinates><x>888</x><y>772</y><w>12</w><h>8</h></coordinates><panel_attributes>// -----------
+A
+//
+// PPR UVL Type: "UVL operator"
+// --
+// Version: "0.1"
+//
+//
+bg=#ff8f2b</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>716</x><y>524</y><w>40</w><h>16</h></coordinates><panel_attributes>// -----------
+Assembly
+//
+// PPR UVL Type: "UVL product feature (abstract)"
+// --
+// Version: "0.1"
+//
+// 
+//
+bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>684</x><y>524</y><w>40</w><h>20</h></coordinates><panel_attributes>// -----------------
+UVL 
+sub-feature
+//
+// PPR UVL Type: "UVL relationship"
+//
+lt=-
+// r1=
+m1=
+// r2=P1 
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30</panel_attributes><additional_attributes>10;20;80;20</additional_attributes></element></diagram>

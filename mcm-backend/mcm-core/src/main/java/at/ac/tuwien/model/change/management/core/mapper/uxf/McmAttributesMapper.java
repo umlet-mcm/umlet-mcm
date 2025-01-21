@@ -1,5 +1,6 @@
 package at.ac.tuwien.model.change.management.core.mapper.uxf;
 
+import at.ac.tuwien.model.change.management.core.model.Model;
 import at.ac.tuwien.model.change.management.core.model.attributes.AttributeKeys;
 import at.ac.tuwien.model.change.management.core.model.attributes.BaseAttributes;
 import at.ac.tuwien.model.change.management.core.model.attributes.ElementAttributes;
@@ -18,6 +19,9 @@ public class McmAttributesMapper {
      * in {@link BaseAttributes}.
      */
     public static <T extends BaseAttributes> T populateFields(Map<String, Object> mcmAttributes, T target) {
+        if (mcmAttributes == null) {
+            return target;
+        }
         LinkedHashMap<String, Object> mcmAttrs = new LinkedHashMap<>(mcmAttributes);
 
         target.setId((String) mcmAttrs.get(AttributeKeys.ID));
@@ -35,12 +39,38 @@ public class McmAttributesMapper {
 
     /**
      * The uxf representation holds mcm attributes in a single map, but the model classes store
+     * the reserved attributes in separate fields. This function extracts the TITLE attribute
+     * of {@link Model} and stores it in the title field.
+     * Extraction of the other fields is delegated to
+     * {@link McmAttributesMapper#populateFields(Map, BaseAttributes)}.
+     */
+    @SuppressWarnings("UnusedReturnValue")
+    public static Model populateModelFields(Map<String, Object> mcmAttributes, Model target) {
+        if (mcmAttributes == null) {
+            return target;
+        }
+
+        LinkedHashMap<String, Object> modelAttrs = new LinkedHashMap<>(mcmAttributes);
+        String title = (String) modelAttrs.get(AttributeKeys.TITLE);
+        if (title != null) {
+            target.setTitle(title);
+        }
+        modelAttrs.remove(AttributeKeys.TITLE);
+        return populateFields(modelAttrs, target);
+    }
+
+    /**
+     * The uxf representation holds mcm attributes in a single map, but the model classes store
      * the reserved attributes in separate fields. This function extracts those attributes and
      * stores them in the corresponding fields. This function only extracts the fields present
      * in {@link ElementAttributes} and it's parents.
      */
     @SuppressWarnings("unchecked")
     public static <T extends ElementAttributes> T populateFields(Map<String, Object> mcmAttributes, T target) {
+        if (mcmAttributes == null) {
+            return target;
+        }
+
         // use the other method to populate the common fields
         ElementAttributes populatedBase = (ElementAttributes) McmAttributesMapper.<BaseAttributes>populateFields(mcmAttributes, target);
 

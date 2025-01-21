@@ -52,7 +52,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return defaultHandleExceptionInternal(e, HttpStatus.NOT_FOUND, request);
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(UxfRuntimeException.class)
+    public ResponseEntity<Object> handleUxfRuntimeException(UxfRuntimeException e, WebRequest request) {
+        return defaultHandleExceptionInternal(e, HttpStatus.UNPROCESSABLE_ENTITY, request);
+    }
+
+    @ExceptionHandler(ModelNotFoundException.class)
     public ResponseEntity<Object> handleModelNotFoundException(ModelNotFoundException e, WebRequest request) {
         return defaultHandleExceptionInternal(e, HttpStatus.NOT_FOUND, request);
     }

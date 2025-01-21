@@ -2,14 +2,17 @@ package at.ac.tuwien.model.change.management.core.mapper.uxf;
 
 import at.ac.tuwien.model.change.management.core.model.Configuration;
 import at.ac.tuwien.model.change.management.core.model.Model;
+import at.ac.tuwien.model.change.management.core.model.attributes.AttributeKeys;
 import at.ac.tuwien.model.change.management.core.model.intermediary.BaseAttributesUxf;
 import at.ac.tuwien.model.change.management.core.model.intermediary.ConfigurationUxf;
 import at.ac.tuwien.model.change.management.core.model.intermediary.ModelUxf;
+import at.ac.tuwien.model.change.management.core.model.utils.ParserUtils;
 import at.ac.tuwien.model.change.management.core.model.utils.PositionUtils;
 import org.mapstruct.factory.Mappers;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class ConfigurationUxfMapper {
@@ -30,14 +33,18 @@ public class ConfigurationUxfMapper {
 
         PositionUtils.alignModels(mappedModels);
 
-        for(ModelUxf m : mappedModels) {
+        for (ModelUxf m : mappedModels) {
             configurationUxf.getElements().addAll(m.getElements());
         }
 
         // set description
         StringBuilder sb = new StringBuilder();
         sb.append("Configuration ").append(configuration.getName()).append(" exported from MCM\n");
-        sb.append("//////////\n");
+        sb.append("// ").append(AttributeKeys.CONFIGURATION_ID)
+                .append(": ")
+                .append(ParserUtils.formatMcmValueForExport(configuration.getName()))
+                .append("\n");
+        sb.append("--Attributes from models--\n");
         sb.append(combineModelDescriptions(configuration.getModels()));
         configurationUxf.setAttributes(new BaseAttributesUxf());
         configurationUxf.getAttributes().setDescription(sb.toString());
@@ -55,17 +62,33 @@ public class ConfigurationUxfMapper {
     public static String combineModelDescriptions(Set<Model> models) {
         StringBuilder sb = new StringBuilder();
         for (Model m : models) {
-            sb.append("Model ").append(m.getId()).append("\n");
-            if (m.getDescription() != null) {
-                sb.append(m.getDescription());
-                if(!m.getDescription().endsWith("\n")){
-                    sb.append("\n");
-                }
+            // add model title
+            sb.append(stringifyModelValue(m.getId(), AttributeKeys.TITLE, m.getTitle())).append("\n");
+
+            // add model ID and tags
+            Map<String, Object> mergedAttribs = McmAttributesMapper.mergeAttributes(m);
+            if (m.getMcmAttributes() != null) {
+                mergedAttribs.putAll(m.getMcmAttributes());
             }
 
-            sb.append("//////////\n");
+            // use format: __modelId_key: value
+            for (var kv : mergedAttribs.entrySet()) {
+                sb.append(stringifyModelValue(m.getId(), kv.getKey(), kv.getValue()));
+
+                if (m.getMcmAttributesInlineComments() != null && m.getMcmAttributesInlineComments().get(kv.getKey()) != null) {
+                    sb.append(" ").append(m.getMcmAttributesInlineComments().get(kv.getKey()));
+                }
+
+                sb.append("\n");
+
+            }
         }
 
         return sb.toString();
+    }
+
+    private static String stringifyModelValue(String modelID, String key, Object value) {
+        if (modelID == null || key == null) return ""; // append string 'null' if value is null
+        return "// __" + modelID + "_" + key + ": " + ParserUtils.formatMcmValueForExport(value);
     }
 }

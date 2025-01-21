@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 @Getter
@@ -72,11 +73,13 @@ public class Relation extends ElementAttributes {
         lt = lt == null ? "-" : lt; // default to "-" if the line type was missing
         r.setType(lt);
         r.setUmletPosition(source.getUmletPosition());
-        r.setUmletAttributes(source.getUmletAttributes());
+        r.setUmletAttributes(new LinkedHashMap<>(source.getUmletAttributes()));
         r.setId(source.getId());
         r.setTags(source.getTags());
         r.setMcmModel(source.getMcmModel());
-        r.setMcmAttributes(source.getMcmAttributes());
+        if (source.getMcmAttributes() != null) {
+            r.setMcmAttributes(new LinkedHashMap<>(source.getMcmAttributes()));
+        }
         r.setTitle(source.getTitle());
         r.setDescription(source.getDescription());
 

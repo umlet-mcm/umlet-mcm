@@ -20,9 +20,11 @@ public class BaseAttributesUxf {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(description);
-        if (description != null && !description.endsWith("\n")) {
-            sb.append("\n");
+        if (description != null) {
+            sb.append(description);
+            if (!description.endsWith("\n")) {
+                sb.append("\n");
+            }
         }
 
         // add attributes

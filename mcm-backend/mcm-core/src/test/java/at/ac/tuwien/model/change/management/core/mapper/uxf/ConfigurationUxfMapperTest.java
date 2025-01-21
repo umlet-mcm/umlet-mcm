@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -50,15 +51,18 @@ public class ConfigurationUxfMapperTest {
 
     @Test
     public void combineModelDescriptionsTest(){
-
+        m1.setTitle("Title1");
+        m2.setTitle("Title2");
+        m1.setTags(List.of("tag1", "tag2"));
+        m2.setTags(List.of("tag3", "tag4"));
 
         String exp = """
-                Model Model1
-                Description for model 1
-                //////////
-                Model Model2
-                Description for model 2
-                //////////
+                // __Model1_title: "Title1"
+                // __Model1_id: "Model1"
+                // __Model1_tags: "tag1", "tag2"
+                // __Model2_title: "Title2"
+                // __Model2_id: "Model2"
+                // __Model2_tags: "tag3", "tag4"
                 """;
 
         LinkedHashSet<Model> models = new LinkedHashSet<>();

@@ -236,7 +236,7 @@ public class ParserUtils {
             return "";
         }
 
-        var blocks = description.split("^-{1,2}|-\\.\\.?");
+        var blocks = description.split("\n-{1,2}|-\\.\\.?\n");
         return blocks[0].trim();
     }
 

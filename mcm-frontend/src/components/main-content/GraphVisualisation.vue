@@ -3,6 +3,7 @@ import {onMounted, ref, watch} from 'vue'
 import {Edge, Network} from 'vis-network'
 import {Model} from "@/types/Model.ts";
 import {Node, Relation} from "@/types/Node.ts";
+import {prettyPrint} from "@/lib/utils.ts";
 
 /**
  * @param {Model} selectedModel, model to display
@@ -65,7 +66,7 @@ const initializeGraph = () => {
 
   const nodes = props.modelToDisplay.nodes.map((node) => ({
     id: node.id,
-    label: node.title.replace("\n"," ").trim(),
+    label: prettyPrint(node.title),
     color: node.umletAttributes.bg || generatePaleColorFromText(node.elementType),
     x: node.umletPosition.x,
     y: node.umletPosition.y,
@@ -79,7 +80,7 @@ const initializeGraph = () => {
         id: relation.id,
         from: node.id,
         to: relation.target,
-        label: relation.title.replace("\n"," ").trim(),
+        label: prettyPrint(relation.title),
         arrows: 'to',
         dashes: relation.type.includes('.'),
       });

@@ -4,7 +4,12 @@ Versioning software for models created in UMLet(ino)
 
 ## Features
 
-- todo list the main features here
+- Keep track of model versions
+- Create configurations from multiple models
+- Compare different versions of configurations
+- Merge multiple models into a single model
+- Export configurations and models as uxf and csv files
+- Run Neo4J queries on the models
 
 ## [Building and running the app](docs/usage.md)
 

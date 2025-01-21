@@ -59,13 +59,11 @@ const removeLabel = (json: any) => {
   </Table>
   <div v-else class="h-full w-full">
     <div class="flex-1 flex justify-center h-full">
-      <p class="text-muted-foreground self-center">
-        Query {{ queryNum ? "[" + queryNum + "]" : "" }} response was empty
-        {{
-          queryTimestamp ?
-              "(executed at " + queryTimestamp + ")" :
-              "(no query has been executed yet)"
-        }}
+      <p class="text-muted-foreground self-center" v-if="queryTimestamp">
+        Query {{ queryNum ? "[" + queryNum + "]" : "" }} response was empty {{"(executed at " + queryTimestamp + ")"}}
+      </p>
+      <p class="text-muted-foreground self-center" v-else>
+        No query has been executed yet
       </p>
     </div>
   </div>

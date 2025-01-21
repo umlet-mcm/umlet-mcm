@@ -45,7 +45,6 @@ const queryMessage = ref<string | undefined>(undefined)
 const queryGraph = ref<Model | undefined>(undefined);
 const queryNum = ref(0)
 const activeTab = ref('full')
-const messageGraph = ref<string | undefined>("Query result cannot be displayed as a Model")
 const isLoadingQuery = ref(false)
 const isLoadingUXFCSV = ref(false)
 let queryExecutionTimestamp: string | undefined;
@@ -125,14 +124,9 @@ watch(() => queryResponse.value, async (newValue) => {
     if(props.selectedModel) {
       queryGraph.value = await parseResponseGraph(newValue)
       queryGeneratedGraph.value = query.value
-      if(queryGraph.value.nodes.length === 0) {
-        queryGraph.value = undefined
-        messageGraph.value = "Response model is empty"
-      }
     }
   } else {
     queryGraph.value = undefined;
-    messageGraph.value = "Response model is empty"
   }
 });
 
@@ -192,22 +186,16 @@ onMounted(() => {
         <label v-if="errorMessage" class="text-sm text-red-500 content-center">{{ "["+queryNum+"] " + errorMessage }}</label>
       </div>
     </div>
-    <div class="flex items-center justify-between">
-      <h1 class="text-lg font-bold p-4">
-        Current model: {{ selectedModel?.id }}
-      </h1>
-    </div>
-
     <Tabs default-value="full" v-model:model-value="activeTab" class="h-full w-full overflow-hidden p-2">
       <TabsList>
-        <TabsTrigger value="full">Current Model</TabsTrigger>
-        <TabsTrigger value="request">Response as selected Model</TabsTrigger>
-        <TabsTrigger value="requestfull">Response all Models</TabsTrigger>
+        <TabsTrigger value="full">Model Graph</TabsTrigger>
+        <TabsTrigger value="request">Response filtered model</TabsTrigger>
+        <TabsTrigger value="requestfull">Response database</TabsTrigger>
         <TabsTrigger value="table">Response as table</TabsTrigger>
         <TabsTrigger value="json">Response as JSON</TabsTrigger>
       </TabsList>
 
-      <TabsContent value="full" class="h-[95%]" :force-mount="true">
+      <TabsContent value="full" class="h-[95%]">
         <div v-if="selectedModel" class="h-full w-full">
             <GraphVisualisation
                 :model-to-display="selectedModel"
@@ -219,7 +207,7 @@ onMounted(() => {
           </div>
         </div>
       </TabsContent>
-      <TabsContent value="request" class="h-[95%] relative" :force-mount="true">
+      <TabsContent value="request" class="h-[95%] relative">
         <div v-if="queryGraph && selectedModel" class="h-full w-full">
           <GraphVisualisation
               :model-to-display="{
@@ -232,11 +220,11 @@ onMounted(() => {
         </div>
         <div v-else class="h-full w-full">
           <div class="flex-1 flex justify-center h-full">
-            <p class="text-muted-foreground self-center">{{messageGraph}}</p>
+            <p class="text-muted-foreground self-center">No query has been executed yet</p>
           </div>
         </div>
       </TabsContent>
-      <TabsContent value="requestfull" class="h-[95%] relative" :force-mount="true">
+      <TabsContent value="requestfull" class="h-[95%] relative">
         <div v-if="queryGraph" class="h-full w-full">
           <GraphVisualisation
               :model-to-display="queryGraph"
@@ -264,7 +252,7 @@ onMounted(() => {
         </div>
         <div v-else class="h-full w-full">
           <div class="flex-1 flex justify-center h-full">
-            <p class="text-muted-foreground self-center">{{messageGraph}}</p>
+            <p class="text-muted-foreground self-center">No query has been executed yet</p>
           </div>
         </div>
       </TabsContent>

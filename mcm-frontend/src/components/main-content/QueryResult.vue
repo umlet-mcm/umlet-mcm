@@ -16,7 +16,7 @@ const props = defineProps({
 
 //variables
 const keys = ref<string[] | undefined>(undefined);
-const message = ref<string | undefined>("No result to display");
+const message = ref<string | undefined>("No query has been executed yet");
 
 // functions
 const getKeys = (queryResponse: Record<string, any>[]): string[] => {

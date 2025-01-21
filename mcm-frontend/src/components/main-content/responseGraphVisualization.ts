@@ -15,7 +15,8 @@ export async function parseResponseGraph(response: Record<string, any>[]): Promi
     const nodes: Node[] = [];
     detectedNodes.forEach((rawNode: any) => {
         if (nodes.some((n) => n.id === rawNode.properties.generatedID)) return;
-        nodes.push(createNodeFromResponse(rawNode));
+        if (Object.keys(rawNode.properties).length > 0 && rawNode.properties.name)
+            nodes.push(createNodeFromResponse(rawNode));
     });
 
     // Fetch relations for the retrieved nodes
@@ -37,6 +38,7 @@ export async function parseResponseGraph(response: Record<string, any>[]): Promi
  * @param rawNode
  */
 function createNodeFromResponse(rawNode: any): Node {
+    if(rawNode.properties.name == undefined) console.log(rawNode);
     return {
         id: rawNode.properties.generatedID,
         title: rawNode.properties.name,

@@ -1,0 +1,142 @@
+<diagram program="umletino" version="15.1"><zoom_level>10</zoom_level><element><id>UMLClass</id><coordinates><x>480</x><y>740</y><w>100</w><h>40</h></coordinates><panel_attributes>Assembly
+Activity
+// PPR-Type: "GHG PPR Module Process Activity"
+// Version: "0.1"
+bg=#a4a4f7
+// dark violet
+group=group-0</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>480</x><y>830</y><w>100</w><h>40</h></coordinates><panel_attributes>Mat3 
+D-Unit
+// PPR-Type: "GHG PPR Module Output Product"
+// Version: "0.1"
+// cost: -1
+bg=#8fc8f8
+// light blue
+
+group=group-0</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>650</x><y>740</y><w>100</w><h>40</h></coordinates><panel_attributes>Assembly 
+Station 1 
+// PPR-Type: "GHG PPR Module Resource Equipment"
+// Version: "0.1"
+bg=#ccccff
+// light violet
+
+group=group-0</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>820</x><y>740</y><w>100</w><h>40</h></coordinates><panel_attributes>Energy Source
+Renewable 1
+// PPR-Type: "GHG PPR Module Resource Energy Source"
+// Version: "0.1"
+// cost: 3
+bg=#ccccff
+// light violet
+group=group-0</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>520</x><y>680</y><w>60</w><h>80</h></coordinates><panel_attributes>Input 
+// PPR-Type: "GHG PPR Module Input Relation"
+// Id: 
+// Version: "0.1"
+// Tags: 
+// Input-Production-Coefficient: 1.0
+// Input-Production-UOM: "units of input/activity unit"
+lt=-&gt;
+// r1=Input Product
+m1=
+// r2=Process Activity
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+group=group-0</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>570</x><y>740</y><w>100</w><h>40</h></coordinates><panel_attributes>Resource
+// PPR-Type: "GHG PPR Module Resource Relation"
+// Id: 
+// Version: "0.1"
+// Tags: 
+// Equipment-Production-Coefficient: 0.35
+// Equipment-Production-UOM: "hours/activity unit"
+// Equipment-Power-Coefficient: "15.0"
+// Equipment-PowerUOM: "kW"
+lt=&lt;.&gt;
+// r1=Resource
+m1=
+// r2=Process Activity
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+group=group-0</panel_attributes><additional_attributes>80;20;10;20</additional_attributes></element><element><id>Relation</id><coordinates><x>740</x><y>740</y><w>100</w><h>40</h></coordinates><panel_attributes>Energy
+// PPR-Type: "GHG PPR Energy Relation"
+// Id: 
+// Version: "0.1"
+// Tags: 
+// Energy-Cost-Rate: 0.05
+// Energy-Cost-UOM: "Euro/kWh" "
+lt=-&gt;
+// r1=Resource
+m1=
+// r2=Process Activity
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+group=group-0</panel_attributes><additional_attributes>80;20;10;20</additional_attributes></element><element><id>Relation</id><coordinates><x>520</x><y>770</y><w>70</w><h>80</h></coordinates><panel_attributes>Output 
+// PPR-Type: "GHG PPR Module Output Relation"
+// Id: 
+// Version: "0.1"
+// Tags: 
+// Output-Production-Coefficient: 1.0
+// Output-Production-UOM: "units of output/activity unit"
+lt=-&gt;
+// r1=Process Activity
+m1=
+// r2=Output Product 
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+group=group-0</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>480</x><y>650</y><w>100</w><h>40</h></coordinates><panel_attributes>Mat5
+Motor B
+// PPR-Type: "GHG PPR Module Input Product"
+// Version: "0.1"
+// cost: 5
+bg=#8fc8f8
+// light blue
+
+group=group-0</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>380</x><y>680</y><w>140</w><h>80</h></coordinates><panel_attributes>Input 
+// PPR-Type: "GHG PPR Module Input Relation"
+// Version: "0.1"
+// cost: -1
+lt=-&gt;
+// r1=Input Product
+m1=
+// r2=Process Activity
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+group=group-0</panel_attributes><additional_attributes>10;10;120;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>620</x><y>650</y><w>100</w><h>40</h></coordinates><panel_attributes>Mat7
+Screw 1
+// PPR-Type: "GHG PPR Module Input Product"
+// Version: "0.1"
+// cost: 2
+bg=#8fc8f8
+// light blue
+
+group=group-0</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>560</x><y>680</y><w>120</w><h>80</h></coordinates><panel_attributes>Input 
+// PPR-Type: "GHG PPR Module Input Relation"
+// Id: 
+// Version: "0.1"
+// Tags: 
+// Input-Production-Coefficient: "12.0"
+// Input-Production-UOM: "units of input/activity unit"
+lt=-&gt;
+// r1=Input Product
+m1=
+// r2=Process Activity
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+group=group-0</panel_attributes><additional_attributes>100;10;10;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>330</x><y>650</y><w>100</w><h>40</h></coordinates><panel_attributes>Mat4
+Motor
+// PPR-Type: "GHG PPR Module Input Product"
+// Version: "0.1"
+// cost: 10
+bg=#8fc8f8
+// light blue
+
+group=group-0</panel_attributes><additional_attributes></additional_attributes></element></diagram>

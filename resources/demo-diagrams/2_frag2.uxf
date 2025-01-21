@@ -1,0 +1,71 @@
+<diagram program="umletino" version="15.1"><zoom_level>10</zoom_level><element><id>UMLClass</id><coordinates><x>170</x><y>400</y><w>100</w><h>40</h></coordinates><panel_attributes>Mat5
+Motor B
+bg=#8fc8f8
+// light blue
+
+group=group-1</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>340</x><y>310</y><w>100</w><h>40</h></coordinates><panel_attributes>Machining 
+Centre 1
+bg=#ccccff
+// light violet
+group=group-1</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>510</x><y>310</y><w>100</w><h>40</h></coordinates><panel_attributes>Energy Source
+Fossile 1
+// PPR-Type: "GHG PPR Module Resource Energy Source"
+bg=#ccccff
+// light violet
+group=group-1</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>210</x><y>250</y><w>60</w><h>80</h></coordinates><panel_attributes>Input 
+// PPR-Type: "GHG PPR Module Input Relation"
+lt=-&gt;
+// r1=Input Product
+m1=
+// r2=Process Activity
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+group=group-1</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>260</x><y>310</y><w>100</w><h>40</h></coordinates><panel_attributes>Resource
+// PPR-Type: "GHG PPR Module Resource Relation"
+lt=&lt;.&gt;
+// r1=Resource
+m1=
+// r2=Process Activity
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+group=group-1</panel_attributes><additional_attributes>80;20;10;20</additional_attributes></element><element><id>Relation</id><coordinates><x>430</x><y>310</y><w>100</w><h>40</h></coordinates><panel_attributes>Energy
+// PPR-Type: "GHG PPR Energy Relation"
+lt=-&gt;
+// r1=Resource
+m1=
+// r2=Process Activity
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+group=group-1</panel_attributes><additional_attributes>80;20;10;20</additional_attributes></element><element><id>Relation</id><coordinates><x>210</x><y>340</y><w>70</w><h>80</h></coordinates><panel_attributes>Output 
+// PPR-Type: "GHG PPR Module Output Relation"
+lt=-&gt;
+// r1=Process Activity
+m1=
+// r2=Output Product 
+m2=
+m1pos=10,0
+r1pos=-13,-34
+r2pos=-63,30
+group=group-1</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>170</x><y>310</y><w>100</w><h>40</h></coordinates><panel_attributes>Machining
+Activity
+// PPR-Type: "GHG PPR Module Process Activity"
+// Id:
+// Version: 0.1
+// Tags:
+// BOP-Type: "Machining"
+// Number-of-activity-units: 1.0
+// Activity-UOM: "Process Cycle"
+bg=#a4a4f7
+// dark violet
+group=group-1</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>170</x><y>220</y><w>100</w><h>40</h></coordinates><panel_attributes>Mat25
+AluUCut
+bg=#8fc8f8
+// light blue
+
+group=group-1</panel_attributes><additional_attributes></additional_attributes></element></diagram>

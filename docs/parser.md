@@ -48,11 +48,17 @@ elements. For bidirectional relations two separate relations have to be created.
 ### Configuration
 
 Represents a model configuration (project) in the MCM program. It can contain multiple models. When configurations
-are exported the individual models are merged into a single uxf file.
+are exported the individual models are merged into a single uxf file. It has a name which is unique identifier and
+can be set by the user. By default, it is set to a random UUID.
 
 ### Model
 
+Represents a single model in the MCM program. It contains a list of nodes and relations. It has a UUID which is unique
+per configuration and a user defined name.
+
 ### Node
+
+Any element that is not a relation. It has a UUID which is unique per configuration.
 
 ## Intermediary classes
 
@@ -84,5 +90,3 @@ two.
 
 When a configuration is exported the relations have to be turned back into separate elements. If a relation is bidirectional
 the forward and the backward pointing relations must be merged into a single relation element.
-
-### Splitting line types

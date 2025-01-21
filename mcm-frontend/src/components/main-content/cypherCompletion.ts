@@ -4,7 +4,7 @@ const keywords = [
     'MATCH', 'RETURN', 'WHERE', 'CREATE', 'DELETE', 'REMOVE',
     'SET', 'ORDER BY', 'SKIP', 'LIMIT', 'MERGE', 'OPTIONAL MATCH',
     'WITH', 'UNWIND', 'DISTINCT', 'CASE', 'WHEN', 'THEN', 'ELSE',
-    'END', 'CREATE UNIQUE', 'FOREACH', 'ON', 'DETACH DELETE'
+    'END', 'CREATE UNIQUE', 'FOREACH', 'ON', 'DETACH DELETE', 'AND', 'OR', 'CONTAINS'
 ]
 
 const functions = [

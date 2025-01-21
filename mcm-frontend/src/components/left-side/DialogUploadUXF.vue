@@ -1,17 +1,22 @@
 <script setup lang="ts">
-import {Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
 import {Card, CardContent} from "@/components/ui/card";
 import {Configuration} from "@/types/Configuration.ts";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {useRouter} from "vue-router";
 import {ref} from "vue";
-import {Label} from "@/components/ui/label";
 import {RadioGroup, RadioGroupItem} from "@/components/ui/radio-group";
 import {uploadUxfToConfiguration, uploadUxfToModel} from "@/api/files.ts";
 import AlertConfirmation from "@/components/left-side/AlertConfirmation.vue";
-import {ScrollArea} from "@/components/ui/scroll-area";
-import { LoaderCircleIcon } from 'lucide-vue-next'
+import {LoaderCircleIcon} from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
 import { useToast } from '@/components/ui/toast/use-toast'
 
@@ -45,47 +50,23 @@ const emit = defineEmits<{
 const router = useRouter()
 const errorMessage = ref<string | undefined>(undefined)
 const selectedFile = ref(undefined)
-const uploadLocation = ref(undefined)
-const uploadedConfig = ref<Configuration | undefined>(undefined)
+const uploadLocation = ref("Model")
 const newConfig = ref<Configuration | undefined>(undefined)
 const uploadedName = ref("")
-const warnings = ref<string[]>([])
-const isLoadingUpload = ref(false)
 const isLoadingValidate = ref(false)
 const isDialogOpen = ref({confirmation: false}) // confirmation dialog for deletion
 const { toast } = useToast()
 
 //functions
 /**
- * Upload the selected file to the server and retrieve the warnings
- * Called when the user clicks on the upload button after selecting a file
- */
-const upload = async () => {
-  try {
-    //todo upload uxf without database storing and retrieve the warnings
-    isLoadingUpload.value = true
-    uploadedConfig.value = {name: "test", version: "1.0", models: []}
-    uploadedName.value = uploadedConfig.value.name
-    warnings.value = []
-    isLoadingUpload.value = false
-  } catch (error: any) {
-    errorMessage.value = "ERROR : " + (error.response?.data?.message ?? error.message)
-    isLoadingUpload.value = false
-  }
-}
-
-/**
  * Close the dialog and reset all the values
  */
 const closeDialog = () => {
   errorMessage.value = undefined
   selectedFile.value = undefined
-  uploadLocation.value = undefined
-  isLoadingUpload.value = false
   isLoadingValidate.value = false
-  warnings.value = []
+  uploadLocation.value = "Model"
   uploadedName.value = ""
-  uploadedConfig.value = undefined
   emit('update:isOpen', false)
 }
 
@@ -96,6 +77,7 @@ const closeDialog = () => {
 const fileSelected = (event: any) => {
   const file = event.target.files[0]
   selectedFile.value = (file && file.name.endsWith('.uxf')) ? file : undefined
+  if(selectedFile) uploadedName.value = file.name.replace('.uxf', '')
 }
 
 /**
@@ -125,9 +107,9 @@ const validateButton = async () => {
     }
     closeDialog()
   } catch (error: any) {
-    errorMessage.value = "ERROR : " + (error.response?.data?.message ?? error.message)
-    isLoadingValidate.value = false
+    errorMessage.value = "ERROR: " + (error.response?.data?.message ?? error.message)
   }
+  isLoadingValidate.value = false
 }
 
 /**
@@ -135,6 +117,11 @@ const validateButton = async () => {
  * Called when the user confirms the alert dialog
  */
 const loadNewConfiguration = () => {
+  // called when the user confirms the alert dialog
+  if(!newConfig.value) {
+    errorMessage.value = "ERROR: No configuration to load"
+    return
+  }
   router.push({name: 'mainview', params: {id: newConfig.value!.name}})
   emit('update:currentConfiguration', newConfig.value!)
   emit('update:currentModel', newConfig.value!.models[0])
@@ -159,69 +146,32 @@ const loadNewConfiguration = () => {
               <label class="text-sm font-medium">UXF selection</label>
               <div class="flex w-full items-center gap-1.5">
                 <Input id="file" type="file" @change="fileSelected" accept=".uxf"/>
-                <Button :disabled="!selectedFile" @click="upload">
-                  <LoaderCircleIcon v-if="isLoadingUpload" class="animate-spin"/>
-                  Upload
-                </Button>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <!-- UXF overview and configuration -->
-        <div v-if="uploadedConfig" class="grid grid-cols-2 gap-4">
-          <Card>
-            <CardContent class="p-4 space-y-4">
-              <div class="space-y-4">
-                <label class="text-sm font-medium">UXF overview</label>
-                <div class="flex flex-col w-full space-y-2">
-                  <div class="flex w-full items-center gap-1.5">
-                    <Label class="text-sm font-medium">Name</Label>
-                    <Input id="uploadedName" type="text" placeholder="Name" v-model="uploadedName"/>
-                  </div>
-                  <div class="flex flex-col">
-                    <Label class="text-sm font-medium">Number of nodes : {{ uploadedConfig.models.flatMap(m => m.nodes).length }}</Label>
-                  </div>
-                  <div class="flex flex-col">
-                    <Label class="text-sm font-medium">Number of relations : {{ uploadedConfig.models.flatMap(m => m.nodes).flatMap(n => n.relations).length }}</Label>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        <div v-if="selectedFile" class="grid grid-cols gap-4">
           <Card>
             <CardContent class="p-4 space-y-4">
               <div class="space-y-2">
+                <div class="mb-4">
+                  <label class="text-sm font-medium">{{ uploadLocation }} name</label>
+                  <Input id="uploadedName" type="text" placeholder="Name" v-model="uploadedName"/>
+                </div>
                 <label class="text-sm font-medium">Upload as?</label>
                   <RadioGroup v-model="uploadLocation">
                     <div class="flex items-center space-x-2">
-                      <RadioGroupItem id="configuration" value="configuration" />
-                      <label for="configuration" class="text-sm">New model configuration</label>
+                      <RadioGroupItem id="model" value="Model" />
+                      <label for="model" class="text-sm">New model within current configuration</label>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <RadioGroupItem id="model" value="model" />
-                      <label for="model" class="text-sm">New model within current configuration</label>
+                      <RadioGroupItem id="configuration" value="Configuration" />
+                      <label for="configuration" class="text-sm">New model configuration</label>
                     </div>
                   </RadioGroup>
                 </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <!-- Warnings -->
-        <div v-if="warnings.length" class="grid gap-4">
-          <Card class="bg-orange-50">
-            <CardContent class="p-4 space-y-4">
-              <div class="space-y-2">
-                <label class="text-sm font-medium">Warnings</label>
-                <ScrollArea class="h-[50px]">
-                  <div class="flex flex-col gap-2 text-orange-500">
-                    <div v-for="warning of warnings" :key="warning">
-                      <p class="text-sm">{{warning}}</p>
-                    </div>
-                  </div>
-                </ScrollArea>
-              </div>
             </CardContent>
           </Card>
         </div>
@@ -229,9 +179,9 @@ const loadNewConfiguration = () => {
       </div>
       <DialogFooter>
         <Button variant="outline" @click="closeDialog">Cancel</Button>
-        <Button @click="validateButton" :disabled="!uploadedConfig || !uploadLocation || uploadedName.trim().length === 0">
+        <Button @click="validateButton" :disabled="!uploadLocation || uploadedName.trim().length === 0 || isLoadingValidate">
           <LoaderCircleIcon v-if="isLoadingValidate" class="animate-spin"/>
-          OK
+          Upload
         </Button>
       </DialogFooter>
     </DialogContent>

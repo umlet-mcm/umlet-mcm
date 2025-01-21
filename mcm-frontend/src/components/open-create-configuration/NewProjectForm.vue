@@ -38,8 +38,8 @@ const createProject = async (data: { name: string }) => {
       await uploadUxfToModel(configFile.value, createdConfig.name)
     }
     await router.push({name: 'mainview', params: {id: createdConfig.name}})
-  } catch (error) {
-    form.setFieldError('configName', 'Error creating project');
+  } catch (error:any) {
+    form.setFieldError('configName', 'Error creating project: ' + error.response?.data?.message || error.response?.data || error.message);
   }
   isLoadingValidate.value = false
 }
@@ -96,7 +96,7 @@ const onSubmit = form.handleSubmit((values) => {
         </FormItem>
       </FormField>
 
-      <Button type="submit" class="w-full flex items-center gap-2">
+      <Button type="submit" class="w-full flex items-center gap-2" :disabled="isLoadingValidate">
         <PlusIcon v-if="!isLoadingValidate" class="w-5 h-5" />
         <LoaderCircleIcon v-else class="animate-spin"/>
         Create

@@ -23,8 +23,8 @@ const emit = defineEmits<{
 }>()
 
 // variables
-const container = ref<HTMLElement | null>(null)
-let network: Network | null = null;
+const container = ref<HTMLElement | undefined>(undefined)
+let network: Network | undefined = undefined;
 
 // functions
 /**
@@ -123,6 +123,10 @@ const initializeGraph = () => {
     } else if (params.nodes.length > 0) {
       selectedEntity(params.nodes[0], 'node');
     }
+  });
+
+  network.once('afterDrawing', () => {
+    network?.fit();
   });
 };
 

@@ -44,20 +44,12 @@ const emit = defineEmits<{
 }>()
 
 // variables
-const isDialogOpen = ref({merge: false, settings: false, export: false, upload: false, confirmation: false, versionDiff:false})
+const isDialogOpen = ref({merge: false, export: false, upload: false, confirmation: false, versionDiff:false})
+const errorDelete = ref<string | undefined>(undefined)
 const versionList = ref<string[]>([])
 const { toast } = useToast()
 
 // functions
-/**
- * Add the merged model to the models of the configuration
- * @param mergedModel the model to add to the configuration
- */
-const handleMerge = (mergedModel: Model) => {
-  props.selectedConfiguration.models.push(mergedModel)
-  emit('update:selectedModel', mergedModel)
-}
-
 const placeholder = () => {
   console.log('Placeholder');
   //todo: replace all usages with functional code
@@ -86,18 +78,16 @@ const confirmDeletion = async () => {
   const index = props.selectedConfiguration.models.findIndex(model => model.id === props.selectedModel!.id)
   if (index !== -1) {
     try {
-      await deleteModelFromConfig(props.selectedModel!.id, props.selectedConfiguration.name)
+      await deleteModelFromConfig(props.selectedModel!.id)
       props.selectedConfiguration.models.splice(index, 1)
       emit('update:selectedModel', undefined)
-      isDialogOpen.value.confirmation = false
-
+      errorDelete.value = undefined
       toast({
         title: 'New version has been created',
         duration: 3000,
       });
     } catch (error: any) {
-      console.error(error)
-      isDialogOpen.value.confirmation = false
+      errorDelete.value = error.response?.data?.message || error.message
     }
   }
 }
@@ -152,7 +142,7 @@ onMounted(async () => {
         <div class="space-y-2">
           <Button variant="outline" class="w-full justify-start" @click="$router.push({name:'home'})">
             <FileUp class="mr-2" />
-            Open new configuration
+            Open configuration
           </Button>
           <SaveButton
               :selectedConfiguration="selectedConfiguration"
@@ -184,7 +174,7 @@ onMounted(async () => {
         <div class="space-y-2">
           <Button variant="outline" class="w-full justify-start" @click="isDialogOpen.merge = true">
             <FileStack class="mr-2" />
-            Merge Models
+            Combine Models
           </Button>
           <Button variant="outline" class="w-full justify-start" @click="exportCurrentModel()">
             <FileOutput class="mr-2" />
@@ -208,8 +198,8 @@ onMounted(async () => {
   <!-- dialogs -->
   <DialogMerge
       v-model:isOpen="isDialogOpen.merge"
-      :models="selectedConfiguration.models"
-      @merge="handleMerge"
+      :configuration="selectedConfiguration"
+      @update:configuration="emit('update:selectedConfiguration', $event)"
   />
   <DialogExport
       v-model:isOpen="isDialogOpen.export"
@@ -229,8 +219,10 @@ onMounted(async () => {
   <!-- Alert dialog to delete a model from configuration -->
   <AlertConfirmation
       :on-confirm="confirmDeletion"
+      :on-reject="() => {errorDelete = undefined}"
       dialog-title="Delete this model?"
       dialog-description=""
       dialog-content="Do you want to delete this model? This action cannot be undone."
+      :error-content="errorDelete"
       v-model:isOpen="isDialogOpen.confirmation"/>
 </template>

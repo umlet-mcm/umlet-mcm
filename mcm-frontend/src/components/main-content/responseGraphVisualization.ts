@@ -5,17 +5,17 @@ import { sendRequest } from "@/api/graphDB.ts";
 /**
  * Parses the nodes from the query response and reconstruct a model.
  * @param response The response from the query
- * @param selectedModel The model that was used to generate the query
  * @return The reconstructed model with the nodes and relations from the response
+ *         The generated model is NOT EXPORTABLE but just for visualisation
  */
-export async function parseResponseGraph(response: Record<string, any>[], selectedModel: Model): Promise<Model> {
+export async function parseResponseGraph(response: Record<string, any>[]): Promise<Model> {
     // Detect nodes in the response
     const detectedNodes = detectNodes(response);
 
     const nodes: Node[] = [];
     detectedNodes.forEach((rawNode: any) => {
-        if (nodes.some((n) => n.id === rawNode.elementId)) return;
-        if (selectedModel.nodes.some((n) => n.id === rawNode.properties.generatedID))
+        if (nodes.some((n) => n.id === rawNode.properties.generatedID)) return;
+        if (Object.keys(rawNode.properties).length > 0 && rawNode.properties.name)
             nodes.push(createNodeFromResponse(rawNode));
     });
 
@@ -29,6 +29,7 @@ export async function parseResponseGraph(response: Record<string, any>[], select
         tags: [],
         title: "",
         mcmAttributes: {},
+        zoomLevel: 10,
     };
 }
 
@@ -37,8 +38,9 @@ export async function parseResponseGraph(response: Record<string, any>[], select
  * @param rawNode
  */
 function createNodeFromResponse(rawNode: any): Node {
+    if(rawNode.properties.name == undefined) console.log(rawNode);
     return {
-        id: rawNode.elementId,
+        id: rawNode.properties.generatedID,
         title: rawNode.properties.name,
         elementType: "UMLClass",
         tags: rawNode.properties.tags.values,
@@ -67,27 +69,28 @@ function createNodeFromResponse(rawNode: any): Node {
 async function addRelationsToNodes(nodes: Node[]) {
     const nodeIds = nodes.map((n) => `"${n.id}"`).join(",");
     // The query fetches all relations between the retrieved nodes by their IDs
-    const query = `MATCH (n)-[r]->(m) WHERE elementId(n) IN [${nodeIds}] AND elementId(m) IN [${nodeIds}] RETURN r`;
+    const query = `MATCH (n)-[r]->(m) WHERE n.generatedID IN [${nodeIds}] AND m.generatedID IN [${nodeIds}] RETURN n.generatedID,r,m.generatedID`;
     const relations = await sendRequest(query);
 
     // Add the fetched relations to the source node, if they are not already present
     relations.forEach((relation) => {
-        const sourceNode = nodes.find((n) => n.id === relation.r.startElementId);
-        if (!sourceNode || sourceNode.relations.some((r) => r.id === relation.elementId)) return;
-        sourceNode.relations.push(createRelationFromResponse(relation.r));
+        const sourceNode = nodes.find((n) => n.id === relation["n.generatedID"]);
+        if (!sourceNode || sourceNode.relations.some((r) => r.id === relation.r.properties.id)) return;
+        sourceNode.relations.push(createRelationFromResponse(relation.r, relation["m.generatedID"]));
     });
 }
 
 /**
  * Creates a relation object from the raw relation data.
  * @param relation
+ * @param targetNode
  */
-function createRelationFromResponse(relation: any) {
+function createRelationFromResponse(relation: any, targetNode: any) {
     return {
-        id: relation.elementId,
+        id: relation.properties.id,
         type: relation.properties.type,
         title: relation.properties.name,
-        target: relation.endElementId,
+        target: targetNode,
         description: relation.properties.description,
         tags: relation.properties.tags.values,
         originalText: relation.properties.name,

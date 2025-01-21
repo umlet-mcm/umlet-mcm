@@ -1,5 +1,4 @@
 import axios from "axios"
-import {Model} from "@/types/Model.ts";
 import { AppConfig } from "@/config";
 
 const apiClient = axios.create({
@@ -10,43 +9,13 @@ const apiClient = axios.create({
 });
 
 /**
- * Merge multiple models into a single model
- * @param models the models to merge
- * @param outName the name of the merged model
- */
-export const mergeModels = async (models: Model[], outName: string): Promise<Model> => {
-    try {
-        // const data = {
-        //     models: models,
-        //     outName: outName
-        // }
-        // const response = await apiClient.post('/models/merge', data); //todo use api
-        // return response.data;
-        return {
-            id: outName,
-            description: "",
-            mcmAttributes: {},
-            originalText: "",
-            title: outName,
-            tags: [],
-            nodes: models.flatMap(model => model.nodes)
-        }
-    } catch (error) {
-        // just to use apiClient before connecting it to the backend
-        console.log(apiClient);
-        throw error;
-    }
-};
-
-/**
  * Delete a model from a configuration
  * @param modelId the id of the model to delete
  * @param configId the id of the configuration the model belongs to
  */
-export const deleteModelFromConfig = async (modelId: string, configId: string): Promise<void> => {
+export const deleteModelFromConfig = async (modelId: string): Promise<void> => {
     try {
-        console.log(`Deleting model ${modelId} from configuration ${configId}`);
-        // await apiClient.delete(`/models/${modelId}`); //todo: use api
+        await apiClient.delete(`/model/${modelId}`);
     } catch (error) {
         throw error
     }

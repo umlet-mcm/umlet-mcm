@@ -66,8 +66,8 @@ const compareVersions = async () => {
         outputFormat: 'side-by-side'
       });
     }
-  } catch (e: any) {
-    errorMessage.value = e.message || "An error occurred while comparing the versions"
+  } catch (error: any) {
+    errorMessage.value = error.response?.data?.message || error.message || "An error occurred while comparing the versions"
   }
   isLoading.value = false
 }

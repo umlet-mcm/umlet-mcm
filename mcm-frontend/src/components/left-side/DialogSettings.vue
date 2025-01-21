@@ -127,7 +127,7 @@ const saveChanges = async () => {
       </div>
       <DialogFooter>
         <Button variant="outline" @click="closeDialog">Cancel</Button>
-        <Button @click="saveChanges" :disabled="!nameInput.length">
+        <Button @click="saveChanges" :disabled="!nameInput.length || isLoadingValidate">
           <LoaderCircleIcon v-if="isLoadingValidate" class="animate-spin"/>
           Save Changes
         </Button>

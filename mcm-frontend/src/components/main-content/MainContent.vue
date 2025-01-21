@@ -3,15 +3,15 @@ import {Button} from '@/components/ui/button'
 import QueryEditor from "@/components/main-content/QueryEditor.vue"
 import GraphVisualisation from "@/components/main-content/GraphVisualisation.vue"
 import {onMounted, ref, watch} from "vue"
-import {HelpCircle, LoaderCircleIcon, Play, RotateCcw} from 'lucide-vue-next'
+import {Table2, FileOutput, HelpCircle, LoaderCircleIcon, Play, RotateCcw} from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
 import {Node, Relation} from "@/types/Node.ts";
-import {loadConfigurationDatabase, sendRequest} from "@/api/graphDB.ts";
+import {loadConfigurationDatabase, sendRequest, exportQueryToCsv, exportQueryToUxf} from "@/api/graphDB.ts";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
-import QueryResult from "@/components/right-side/QueryResult.vue";
+import QueryResult from "@/components/main-content/QueryResult.vue";
 import {parseResponseGraph} from "@/components/main-content/responseGraphVisualization.ts";
 import {Configuration} from "@/types/Configuration.ts";
+import TableContent from "@/components/main-content/TableContent.vue";
 
 /**
  * @param {Model} selectedModel, model to display (optional)
@@ -45,8 +45,10 @@ const queryMessage = ref<string | undefined>(undefined)
 const queryGraph = ref<Model | undefined>(undefined);
 const queryNum = ref(0)
 const activeTab = ref('full')
-const messageGraph = ref<string | undefined>("Query result cannot be displayed as a Model")
+const isLoadingQuery = ref(false)
+const isLoadingUXFCSV = ref(false)
 let queryExecutionTimestamp: string | undefined;
+const queryGeneratedGraph = ref<string | undefined>(undefined)
 const reasonLoadDatabase = ref<string | undefined>(undefined)
 const isLoadingNeo4j = ref(false);
 
@@ -76,7 +78,7 @@ const executeMultipleQuery = async (queries: string[]) => {
     queryMessage.value = nbOk ?
         `${nbOk} ${nbOk === 1 ? "query" : "queries"} executed successfully in ${totalTime} ms. Error on query ${nbOk + 1}`
         : undefined
-    errorMessage.value = error.response?.data?.Message || error.message
+    errorMessage.value = error.response?.data?.message || error.message
   }
 
   // display the last response
@@ -95,51 +97,36 @@ const executeMultipleQuery = async (queries: string[]) => {
  */
 const executeQuery = async () => {
   if (!query.value?.trim()) return
+  isLoadingQuery.value = true
   query.value = query.value.trim().replace("/\n/g", "")
   const formattedQuery = query.value.endsWith(";") ? query.value : `${query.value};`
   await executeMultipleQuery(formattedQuery.split(";").filter(Boolean))
+  isLoadingQuery.value = false
 };
 
-/**
- * Get the columns from the query response
- * @param queryResponse
- * @returns the columns as an array of strings
- */
-const getColumns = (queryResponse: Record<string, any>[]): string[] => {
-  const keys:string[] = []
-  for(let i = 0; i < queryResponse.length; i++) {
-    for (const key in queryResponse[i]) {
-      if (!keys.includes(key)) {
-        keys.push(key)
-      }
-    }
+const uxfCsvExportFull = async (type:string) => {
+  isLoadingUXFCSV.value = true
+  try {
+    if(queryGeneratedGraph.value)
+      if(type == "uxf") await exportQueryToUxf(queryGeneratedGraph.value, 'QueryUXF')
+      else await exportQueryToCsv(queryGeneratedGraph.value, 'QueryCSV')
+  } catch (error: any) {
+    // todo add error pop up
   }
-  return keys;
+  isLoadingUXFCSV.value = false;
 }
 
-/**
- * Remove the labels from the json
- * @param json
- * @returns the json without the labels
- */
-const removeLabel = (json: any) => {
-  const { labels, ...withoutLabels } = json;
-  return withoutLabels;
-}
 
 // when the response changes, parse it to a graph
 watch(() => queryResponse.value, async (newValue) => {
+  queryGeneratedGraph.value = undefined
   if (newValue.length > 0) {
     if(props.selectedModel) {
-      queryGraph.value = await parseResponseGraph(newValue, props.selectedModel)
-      if(queryGraph.value.nodes.length === 0) {
-        queryGraph.value = undefined
-        messageGraph.value = "Response model is empty"
-      }
+      queryGraph.value = await parseResponseGraph(newValue)
+      queryGeneratedGraph.value = query.value
     }
   } else {
     queryGraph.value = undefined;
-    messageGraph.value = "Response model is empty"
   }
 });
 
@@ -190,24 +177,20 @@ onMounted(() => {
       </div>
       <QueryEditor v-model:query="query" />
       <div class="flex gap-2">
-        <Button @click="executeQuery" class="flex items-center">
-          <Play class="mr-2 h-4 w-4" />
+        <Button @click="executeQuery" class="flex items-center" :disabled="isLoadingQuery">
+          <Play v-if="!isLoadingQuery" class="mr-2 h-4 w-4" />
+          <LoaderCircleIcon v-else class="animate-spin"/>
           Execute Query
         </Button>
         <label v-if="queryMessage" class="text-sm text-green-500 content-center">{{ "["+queryNum+"] " + queryMessage }}</label>
         <label v-if="errorMessage" class="text-sm text-red-500 content-center">{{ "["+queryNum+"] " + errorMessage }}</label>
       </div>
     </div>
-    <div class="flex items-center justify-between">
-      <h1 class="text-lg font-bold p-4">
-        Current model : {{ selectedModel?.id }}
-      </h1>
-    </div>
-
     <Tabs default-value="full" v-model:model-value="activeTab" class="h-full w-full overflow-hidden p-2">
       <TabsList>
-        <TabsTrigger value="full">Current Model</TabsTrigger>
-        <TabsTrigger value="request">Response as model</TabsTrigger>
+        <TabsTrigger value="full">Model Graph</TabsTrigger>
+        <TabsTrigger value="request">Response filtered model</TabsTrigger>
+        <TabsTrigger value="requestfull">Response database</TabsTrigger>
         <TabsTrigger value="table">Response as table</TabsTrigger>
         <TabsTrigger value="json">Response as JSON</TabsTrigger>
       </TabsList>
@@ -224,50 +207,57 @@ onMounted(() => {
           </div>
         </div>
       </TabsContent>
-      <TabsContent value="request" class="h-[95%]">
-        <div v-if="queryGraph" class="h-full w-full">
+      <TabsContent value="request" class="h-[95%] relative">
+        <div v-if="queryGraph && selectedModel" class="h-full w-full">
           <GraphVisualisation
-              :model-to-display="queryGraph"
+              :model-to-display="{
+                      ...queryGraph,
+                      nodes: queryGraph.nodes.filter(n =>
+                          selectedModel!.nodes.map(m => m.id).includes(n.id)
+                      )
+                  }"
               @update:selectedEntity="emit('update:selectedEntity', $event)"/>
         </div>
         <div v-else class="h-full w-full">
           <div class="flex-1 flex justify-center h-full">
-            <p class="text-muted-foreground self-center">{{messageGraph}}</p>
+            <p class="text-muted-foreground self-center">No query has been executed yet</p>
+          </div>
+        </div>
+      </TabsContent>
+      <TabsContent value="requestfull" class="h-[95%] relative">
+        <div v-if="queryGraph" class="h-full w-full">
+          <GraphVisualisation
+              :model-to-display="queryGraph"
+              @update:selectedEntity="emit('update:selectedEntity', $event)"/>
+          <div class="absolute top-0 right-0 m-2">
+            <Button
+                class="p-2 m-1"
+                size="icon"
+                v-tooltip="'Export query result to UXF'"
+                @click="uxfCsvExportFull('uxf')"
+                :disabled="isLoadingUXFCSV">
+              <LoaderCircleIcon v-if="isLoadingUXFCSV" class="animate-spin"/>
+              <FileOutput v-else/>
+            </Button>
+            <Button
+                class="p-2 m-1"
+                size="icon"
+                v-tooltip="'Export query result to CSV'"
+                @click="uxfCsvExportFull('csv')"
+                :disabled="isLoadingUXFCSV">
+              <LoaderCircleIcon v-if="isLoadingUXFCSV" class="animate-spin"/>
+              <Table2 v-else/>
+            </Button>
+          </div>
+        </div>
+        <div v-else class="h-full w-full">
+          <div class="flex-1 flex justify-center h-full">
+            <p class="text-muted-foreground self-center">No query has been executed yet</p>
           </div>
         </div>
       </TabsContent>
       <TabsContent value="table" class="h-[95%] overflow-scroll">
-          <Table v-if="queryResponse?.[0] && getColumns(queryResponse).length !== 0" ref="responseTable">
-            <TableHeader>
-              <TableRow>
-                <TableHead v-for="columnName in getColumns(queryResponse)" :key="columnName">{{ columnName }}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TableRow v-for="(value, index) in queryResponse" :key="index" class="even:bg-gray-300">
-                <TableCell v-for="columnName in getColumns(queryResponse)">
-                  <span v-if="value[columnName] && value[columnName].labels?.[0]">
-                    {{ value[columnName].labels?.[0] }}&nbsp;{{ removeLabel(value[columnName]) }}
-                  </span>
-                  <span v-else>
-                    {{ value[columnName] }}
-                  </span>
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        <div v-else class="h-full w-full">
-          <div class="flex-1 flex justify-center h-full">
-            <p class="text-muted-foreground self-center">
-              Query {{ queryNum ? "[" + queryNum + "]" : "" }} response was empty
-              {{
-                queryExecutionTimestamp ?
-                    "(executed at " + queryExecutionTimestamp + ")" :
-                    "(no query has been executed yet)"
-              }}
-            </p>
-          </div>
-        </div>
+        <TableContent :queryResponse="queryResponse" :queryNum="queryNum" :queryTimestamp="queryExecutionTimestamp"/>
       </TabsContent>
       <TabsContent value="json" class="h-[95%] overflow-scroll">
         <QueryResult :queryResponse="queryResponse"/>

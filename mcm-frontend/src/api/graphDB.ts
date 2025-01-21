@@ -68,3 +68,35 @@ export const saveNeo4JToRepository = async () => {
         throw error;
     }
 }
+
+export const exportQueryToCsv = async (query: string, filename: string) => {
+    try {
+        const response = await apiClient.post('/graphdb/csvExport', {"query": query.trim()}, {params: {fileName: filename}});
+        const blob = new Blob([response.data], { type: 'application/octet-stream' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${filename}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const exportQueryToUxf = async (query: string, filename: string) => {
+    try {
+        const response = await apiClient.post('/graphdb/queryExport', {"query": query.trim()}, {params: {fileName: filename}});
+        const blob = new Blob([response.data], { type: 'application/octet-stream' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${filename}.uxf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } catch (error) {
+        throw error;
+    }
+}

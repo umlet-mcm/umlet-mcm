@@ -79,7 +79,6 @@ public class UxfServiceImpl implements UxfService {
         // Case 3: The UXF contains no configuration ID/name field nor a model ID
         // In this case it is considered just the sole and lonely model in the new configuration
         // and we replace the previous configuration with it
-        // TODO: is this desired behavior? We could also add the model to the configuration, but that's already implemented elsewhere
         else {
             configuration = newConfiguration(parsedModel, configurationName);
         }
@@ -91,7 +90,7 @@ public class UxfServiceImpl implements UxfService {
     }
 
     @Override
-    public Configuration addUxfToConfiguration(InputStreamSource file, String configurationUUID, String modelName) throws UxfException, ConfigurationException {
+    public Configuration addUxfToConfiguration(InputStreamSource file, String configurationUUID, String modelName, String version) throws UxfException, ConfigurationException {
         Configuration target;
         try {
             target = configurationService.getConfigurationByName(configurationUUID);
@@ -107,6 +106,7 @@ public class UxfServiceImpl implements UxfService {
         }
         parsedModel.setTitle(modelTitle);
         target.getModels().add(parsedModel);
+        setConfigurationVersion(target, version);
         return configurationService.updateConfiguration(target);
     }
 
@@ -216,7 +216,12 @@ public class UxfServiceImpl implements UxfService {
 
     private void setConfigurationVersion(Configuration configuration, String version) {
         if (version == null) return;
-        configuration.setVersion(new ConfigurationVersion(null, null, version));
+        var originalVersion = configuration.getVersion();
+        configuration.setVersion(
+                originalVersion == null
+                        ? new ConfigurationVersion(null, null, version)
+                        : new ConfigurationVersion(originalVersion.hash(), originalVersion.name(), version)
+        );
     }
 
     @Override

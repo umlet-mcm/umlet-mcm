@@ -13,7 +13,7 @@ public interface UxfService {
 
     Configuration updateConfigurationFromUxf(InputStreamSource file, String configurationName, String version) throws UxfException;
 
-    Configuration addUxfToConfiguration(InputStreamSource file, String configurationUUID, String modelName) throws UxfException, ConfigurationException;
+    Configuration addUxfToConfiguration(InputStreamSource file, String configurationUUID, String modelName, String version) throws UxfException, ConfigurationException;
 
     String exportModel(String configurationName, String modelUuid) throws ModelNotFoundException, UxfException;
 
@@ -29,5 +29,9 @@ public interface UxfService {
 
     default Configuration updateConfigurationFromUxf(InputStreamSource file, String configurationName) throws UxfException {
         return updateConfigurationFromUxf(file, configurationName, null);
+    }
+
+    default Configuration addUxfToConfiguration(InputStreamSource file, String configurationUUID, String modelName) throws UxfException, ConfigurationException {
+        return addUxfToConfiguration(file, configurationUUID, modelName, null);
     }
 }

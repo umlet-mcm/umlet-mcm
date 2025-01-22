@@ -536,18 +536,29 @@ public class ManagedRepositoryVersioning {
     private List<String> listTags(@Nullable ObjectId forCommit) {
         try (var git = Git.wrap(repository)) {
             var listTagsCommand = git.tagList();
-            if (forCommit != null) {
-                listTagsCommand.setContains(forCommit);
-            }
-            return listTagsCommand.call().stream()
-                    .map(Ref::getName)
-                    .map(this::stripTags)
-                    .toList();
-        } catch (GitAPIException e) {
-            throw new RepositoryVersioningException("Failed to list tags in repository: " + name, e);
-        } catch (IOException e) {
-            throw new RepositoryVersioningException("Failed to list tags in repository '" + name +
-                    "' for commit '" + forCommit.getName() + "'", e);
+            var tagsStream = forCommit == null
+                    ? listTagsCommand.call().stream()
+                    : listTagsCommand.setContains(forCommit).call()
+                    .stream().filter(ref -> {
+                        try {
+                            // need to handle both annotated and lightweight tags here
+                            var finalRef = repository.getRefDatabase().peel(ref);
+                            var refCommitID = finalRef.isPeeled()
+                                    ? finalRef.getPeeledObjectId()
+                                    : ref.getObjectId();
+                            return refCommitID != null && refCommitID.equals(forCommit);
+                        } catch (IOException e) {
+                            log.error("Failed to peel tag reference: {}", ref.getName(), e);
+                            return false;
+                        }
+                    });
+            return tagsStream.map(Ref::getName).map(this::stripTags).toList();
+        } catch (GitAPIException | IOException e) {
+            String message = "Failed to list tags"
+                    + (forCommit != null ? " for commit '" + forCommit.getName() + "'" : "")
+                    + " in repository: " + name;
+
+            throw new RepositoryVersioningException(message, e);
         }
     }
 

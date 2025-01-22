@@ -1,7 +1,14 @@
 <script setup lang="ts">
-import {Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog";
-import {deleteConfiguration, updateConfiguration} from "@/api/configuration.ts";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
+import {deleteConfiguration, renameConfiguration} from "@/api/configuration.ts";
+import {Card, CardContent} from "@/components/ui/card";
 import {Configuration} from "@/types/Configuration.ts";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
@@ -9,7 +16,7 @@ import {useRouter} from "vue-router";
 import {ref} from "vue";
 import AlertConfirmation from "@/components/left-side/AlertConfirmation.vue";
 import {LoaderCircleIcon} from 'lucide-vue-next'
-import { useToast } from '@/components/ui/toast/use-toast'
+import {useToast} from '@/components/ui/toast/use-toast'
 
 /**
  * @param {Boolean} isOpen, dialog visibility
@@ -76,23 +83,15 @@ const confirmDeletion = async () => {
 /**
  * Save the changes made to the current configuration
  * Called when the user clicks the save button
- * Uses the updateConfiguration API call
+ * Uses the renameConfiguration API call
  */
 const saveChanges = async () => {
   isLoadingValidate.value = true
   try {
-    const newConfig = await updateConfiguration({
-      name: nameInput.value,
-      version: props.currentConfiguration.version,
-      models: props.currentConfiguration.models
-    })
+    const newConfig = await renameConfiguration(props.currentConfiguration.name, nameInput.value)
+    await router.push({name: 'mainview', params: {id: newConfig.name}})
     emit('update:currentConfiguration', newConfig)
     emit('update:isOpen', false)
-
-    toast({
-      title: 'New version has been created',
-      duration: 3000,
-    });
 
   } catch (error : any) {
     errorMessage.value = error.response?.data?.message || error.message
@@ -127,7 +126,7 @@ const saveChanges = async () => {
       </div>
       <DialogFooter>
         <Button variant="outline" @click="closeDialog">Cancel</Button>
-        <Button @click="saveChanges" :disabled="!nameInput.length || isLoadingValidate">
+        <Button @click="saveChanges" :disabled="!nameInput.length || isLoadingValidate || nameInput === currentConfiguration.name">
           <LoaderCircleIcon v-if="isLoadingValidate" class="animate-spin"/>
           Save Changes
         </Button>

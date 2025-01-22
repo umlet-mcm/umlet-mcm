@@ -42,7 +42,7 @@ defineEmits<{
             <div class="flex items-center w-full">
               <div class="flex items-center gap-2 w-4/5">
                 <div class="font-semibold w-4/5">
-                  {{ item.id }}
+                  {{ item.title }}
                 </div>
               </div>
               <div :class="cn('ml-auto', selectedModel?.id === item.id ? 'visible' : 'invisible')" class="w-1/4">

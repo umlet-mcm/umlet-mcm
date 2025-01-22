@@ -88,13 +88,13 @@ const fileSelected = (event: any) => {
 const validateButton = async () => {
   isLoadingValidate.value = true
   try {
-    if(uploadLocation.value === "configuration") {
+    if(uploadLocation.value === "Configuration") {
       // create a new configuration and open the alert dialog
-      newConfig.value = await uploadUxfToConfiguration(selectedFile.value)
+      newConfig.value = await uploadUxfToConfiguration(selectedFile.value, uploadedName.value, "V1.0.0")
       isDialogOpen.value.confirmation = true
     } else {
       // upload uxf to current configuration
-      newConfig.value = await uploadUxfToModel(selectedFile.value, props.currentConfiguration.name)
+      newConfig.value = await uploadUxfToModel(selectedFile.value, props.currentConfiguration.name, uploadedName.value)
       // find the first model that is not in the current configuration (newly created model)
       const newModel = newConfig.value.models.find(m => !props.currentConfiguration.models.map(m => m.id).includes(m.id))
       emit('update:currentConfiguration', newConfig.value)

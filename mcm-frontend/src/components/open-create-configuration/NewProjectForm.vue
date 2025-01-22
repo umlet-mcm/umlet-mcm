@@ -9,7 +9,8 @@ import * as z from 'zod'
 import {createConfiguration} from "@/api/configuration.ts";
 import { useRouter } from 'vue-router'
 import {ref} from "vue";
-import {uploadUxfToModel} from "@/api/files.ts";
+import {uploadUxfConfiguration} from "@/api/files.ts";
+import {Configuration} from "@/types/Configuration.ts";
 
 // variables
 const router = useRouter()
@@ -33,9 +34,12 @@ const form = useForm({
 const createProject = async (data: { name: string }) => {
   isLoadingValidate.value = true
   try {
-    const createdConfig = await createConfiguration(data);
-    if(configFile.value) {
-      await uploadUxfToModel(configFile.value, createdConfig.name)
+    let createdConfig: Configuration
+    if(!configFile.value) {
+      // create configuration without file
+      createdConfig = await createConfiguration(data);
+    } else {
+      createdConfig = await uploadUxfConfiguration(configFile.value, data.name);
     }
     await router.push({name: 'mainview', params: {id: createdConfig.name}})
   } catch (error:any) {

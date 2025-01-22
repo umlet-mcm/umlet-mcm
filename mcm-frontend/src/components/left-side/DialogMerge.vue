@@ -10,6 +10,7 @@ import {Configuration} from '@/types/Configuration.ts'
 import {updateConfiguration} from "@/api/configuration.ts";
 import {Model} from "@/types/Model.ts";
 import {LoaderCircleIcon} from "lucide-vue-next";
+import {alignModels} from "@/api/model.ts";
 
 /**
  * @param {Boolean} isOpen, dialog visibility
@@ -68,6 +69,7 @@ const toggleModel = (modelId: string) => {
  * @param selectedModels
  */
 function combine(selectedModels: Model[]): Model {
+  //todo GENERATE ID OR NOT ?
   const generatedUUID = crypto.randomUUID()
   const nodesNewId = selectedModels.flatMap(model => model.nodes).map(node => ({
     oldId: node.id,
@@ -111,7 +113,8 @@ const handleMerge = async () => {
       // get the selected models
       const selectedModels: Model[] = selectedModelsId.value.map(id => props.configuration.models.find(m => m.id === id) as Model)
       // merge the models together
-      const mergedModel = combine(JSON.parse(JSON.stringify(selectedModels)))
+      const alignedModels = await alignModels(selectedModels)
+      const mergedModel = combine(JSON.parse(JSON.stringify(alignedModels)))
 
       const newConfig = await updateConfiguration({
         ...props.configuration,
@@ -161,7 +164,7 @@ const closeDialog = () => {
                   <label
                       :for="model.id"
                       class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                    {{ model.id }}
+                    {{ model.title }}
                   </label>
                 </div>
               </div>
@@ -188,7 +191,7 @@ const closeDialog = () => {
                 Selected models to combine:
                 <ul class="list-disc list-inside mt-2">
                   <li v-for="modelId in selectedModelsId" :key="modelId">
-                    {{ configuration.models.find(m => m.id === modelId)?.id }}
+                    {{ configuration.models.find(m => m.id === modelId)?.title }}
                   </li>
                 </ul>
               </div>

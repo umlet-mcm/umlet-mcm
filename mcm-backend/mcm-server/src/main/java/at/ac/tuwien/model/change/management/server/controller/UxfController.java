@@ -60,10 +60,11 @@ public class UxfController {
     @PostMapping("/{configId}")
     public ResponseEntity<ConfigurationDTO> uploadUxfFileToConfiguration(@RequestParam("file") MultipartFile file,
                                                                          @PathVariable String configId,
-                                                                         @RequestParam(required = false) String modelName) {
+                                                                         @RequestParam(required = false) String modelName,
+                                                                         @RequestParam(required = false) String version
+    ) {
         try {
-            // todo update here
-            Configuration res = uxfService.addUxfToConfiguration(file, configId, modelName);
+            Configuration res = uxfService.addUxfToConfiguration(file, configId, modelName, version);
             var configurationDto = configurationDtoMapper.toDto(res);
             return ResponseEntity.ok(configurationDto);
         } catch (UxfException e) {

@@ -2,7 +2,9 @@ package at.ac.tuwien.model.change.management.server.controller;
 
 import at.ac.tuwien.model.change.management.core.model.Model;
 import at.ac.tuwien.model.change.management.core.service.ModelService;
+import at.ac.tuwien.model.change.management.server.dto.ConfigurationDTO;
 import at.ac.tuwien.model.change.management.server.dto.ModelDTO;
+import at.ac.tuwien.model.change.management.server.mapper.ConfigurationDtoMapper;
 import at.ac.tuwien.model.change.management.server.mapper.ModelDtoMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,11 +18,12 @@ import java.util.List;
 public class ModelController {
     private final ModelService modelService;
     private final ModelDtoMapper modelDtoMapper;
+    private final ConfigurationDtoMapper configurationDtoMapper;
 
     @DeleteMapping("/{modelId}")
-    public ResponseEntity<Void> deleteModel(@PathVariable final String modelId) {
-        modelService.deleteModel(modelId);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<ConfigurationDTO> deleteModel(@PathVariable final String modelId) {
+        var updatedConf = modelService.deleteModel(modelId);
+        return ResponseEntity.ok(configurationDtoMapper.toDto(updatedConf));
     }
 
     @PostMapping("/alignModels")

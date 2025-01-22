@@ -1,5 +1,6 @@
 package at.ac.tuwien.model.change.management.core.service;
 
+import at.ac.tuwien.model.change.management.core.model.Configuration;
 import at.ac.tuwien.model.change.management.core.model.Model;
 
 import java.util.List;
@@ -11,7 +12,7 @@ public interface ModelService {
      *
      * @param modelId the id of the model to be deleted
      */
-    void deleteModel(String modelId);
+    Configuration deleteModel(String modelId);
 
     /**
      * Align a list of models

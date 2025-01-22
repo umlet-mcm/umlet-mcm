@@ -125,7 +125,7 @@ watch(() => queryResponse.value, async (newValue) => {
       queryGraph.value = await parseResponseGraph(newValue)
       queryGeneratedGraph.value = query.value
     }
-  } else {his value determines the multiplication constant between summed and unsumm
+  } else {
     queryGraph.value = undefined;
   }
 });

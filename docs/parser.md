@@ -65,7 +65,11 @@ Any element that is not a relation. It has a UUID which is unique per configurat
 In order to keep the domain model classes clean from JAXB annotations the uxf files are first parsed into
 intermediary classes. The name of these classes always end in `...Uxf`. These classes should only be used
 for storing the content of the xml elements before they are mapped into the actual model classes and for
-serializing the models to XML.
+serializing elements to XML.
+
+The main difference between the intermediary classes and the domain classes is the way MCM attributes are stored.
+In the intermediary classes all custom attributes in a single map. To make working with the domain models easier the
+reserved attributes are stored in separate fields.
 
 ## Parsing steps
 
@@ -73,20 +77,70 @@ serializing the models to XML.
 2. Map the intermediary classes into the domain classes
 3. Create actual relations from the relation elements
 
+From a uxf viewpoint configurations and models have the same XML structure. When a uxf is loaded into the MCM
+we have to differentiate between the two. Models should always be translated into a single model whereas configurations
+have to split it up into the original models. Configurations can be identified using the `configurationId` custom
+attribute they contain in the `<help_text>` element. This element also contains the custom attributes coming from each
+model in custom attributes that have the format `// __{modelId}_{attributeName}: value`. During parsing these attributes
+are added to the corresponding models.
+
 ## Exporting steps
 
+1. Map the domain models into intermediary classes
+2. Merge previously split up bidirectional relations into single relations
+3. Merge attributes of all models into a single description if we are exporting a whole configuration
+4. Arrange models so they don't overlap (only for configuration export)
+5. Marshall the intermediary classes into a uxf file
+
+### Arranging models
+
+To make sure multiple models do not overlap when models are merged into a single uxf file, a repositioning algorithm is
+used. All models that don't overlap at all are left in place. For these models are combined bounding box is calculated.
+After all the overlapping models are laid out from left to right next to the combined bounding box. The models are
+equally spaced out and vertically centered on the center line of the combined bounding box.
+
+The algorithm is used whenever a configuration is exported and can be used to arrange ModelDSLs by calling the 
+`POST <base_url>/api/v1/model/alignModels` endpoint. This is used to arrange models when two models are merged using the
+UI.
+
 ## Parsing attributes
+
+Custom attributes can be defined in comments inside the `<panel_text>` element. This feature is used by the MCM to add
+metadata to elements for versioning and can also be used by the user to create custom attributes.
+
+The definition of attributes follow strict conventions. Attributes that are not explicitly declared as strings will be
+automatically parsed into the appropriate type. The application attempts to parse them into the following types 
+in order: `int`, `float`, and `string` if the previous attempts fail. Lists are handled in the same way. Currently
+there's one predefined list attribute: `tags`. Tags are always stored in a list, even if there's only one tag. If the
+parsing on an attribute fails, it will be removed from the element.
+
+[Usage of custom attributes](https://colab.tuwien.ac.at/display/SE/How+to+create+properties)
 
 ## Handling relations
 
 ### Connections
+
+Uxf files no information about which elements are connected by a relation. When a model is loaded into the MCM relations
+have to be turned into actual relations that are stored in the source node and point to the target. This is done based
+on the position data. We consider a relation and a node connected if one endpoint of a relation lies inside the bounding
+box of the node. Umlet uses the outline of the nodes to detect connections. We do not have this information and this
+might cause inconsistencies when loading a model into the MCM. There is also some tolerance for comparing positions which
+might lead to incorrect connections if two connected nodes are too close apart.
 
 ### Bidirectional relations
 
 Each relation is stored on the source node and the target is stored in the relation. To make sure we can
 navigate these relations in both direction, bidirectional relations are replaced by two new relations one pointing
 forward, the other backwards. These new relations are fully identical except for their line types which is split into
-two.
+two and their IDs.
+
+Relations in Umlet can be split up into 3 parts. The left end cap, the line section and the right end cap. We consider
+relations to be bidirectional if it has both end caps. When splitting up a relation into two relations the line type is
+also split up using regular expression. One relation gets the corresponding end cap and the line section, the other one
+the line section and the other end cap.
+
+Currently, relations that have no source node or have no target node are discarded when the model is loaded into the MCM.
 
 When a configuration is exported the relations have to be turned back into separate elements. If a relation is bidirectional
-the forward and the backward pointing relations must be merged into a single relation element.
+the forward and the backward pointing relations must be merged into a single relation element. In this case the two IDs
+also have to stored in the created merged relation element.

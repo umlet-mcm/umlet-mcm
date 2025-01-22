@@ -37,13 +37,16 @@ public class UxfServiceTest {
     @Mock
     private GraphDBService graphDBService;
 
+    @Mock
+    private NameValidationService nameValidationService;
+
     private UxfServiceImpl service;
 
     @BeforeEach
     public void setup() throws JAXBException {
         configurationRepository = new MockConfigurationRepository();
         annotations = MockitoAnnotations.openMocks(this);
-        configurationService = new ConfigurationServiceImpl(configurationRepository, versionControlRepository, graphDBService);
+        configurationService = new ConfigurationServiceImpl(configurationRepository, versionControlRepository, graphDBService, nameValidationService);
 
         JAXBContext jaxbContext = new JaxbConfig().jaxbContext();
 

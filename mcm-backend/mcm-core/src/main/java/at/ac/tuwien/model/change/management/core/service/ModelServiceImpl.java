@@ -22,7 +22,7 @@ public class ModelServiceImpl implements ModelService {
     private final ConfigurationService configurationService;
 
     @Override
-    public void deleteModel(String modelId) {
+    public Configuration deleteModel(String modelId) {
         List<Configuration> configurations = configurationService.getAllConfigurations();
         for (Configuration configuration : configurations) {
             Iterator<Model> iterator = configuration.getModels().iterator();
@@ -30,9 +30,8 @@ public class ModelServiceImpl implements ModelService {
                 Model model = iterator.next();
                 if (model.getId().equals(modelId)) {
                     iterator.remove();
-                    configurationService.updateConfiguration(configuration);
                     log.info("Model with id {} deleted from configuration {}", modelId, configuration.getName());
-                    return;
+                    return configurationService.updateConfiguration(configuration);
                 }
             }
         }

@@ -1,32 +1,32 @@
 <diagram program="umletino" version="15.1"><zoom_level>10</zoom_level><element><id>UMLClass</id><coordinates><x>910</x><y>730</y><w>100</w><h>40</h></coordinates><panel_attributes>Assembly
 Activity
-// PPR Type: GHG PPR Module Process Activity
+// PPR-Type: GHG PPR Module Process Activity
 // Version: 0.1
 // cost: -1
 bg=#a4a4f7
 // dark violet
 group=group-0</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>910</x><y>820</y><w>100</w><h>40</h></coordinates><panel_attributes>Mat3 
 D-Unit
-// PPR Type: GHG PPR Module Output Product
+// PPR-Type: GHG PPR Module Output Product
 // Version: 0.1
 // cost: -1
 bg=#8fc8f8
 // light blue
 group=group-0</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1080</x><y>730</y><w>100</w><h>40</h></coordinates><panel_attributes>Assembly 
 Station 1 
-// PPR Type: GHG PPR Module Resource Equipment
+// PPR-Type: GHG PPR Module Resource Equipment
 // cost: -1
 bg=#ccccff
 // light violet
 group=group-0</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1250</x><y>730</y><w>100</w><h>40</h></coordinates><panel_attributes>Energy Source
 Renewable 1
-// PPR Type: GHG PPR Module Resource Energy Source
+// PPR-Type: GHG PPR Module Resource Energy Source
 // Version: 0.1
 // cost: 3
 bg=#ccccff
 // light violet
 group=group-0</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>950</x><y>670</y><w>60</w><h>80</h></coordinates><panel_attributes>Input 
-// PPR Type: GHG PPR Module Input Relation
+// PPR-Type: GHG PPR Module Input Relation
 // Id: 
 // cost: 3
 // Tags: 
@@ -39,7 +39,7 @@ m1pos=10,0
 r1pos=-13,-34
 r2pos=-63,30
 group=group-0</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>1000</x><y>730</y><w>100</w><h>40</h></coordinates><panel_attributes>Resource
-// PPR Type: GHG PPR Module Resource Relation
+// PPR-Type: GHG PPR Module Resource Relation
 // Id: 
 // cost: 1
 // Tags: 
@@ -52,7 +52,7 @@ m1pos=10,0
 r1pos=-13,-34
 r2pos=-63,30
 group=group-0</panel_attributes><additional_attributes>80;20;10;20</additional_attributes></element><element><id>Relation</id><coordinates><x>1170</x><y>730</y><w>100</w><h>40</h></coordinates><panel_attributes>Energy
-// PPR Type: GHG PPR Energy Relation
+// PPR-Type: GHG PPR Energy Relation
 // Id: 
 // cost: 100
 // Tags: 
@@ -65,7 +65,7 @@ m1pos=10,0
 r1pos=-13,-34
 r2pos=-63,30
 group=group-0</panel_attributes><additional_attributes>80;20;10;20</additional_attributes></element><element><id>Relation</id><coordinates><x>950</x><y>760</y><w>70</w><h>80</h></coordinates><panel_attributes>Output 
-// PPR Type: GHG PPR Module Output Relation
+// PPR-Type: GHG PPR Module Output Relation
 // Id: 
 // cost: 1
 // Tags: 
@@ -79,13 +79,13 @@ r1pos=-13,-34
 r2pos=-63,30
 group=group-0</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>910</x><y>640</y><w>100</w><h>40</h></coordinates><panel_attributes>Mat5
 Motor B
-// PPR Type: GHG PPR Module Input Product
+// PPR-Type: GHG PPR Module Input Product
 // cost: 5
 bg=#8fc8f8
 // light blue
 
 group=group-0</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>810</x><y>670</y><w>140</w><h>80</h></coordinates><panel_attributes>Input 
-// PPR Type: GHG PPR Module Input Relation
+// PPR-Type: GHG PPR Module Input Relation
 // cost: 1
 lt=-&gt;
 // r1=Input Product
@@ -97,13 +97,13 @@ r1pos=-13,-34
 r2pos=-63,30
 group=group-0</panel_attributes><additional_attributes>10;10;120;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>1050</x><y>640</y><w>100</w><h>40</h></coordinates><panel_attributes>Mat7
 Screw 1
-// PPR Type: GHG PPR Module Input Product
+// PPR-Type: GHG PPR Module Input Product
 // cost: 2
 bg=#8fc8f8
 // light blue
 
 group=group-0</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>990</x><y>670</y><w>120</w><h>80</h></coordinates><panel_attributes>Input 
-// PPR Type: GHG PPR Module Input Relation
+// PPR-Type: GHG PPR Module Input Relation
 // Id: 
 // cost: 5
 // Tags: 
@@ -117,7 +117,7 @@ r1pos=-13,-34
 r2pos=-63,30
 group=group-0</panel_attributes><additional_attributes>100;10;10;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>760</x><y>640</y><w>100</w><h>40</h></coordinates><panel_attributes>Mat4
 Motor
-// PPR Type: GHG PPR Module Input Product
+// PPR-Type: GHG PPR Module Input Product
 // Version: 0.1
 // cost: 10
 bg=#8fc8f8
@@ -125,14 +125,14 @@ bg=#8fc8f8
 
 group=group-0</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>820</x><y>460</y><w>100</w><h>40</h></coordinates><panel_attributes>Mat25
 AluUCut
-// PPR Type: GHG PPR Module Output Product
+// PPR-Type: GHG PPR Module Output Product
 // Tags: 
 // cost: -1
 bg=#8fc8f8
 // light blue
 group=group-1</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>990</x><y>370</y><w>100</w><h>40</h></coordinates><panel_attributes>Sawing 
 Machine 1
-// PPR Type: GHG PPR Module Resource Equipment
+// PPR-Type: GHG PPR Module Resource Equipment
 // Tags: 
 // -----------
 // cost: -1
@@ -142,13 +142,13 @@ bg=#ccccff
 // -----------
 group=group-1</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1160</x><y>370</y><w>100</w><h>40</h></coordinates><panel_attributes>Energy Source
 Fossile 1
-// PPR Type: GHG PPR Module Resource Energy Source
+// PPR-Type: GHG PPR Module Resource Energy Source
 // Tags: 
 // cost: 100
 bg=#ccccff
 // light violet
 group=group-1</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>860</x><y>310</y><w>60</w><h>80</h></coordinates><panel_attributes>Input 
-// PPR Type: GHG PPR Module Input Relation
+// PPR-Type: GHG PPR Module Input Relation
 // Tags: 
 // cost: 10
 lt=-&gt;
@@ -160,7 +160,7 @@ m1pos=10,0
 r1pos=-13,-34
 r2pos=-63,30
 group=group-1</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>910</x><y>370</y><w>100</w><h>40</h></coordinates><panel_attributes>Resource
-// PPR Type: GHG PPR Module Resource Relation
+// PPR-Type: GHG PPR Module Resource Relation
 // Tags: 
 // cost: 3
 lt=.&gt;
@@ -172,7 +172,7 @@ m1pos=10,0
 r1pos=-13,-34
 r2pos=-63,30
 group=group-1</panel_attributes><additional_attributes>80;20;10;20</additional_attributes></element><element><id>Relation</id><coordinates><x>1080</x><y>370</y><w>100</w><h>40</h></coordinates><panel_attributes>Energy
-// PPR Type: GHG PPR Energy Relation
+// PPR-Type: GHG PPR Energy Relation
 // Tags: 
 // cost: 25
 lt=-&gt;
@@ -184,7 +184,7 @@ m1pos=10,0
 r1pos=-13,-34
 r2pos=-63,30
 group=group-1</panel_attributes><additional_attributes>80;20;10;20</additional_attributes></element><element><id>Relation</id><coordinates><x>860</x><y>400</y><w>70</w><h>80</h></coordinates><panel_attributes>Output 
-// PPR Type: GHG PPR Module Output Relation
+// PPR-Type: GHG PPR Module Output Relation
 // Tags: 
 // cost: 10
 lt=-&gt;
@@ -197,14 +197,14 @@ r1pos=-13,-34
 r2pos=-63,30
 group=group-1</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>820</x><y>280</y><w>100</w><h>40</h></coordinates><panel_attributes>Mat6
 AluLShape
-// PPR Type: GHG PPR Module Input Product
+// PPR-Type: GHG PPR Module Input Product
 // Tags: 
 // cost: 50
 bg=#8fc8f8
 // light blue
 group=group-1</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>820</x><y>370</y><w>100</w><h>40</h></coordinates><panel_attributes>Cutting
 Activity
-// PPR Type: GHG PPR Module Process Activity
+// PPR-Type: GHG PPR Module Process Activity
 // Tags: 
 // cost: -1
 bg=#a4a4f7

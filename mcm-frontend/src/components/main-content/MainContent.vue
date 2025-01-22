@@ -78,7 +78,7 @@ const executeMultipleQuery = async (queries: string[]) => {
     queryMessage.value = nbOk ?
         `${nbOk} ${nbOk === 1 ? "query" : "queries"} executed successfully in ${totalTime} ms. Error on query ${nbOk + 1}`
         : undefined
-    errorMessage.value = error.response?.data?.message || error.message
+    errorMessage.value = error.response?.data?.Message || error.message
   }
 
   // display the last response
@@ -125,7 +125,7 @@ watch(() => queryResponse.value, async (newValue) => {
       queryGraph.value = await parseResponseGraph(newValue)
       queryGeneratedGraph.value = query.value
     }
-  } else {
+  } else {his value determines the multiplication constant between summed and unsumm
     queryGraph.value = undefined;
   }
 });
@@ -159,9 +159,9 @@ onMounted(() => {
     <div class="p-4 space-y-4">
       <div class="flex items-center ">
         <h2 class="text-xl font-semibold">Neo4J Query</h2>
-        <Button variant="ghost" size="icon" @click="console.log('help query')">
-          <HelpCircle />
-        </Button>
+        <span title="Focus the query field and press Ctrl+Space to use predefined queries (or just start typing)">
+          <HelpCircle class="w-4 h-4" />
+        </span>
         <div class="ml-auto text-right">
           <div v-if="isLoadingNeo4j">
             <LoaderCircleIcon class="animate-spin"/>

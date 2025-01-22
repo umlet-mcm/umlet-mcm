@@ -2,64 +2,47 @@
 Cause-Effect Network and 
 Product-Process-Resource Asset Network
 // ModelType: "PAN", "CEN", "IDE0", "UVL", "Config"
-// Version: "0.1"
  group=IDEF0-Template-0</help_text><element><id>UMLClass</id><coordinates><x>832</x><y>696</y><w>40</w><h>16</h></coordinates><panel_attributes>Environment
 // PPR-UVL-Type: "UVL resource feature (abstract)"
-// Version: "0.1"
 bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>832</x><y>664</y><w>40</w><h>16</h></coordinates><panel_attributes>LIDAR camera
 // PPR-UVL-Type: "UVL resource feature"
-// Version: "0.1"
 bg=#ffe106</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>628</x><y>452</y><w>40</w><h>16</h></coordinates><panel_attributes>PPR UVL root
 // PPR-UVL-Type: "UVL feature (abstract)"
-// Version: "0.1"
 bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>696</x><y>452</y><w>40</w><h>16</h></coordinates><panel_attributes>PPR UVL 
 product
 // PPR-UVL-Type: "UVL product feature (abstract)"
-// Version: "0.1"
 bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>696</x><y>488</y><w>40</w><h>16</h></coordinates><panel_attributes>PPR UVL 
 process
 // PPR-UVL-Type: "UVL process feature (abstract)"
-// Version: "0.1"
 bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>696</x><y>636</y><w>40</w><h>16</h></coordinates><panel_attributes>PPR UVL 
 resource
 // PPR-UVL-Type: "UVL resource feature (abstract)"
-// Version: "0.1"
 bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>764</x><y>488</y><w>40</w><h>16</h></coordinates><panel_attributes>Car Body 
 Welding
 // PPR-UVL-Type: "UVL process feature (abstract)"
-// Version: "0.1"
 bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>832</x><y>488</y><w>40</w><h>16</h></coordinates><panel_attributes>Cleaning
 // PPR-UVL-Type: "UVL process feature"
-// Version: "0.1"
 bg=#ffe106</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>832</x><y>512</y><w>40</w><h>16</h></coordinates><panel_attributes>Positioning
 // PPR-UVL-Type: "UVL process feature"
-// Version: "0.1"
 bg=#ffe106</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>832</x><y>536</y><w>40</w><h>16</h></coordinates><panel_attributes>Welding
 // PPR-UVL-Type: "UVL process feature"
-// Version: "0.1"
 bg=#ffe106</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>832</x><y>636</y><w>40</w><h>16</h></coordinates><panel_attributes>LCD camera
 // PPR-UVL-Type: "UVL resource feature"
-// Version: "0.1"
 bg=#ffe106</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>832</x><y>560</y><w>40</w><h>16</h></coordinates><panel_attributes>Quality
 Assurance
 // PPR-UVL-Type: "UVL process feature (abstract)"
-// Version: "0.1"
 bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>764</x><y>636</y><w>40</w><h>16</h></coordinates><panel_attributes>QC camera
 // PPR-UVL-Type: "UVL resource feature (abstract)"
-// Version: "0.1"
 bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>764</x><y>696</y><w>40</w><h>16</h></coordinates><panel_attributes>External 
 Interface
 // PPR-UVL-Type: "UVL resource feature (abstract)"
-// Version: "0.1"
 bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>900</x><y>724</y><w>40</w><h>20</h></coordinates><panel_attributes>volatile
 temperature 
 Environment
 // PPR-UVL-Type: "UVL resource feature (abstract)"
-// Version: "0.1"
 bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>900</x><y>756</y><w>40</w><h>16</h></coordinates><panel_attributes>volatile dust
 Environment
 // PPR-UVL-Type: "UVL resource feature (abstract)"
-// Version: "0.1"
 bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>664</x><y>452</y><w>40</w><h>20</h></coordinates><panel_attributes>UVL 
 sub-feature
 // PPR-UVL-Type: "UVL relationship"
@@ -93,7 +76,6 @@ r1pos=-13,-34
 r2pos=-63,30</panel_attributes><additional_attributes>10;10;80;460</additional_attributes></element><element><id>UMLClass</id><coordinates><x>900</x><y>696</y><w>40</w><h>16</h></coordinates><panel_attributes>controlled
 Environment
 // PPR-UVL-Type: "UVL resource feature (abstract)"
-// Version: "0.1"
 bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>800</x><y>488</y><w>40</w><h>20</h></coordinates><panel_attributes>UVL 
 sub-feature
 // PPR-UVL-Type: "UVL relationship"
@@ -146,7 +128,6 @@ m1pos=10,0
 r1pos=-13,-34
 r2pos=-63,30</panel_attributes><additional_attributes>10;10;80;170</additional_attributes></element><element><id>UMLClass</id><coordinates><x>696</x><y>732</y><w>40</w><h>16</h></coordinates><panel_attributes>UVL constraint
 // PPR-UVL-Type: "UVL constraint"
-// Version: "0.1"
 // UVLconstraint: "Quality Assurance =&gt; QC camera"
 bg=#fff680</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>732</x><y>636</y><w>40</w><h>20</h></coordinates><panel_attributes>UVL 
 sub-feature
@@ -231,11 +212,9 @@ r1pos=-13,-34
 r2pos=-63,30</panel_attributes><additional_attributes>10;20;80;20</additional_attributes></element><element><id>UMLClass</id><coordinates><x>900</x><y>560</y><w>40</w><h>16</h></coordinates><panel_attributes>QA human 
 inspection
 // PPR-UVL-Type: "UVL process feature"
-// Version: "0.1"
 bg=#ffe106</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>900</x><y>584</y><w>40</w><h>16</h></coordinates><panel_attributes>QA AI optical 
 inspection
 // PPR-UVL-Type: "UVL process feature"
-// Version: "0.1"
 bg=#ffe106</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>868</x><y>564</y><w>40</w><h>36</h></coordinates><panel_attributes>UVL 
 alternative
 // PPR-UVL-Type: "UVL relationship"
@@ -248,7 +227,6 @@ m1pos=10,0
 r1pos=-13,-34
 r2pos=-63,30</panel_attributes><additional_attributes>10;10;80;70</additional_attributes></element><element><id>UMLClass</id><coordinates><x>696</x><y>764</y><w>40</w><h>16</h></coordinates><panel_attributes>UVL constraint
 // PPR-UVL-Type: "UVL constraint"
-// Version: "0.1"
 // UVLconstraint: "Welding =&gt; Quality Assurance"
 bg=#fff680</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>868</x><y>700</y><w>48</w><h>40</h></coordinates><panel_attributes>UVL 
 alternative
@@ -292,12 +270,10 @@ m1pos=10,0
 r1pos=-13,-34
 r2pos=-63,30</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>UMLClass</id><coordinates><x>696</x><y>796</y><w>40</w><h>16</h></coordinates><panel_attributes>UVL constraint
 // PPR-UVL-Type: "UVL constraint"
-// Version: "0.1"
 // UVLconstraint: "volatile temperature Environment =&gt; temperature monitoring"
 bg=#fff680</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>764</x><y>736</y><w>40</w><h>16</h></coordinates><panel_attributes>Monitoring 
 Devices
 // PPR-UVL-Type: "UVL resource feature (abstract)"
-// Version: "0.1"
 bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>732</x><y>644</y><w>52</w><h>104</h></coordinates><panel_attributes>UVL 
 sub-feature
 // PPR-UVL-Type: "UVL relationship"
@@ -311,7 +287,6 @@ r1pos=-13,-34
 r2pos=-63,30</panel_attributes><additional_attributes>10;10;80;240</additional_attributes></element><element><id>UMLClass</id><coordinates><x>832</x><y>736</y><w>40</w><h>16</h></coordinates><panel_attributes>Temperature
 Sensor
 // PPR-UVL-Type: "UVL resource feature (abstract)"
-// Version: "0.1"
 bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>800</x><y>736</y><w>40</w><h>20</h></coordinates><panel_attributes>UVL 
 sub-feature
 // PPR-UVL-Type: "UVL relationship"
@@ -334,15 +309,12 @@ m1pos=10,0
 r1pos=-13,-34
 r2pos=-63,30</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>UMLClass</id><coordinates><x>696</x><y>828</y><w>40</w><h>16</h></coordinates><panel_attributes>UVL constraint
 // PPR-UVL-Type: "UVL constraint"
-// Version: "0.1"
-// UVLconstraint: "temperature monitoring =&gt; Temperature Sensor"
+// UVL-constraint: "temperature monitoring =&gt; Temperature Sensor"
 bg=#fff680</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>764</x><y>592</y><w>40</w><h>16</h></coordinates><panel_attributes>Monitoring
 // PPR-UVL-Type: "UVL process feature (abstract)"
-// Version: "0.1"
 bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>832</x><y>592</y><w>40</w><h>16</h></coordinates><panel_attributes>Temperature
 Monitoring
 // PPR-UVL-Type: "UVL process feature (abstract)"
-// Version: "0.1"
 bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>732</x><y>496</y><w>52</w><h>108</h></coordinates><panel_attributes>UVL 
 sub-feature
 // PPR-UVL-Type: "UVL relationship"
@@ -365,25 +337,18 @@ m1pos=10,0
 r1pos=-13,-34
 r2pos=-63,30</panel_attributes><additional_attributes>10;20;80;20</additional_attributes></element><element><id>UMLUseCase</id><coordinates><x>936</x><y>584</y><w>12</w><h>8</h></coordinates><panel_attributes>A
 // PPR-UVL-Type: "UVL operator"
-// Version: "0.1"
 bg=#ff8f2b</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLUseCase</id><coordinates><x>936</x><y>592</y><w>12</w><h>8</h></coordinates><panel_attributes>B
 // PPR-Type: "configuration tag"
-// Version: "0.1"
 bg=#586ff0</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLUseCase</id><coordinates><x>868</x><y>640</y><w>12</w><h>8</h></coordinates><panel_attributes>A
 // PPR-UVL-Type: "UVL operator"
-// Version: "0.1"
 bg=#ff8f2b</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLUseCase</id><coordinates><x>868</x><y>668</y><w>12</w><h>8</h></coordinates><panel_attributes>B
 // PPR-Type: "configuration tag"
-// Version: "0.1"
 bg=#586ff0</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLUseCase</id><coordinates><x>936</x><y>728</y><w>12</w><h>8</h></coordinates><panel_attributes>B
 // PPR-Type: "configuration tag"
-// Version: "0.1"
 bg=#586ff0</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLUseCase</id><coordinates><x>936</x><y>700</y><w>12</w><h>8</h></coordinates><panel_attributes>A
 // PPR-UVL-Type: "UVL operator"
-// Version: "0.1"
 bg=#ff8f2b</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>764</x><y>452</y><w>40</w><h>16</h></coordinates><panel_attributes>Assembly
 // PPR-UVL-Type: "UVL product feature (abstract)"
-// Version: "0.1"
 bg=#ffffff</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>732</x><y>452</y><w>40</w><h>20</h></coordinates><panel_attributes>UVL 
 sub-feature
 // PPR-UVL-Type: "UVL relationship"

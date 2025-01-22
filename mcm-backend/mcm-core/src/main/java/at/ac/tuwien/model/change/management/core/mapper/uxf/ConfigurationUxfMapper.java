@@ -24,9 +24,18 @@ public class ConfigurationUxfMapper {
 
         configurationUxf.setElements(new LinkedHashSet<>());
 
+        // get new zoom level, take the smallest value from the models
+        int newZoomLevel = configuration.getModels().stream().
+                mapToInt(Model::getZoomLevel).
+                min().
+                orElse(PositionUtils.DEFAULT_ZOOM_LEVEL);
+
+        configurationUxf.setZoomLevel(newZoomLevel);
+
         // map the models
         ArrayList<ModelUxf> mappedModels = new ArrayList<>();
         for (Model m : configuration.getModels()) {
+            m.setZoomLevel(newZoomLevel); // update the zoom level so during the mapping the coordinates are updated
             ModelUxf modelUxf = modelUxfMapper.fromModel(m);
             mappedModels.add(modelUxf);
         }
@@ -48,12 +57,6 @@ public class ConfigurationUxfMapper {
         sb.append(combineModelDescriptions(configuration.getModels()));
         configurationUxf.setAttributes(new BaseAttributesUxf());
         configurationUxf.getAttributes().setDescription(sb.toString());
-
-        // set zoom level, take the smallest value from the models
-        configurationUxf.setZoomLevel(configuration.getModels().stream().
-                mapToInt(Model::getZoomLevel).
-                min().
-                orElse(10));
 
 
         return configurationUxf;

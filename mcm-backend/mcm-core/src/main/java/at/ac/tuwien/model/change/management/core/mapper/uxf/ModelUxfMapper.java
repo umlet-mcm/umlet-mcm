@@ -63,6 +63,15 @@ public interface ModelUxfMapper {
             relationElement.setElementType("Relation");
             ElementAttributesUxf elAttrs = new ElementAttributesUxf();
             elAttrs.setUmletAttributes(r.getUmletAttributes());
+
+            // prevent "null" from appearing in the description
+            if (r.getTitle() == null) {
+                r.setTitle("");
+            }
+            if (r.getDescription() == null) {
+                r.setDescription("");
+            }
+
             elAttrs.setDescription(r.getTitle() + r.getDescription());
             elAttrs.setMcmAttributes(r.getMcmAttributes());
             relationElement.setAttributes(elAttrs);

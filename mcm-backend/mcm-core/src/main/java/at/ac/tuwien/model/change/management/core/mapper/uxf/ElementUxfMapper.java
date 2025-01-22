@@ -39,7 +39,11 @@ public interface ElementUxfMapper {
 
     @AfterMapping
     default ElementUxf combineMcmAttributes(Node node, @MappingTarget ElementUxf elementUxf) {
-        elementUxf.getAttributes().setDescription(node.getTitle() + node.getDescription());
+        if (node.getDescription() != null) {
+            elementUxf.getAttributes().setDescription(node.getTitle() + node.getDescription());
+        } else {
+            elementUxf.getAttributes().setDescription(node.getTitle());
+        }
 
         LinkedHashMap<String, Object> mcmAttrs = McmAttributesMapper.mergeAttributes(node);
         if (elementUxf.getAttributes().getMcmAttributes() == null) {

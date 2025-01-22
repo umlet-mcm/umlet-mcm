@@ -1,6 +1,7 @@
 package at.ac.tuwien.model.change.management.git.repository;
 
 import at.ac.tuwien.model.change.management.core.model.Configuration;
+import at.ac.tuwien.model.change.management.core.model.ConfigurationVersion;
 import at.ac.tuwien.model.change.management.core.model.versioning.ModelDiff;
 import at.ac.tuwien.model.change.management.core.model.versioning.NodeDiff;
 import at.ac.tuwien.model.change.management.core.model.versioning.RelationDiff;
@@ -99,4 +100,14 @@ public interface ConfigurationRepository {
             @NonNull String newVersion,
             boolean includeUnchanged
     ) throws RepositoryDoesNotExistException;
+
+    /**
+     * Lists all versions of the configuration with the given name.
+     * Includes the version hash, the auto-generated version name and the user-supplied version name if there is one.
+     * This differentiates it from the `listVersions` method in {@link VersionControlRepository} which only lists the version hashes.
+     *
+     * @param name the name of the configuration
+     * @return a list of configuration versions
+     */
+    List<ConfigurationVersion> listConfigurationVersions(@NonNull String name) throws RepositoryDoesNotExistException;
 }

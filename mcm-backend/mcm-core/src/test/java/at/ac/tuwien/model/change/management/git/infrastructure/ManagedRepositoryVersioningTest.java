@@ -630,6 +630,25 @@ public class ManagedRepositoryVersioningTest {
     }
 
     @Test
+    public void testCompareVersions_compareBasedOnTags_shouldReturnCorrectDiffEntries() {
+        var tagName1 = "tag1";
+        var tagName2 = "tag2";
+
+        versioning.init();
+        var commit1 = versioning.commit("Test commit 1", true);
+
+        writeFileToTestRepo("testFile", "content");
+        versioning.stageAll();
+        var commit2 = versioning.commit("Test commit 2", true);
+
+        versioning.tagCommit(commit1, tagName1);
+        versioning.tagCommit(commit2, tagName2);
+
+        var diff = versioning.compareVersions(tagName1, tagName2, false, null);
+        Assertions.assertThat(diff).hasSize(1);
+    }
+
+    @Test
     public void testCheckout_checkoutExistingVersion_shouldCheckoutVersion() {
         versioning.init();
         var commitHash1 = versioning.commit("Test commit", true);
@@ -721,6 +740,114 @@ public class ManagedRepositoryVersioningTest {
     }
 
     @Test
+    public void testCheckout_checkoutOldBranch_thenCheckoutMainAgain_futureCommitsShouldMoveBothHEADAndMain() {
+        versioning.init();
+        var commitHash1 = versioning.commit("Test commit 1", true);
+        var commitHash2 = versioning.commit("Test commit 2", true);
+        versioning.checkout(commitHash1);
+
+        Assertions.assertThat(versioning.listVersions(REF_HEAD, false)).containsExactly(commitHash1);
+        Assertions.assertThat(versioning.listVersions(REF_MAIN, false)).containsExactly(commitHash2, commitHash1);
+
+        versioning.checkout(commitHash2);
+
+        Assertions.assertThat(versioning.listVersions(REF_HEAD, false)).containsExactly(commitHash2, commitHash1);
+        Assertions.assertThat(versioning.listVersions(REF_MAIN, false)).containsExactly(commitHash2, commitHash1);
+
+        var commitHash3 = versioning.commit("Test commit 3", true);
+
+        Assertions.assertThat(versioning.listVersions(REF_HEAD, false)).containsExactly(commitHash3, commitHash2, commitHash1);
+        Assertions.assertThat(versioning.listVersions(REF_MAIN, false)).containsExactly(commitHash3, commitHash2, commitHash1);
+    }
+
+    @Test
+    public void testCheckout_multipleBranches_choosesPreferredBranch() throws Exception {
+        var branch1 = "branch1";
+        var branch2 = "branch2";
+
+        versioning.init();
+        try (var testRepository = new TestRepository<>(repository)) {
+            var commit = testRepository.commit().message("Test commit").create();
+            testRepository.branch("branch1").update(commit);
+            testRepository.branch("branch2").update(commit);
+
+            versioning.checkout(commit.getName(), true, branch1);
+            Assertions.assertThat(repository.getBranch()).isEqualTo(branch1);
+
+            versioning.checkout(commit.getName(), true, branch2);
+            Assertions.assertThat(repository.getBranch()).isEqualTo(branch2);
+        }
+    }
+
+    @Test
+    public void testCheckout_checkoutCommitWithBranch_attachToBranchTrue_shouldCheckoutBranch() throws Exception {
+        var branch = "branch";
+
+        versioning.init();
+        try (var testRepository = new TestRepository<>(repository)) {
+            var commit = testRepository.commit().message("Test commit").create();
+            testRepository.branch(branch).update(commit);
+
+            versioning.checkout(commit.getName(), true, null);
+            Assertions.assertThat(repository.getBranch()).isEqualTo(branch);
+        }
+    }
+
+    @Test
+    public void testCheckout_checkoutCommitWithBranch_attachToBranchFalse_shouldDetachHead() throws Exception {
+        var branch = "branch";
+
+        versioning.init();
+        try (var testRepository = new TestRepository<>(repository)) {
+            var commit = testRepository.commit().message("Test commit").create();
+            testRepository.branch(branch).update(commit);
+
+            versioning.checkout(commit.getName(), false, null);
+            Assertions.assertThat(repository.getBranch())
+                    .isNotEqualTo(branch)
+                    .hasSize(40);
+        }
+    }
+
+    @Test
+    public void testCheckout_checkoutCommitWithBranch_attachToBranchDefault_shouldCheckoutBranch() throws Exception {
+        var branch = "branch";
+
+        versioning.init();
+        try (var testRepository = new TestRepository<>(repository)) {
+            var commit = testRepository.commit().message("Test commit").create();
+            testRepository.branch(branch).update(commit);
+
+            versioning.checkout(commit.getName());
+            Assertions.assertThat(repository.getBranch()).isEqualTo(branch);
+        }
+    }
+
+    @Test
+    public void testCheckout_checkoutCommitWithoutBranch_attachToBranchTrue_shouldDetachHead() throws Exception {
+        versioning.init();
+        try (var testRepository = new TestRepository<>(repository)) {
+            var commit = testRepository.commit().message("Test commit").create();
+
+            versioning.checkout(commit.getName(), true, null);
+            Assertions.assertThat(repository.getBranch())
+                    .isNotEqualTo(REF_HEAD)
+                    .hasSize(40);
+        }
+    }
+
+    @Test
+    public void testCheckout_checkoutBasedOnTag_shouldCheckoutCorrectVersion() {
+        var tagName = "testTag";
+
+        versioning.init();
+        var commitHash = versioning.commit("Test commit", true);
+        versioning.tagCommit(commitHash, tagName);
+        versioning.checkout(tagName);
+        Assertions.assertThat(versioning.getCurrentVersionId()).contains(commitHash);
+    }
+
+    @Test
     public void testReset_resetToExistingVersion_shouldResetToVersion() {
         versioning.init();
         var commitHash1 = versioning.commit("Test commit 1", true);
@@ -798,6 +925,19 @@ public class ManagedRepositoryVersioningTest {
         Assertions.assertThat(versioning.listVersions()).containsExactly(commitHash3, commitHash2, commitHash1);
         versioning.reset(commitHash1);
         Assertions.assertThat(versioning.listVersions()).containsExactly(commitHash1);
+    }
+
+    @Test
+    public void testReset_resetBasedOnTag_shouldResetToCorrectVersion() {
+        var tagName = "testTag";
+
+        versioning.init();
+        var commitHash1 = versioning.commit("Test commit 1", true);
+        versioning.commit("Test commit 2", true);
+        versioning.tagCommit(commitHash1, tagName);
+
+        versioning.reset(tagName);
+        Assertions.assertThat(versioning.getCurrentVersionId()).contains(commitHash1);
     }
 
     @Test

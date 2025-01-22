@@ -1,6 +1,7 @@
 package at.ac.tuwien.model.change.management.core.service;
 
 import at.ac.tuwien.model.change.management.core.model.Configuration;
+import at.ac.tuwien.model.change.management.core.model.ConfigurationVersion;
 import at.ac.tuwien.model.change.management.core.model.versioning.BaseAttributesDiff;
 import lombok.NonNull;
 import org.springframework.lang.Nullable;
@@ -69,11 +70,12 @@ public interface ConfigurationService {
 
     /**
      * List all versions of a configuration by its name
+     * Includes the commit hash, the auto-generated version name and the user-supplied version name if there is one
      *
      * @param name the name of the configuration
-     * @return a list of all versions of the configuration with the given name
+     * @return a list of all saved versions of the configuration with the given name
      */
-    List<String> listConfigurationVersions(@NonNull String name);
+    List<ConfigurationVersion> listConfigurationVersions(@NonNull String name);
 
     /**
      * Compare two versions of a configuration by their identifiers

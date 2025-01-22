@@ -88,6 +88,16 @@ public class MockConfigurationRepository implements ConfigurationRepository {
         throw new UnsupportedOperationException("Not implemented in this mock");
     }
 
+    @Override
+    public List<ConfigurationVersion> listConfigurationVersions(@NonNull String name) {
+        var configurationVersions = configurations.get(name);
+        return configurationVersions == null
+                ? List.of()
+                : configurationVersions.values().stream()
+                .map(Configuration::getVersion)
+                .toList();
+    }
+
     private <T> T getFirstValue(LinkedHashMap<?, T> map) {
         return map.entrySet().iterator().next().getValue();
     }

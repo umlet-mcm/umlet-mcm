@@ -2,8 +2,10 @@ package at.ac.tuwien.model.change.management.server.controller;
 
 import at.ac.tuwien.model.change.management.core.service.ConfigurationService;
 import at.ac.tuwien.model.change.management.server.dto.ConfigurationDTO;
+import at.ac.tuwien.model.change.management.server.dto.ConfigurationVersionDTO;
 import at.ac.tuwien.model.change.management.server.dto.DiffDTO;
 import at.ac.tuwien.model.change.management.server.mapper.ConfigurationDtoMapper;
+import at.ac.tuwien.model.change.management.server.mapper.ConfigurationVersionDtoMapper;
 import at.ac.tuwien.model.change.management.server.mapper.DiffDtoMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,7 @@ public class ConfigurationController {
 
     private final ConfigurationService configurationService;
     private final ConfigurationDtoMapper configurationDtoMapper;
+    private final ConfigurationVersionDtoMapper configurationVersionDtoMapper;
     private final DiffDtoMapper diffDtoMapper;
 
     /**
@@ -117,8 +120,8 @@ public class ConfigurationController {
      * @return a list of all versions of the configuration with the given name
      */
     @GetMapping("/{name}/versions")
-    public ResponseEntity<List<String>> listConfigurationVersions(@PathVariable String name) {
-        var versions = configurationService.listConfigurationVersions(name);
+    public ResponseEntity<List<ConfigurationVersionDTO>> listConfigurationVersions(@PathVariable String name) {
+        var versions = configurationVersionDtoMapper.toDto(configurationService.listConfigurationVersions(name));
         return ResponseEntity.ok(versions);
     }
 

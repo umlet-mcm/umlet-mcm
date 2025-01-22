@@ -605,6 +605,71 @@ public class ConfigurationRepositoryIntegrationTest {
                 .isInstanceOf(RepositoryAlreadyExistsException.class);
     }
 
+    @Test
+    public void testListConfigurationVersions_nonExistingConfiguration_shouldThrowRepositoryDoesNotExistException() {
+        Assertions.assertThatThrownBy(() -> configurationRepository.listConfigurationVersions(TEST_CONFIGURATION_NAME))
+                .isInstanceOf(RepositoryDoesNotExistException.class);
+    }
+
+    @Test
+    public void testListConfigurationVersions_existingConfigurationWithoutVersions_shouldReturnEmptyList() {
+        configurationRepository.createConfiguration(TEST_CONFIGURATION_NAME);
+        var versions = configurationRepository.listConfigurationVersions(TEST_CONFIGURATION_NAME);
+        Assertions.assertThat(versions).isEmpty();
+    }
+
+    @Test
+    public void testListConfigurationVersions_existingConfigurationWithVersions_shouldReturnAllVersions() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configurationRepository.createConfiguration(TEST_CONFIGURATION_NAME);
+        configurationRepository.saveConfiguration(configuration);
+        configurationRepository.saveConfiguration(configuration);
+        configurationRepository.saveConfiguration(configuration);
+
+        var versions = configurationRepository.listConfigurationVersions(TEST_CONFIGURATION_NAME);
+
+        Assertions.assertThat(versions)
+                .extracting(ConfigurationVersion::hash)
+                .allSatisfy(hash -> Assertions.assertThat(hash).hasSize(40));
+
+        Assertions.assertThat(versions)
+                .extracting(ConfigurationVersion::name)
+                .containsExactly("v1.0.2", "v1.0.1", "v1.0.0");
+
+        Assertions.assertThat(versions)
+                .extracting(ConfigurationVersion::customName)
+                .containsOnlyNulls();
+    }
+
+    @Test
+    public void testListConfigurationVersions_existingConfigurationWithCustomNames_shouldReturnAllVersions() {
+        var configuration1 = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration1.setVersion(new ConfigurationVersion(null, null, "custom-name-1"));
+        var configuration2 = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration2.setVersion(new ConfigurationVersion(null, null, "custom-name-2"));
+        var configuration3 = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration3.setVersion(new ConfigurationVersion(null, null, "custom-name-3"));
+
+        configurationRepository.createConfiguration(TEST_CONFIGURATION_NAME);
+        configurationRepository.saveConfiguration(configuration1);
+        configurationRepository.saveConfiguration(configuration2);
+        configurationRepository.saveConfiguration(configuration3);
+
+        var versions = configurationRepository.listConfigurationVersions(TEST_CONFIGURATION_NAME);
+
+        Assertions.assertThat(versions)
+                .extracting(ConfigurationVersion::hash)
+                .allSatisfy(hash -> Assertions.assertThat(hash).hasSize(40));
+
+        Assertions.assertThat(versions)
+                .extracting(ConfigurationVersion::name)
+                .containsExactly("v1.0.2", "v1.0.1", "v1.0.0");
+
+        Assertions.assertThat(versions)
+                .extracting(ConfigurationVersion::customName)
+                .containsExactly("custom-name-3", "custom-name-2", "custom-name-1");
+    }
+
 
     private Path resolveTestConfigurationPath() {
         return resolveTestDirectoryPath(TEST_CONFIGURATION_NAME);

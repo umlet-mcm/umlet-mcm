@@ -286,6 +286,12 @@ public class GraphDBServiceImpl implements GraphDBService {
         val updatedNodes = new ArrayList<Node>();
         for (Node node : nodes) {
             if(nodesMap.containsKey(node.getId())) {
+                // Get relations
+                val relations = new HashSet<String>();
+                for (Relation relation : node.getRelations()) {
+                    relations.add(relation.getId());
+                }
+
                 // Update the node
                 val repositoryNode = nodesMap.get(node.getId());
                 nodeUpdater.updateNode(node, repositoryNode);
@@ -294,10 +300,16 @@ public class GraphDBServiceImpl implements GraphDBService {
                 updatedNodes.add(repositoryNode);
 
                 // Delete relation IDs
+                val relationsToDelete = new HashSet<Relation>();
                 for (Relation relation : repositoryNode.getRelations()) {
+                    if(!relations.contains(relation.getId())) {
+                        relationsToDelete.add(relation);
+                        continue;
+                    }
                     relation.setId(null);
                     relation.setMcmModelId(null);
                 }
+                repositoryNode.getRelations().removeAll(relationsToDelete);
             }
         }
         return updatedNodes;

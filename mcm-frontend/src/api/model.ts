@@ -12,7 +12,6 @@ const apiClient = axios.create({
 /**
  * Delete a model from a configuration
  * @param modelId the id of the model to delete
- * @param configId the id of the configuration the model belongs to
  */
 export const deleteModelFromConfig = async (modelId: string): Promise<void> => {
     try {

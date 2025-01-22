@@ -43,7 +43,10 @@ public class RelationDSLMapperImpl implements RelationDSLMapper {
         relationDSL.setTarget(targetDSL);
         relationDSL.setProperties(keyValuesDSLMapper.toObjectDSL(relation.getMcmAttributes()));
         relationDSL.setPropertiesInlineComments(keyValuesDSLMapper.toStringDSL(relation.getMcmAttributesInlineComments()));
-        relationDSL.setTags(relation.getTags());
+
+        if (relation.getTags() != null && !relation.getTags().isEmpty()) {
+            relationDSL.setTags(relation.getTags());
+        }
 
         PositionsDSL positionsDSL = new PositionsDSL();
         positionsDSL.setRelativeStartPoint(relativePositionDSLMapper.toDSL(relation.getRelativeStartPoint()));
@@ -82,7 +85,7 @@ public class RelationDSLMapperImpl implements RelationDSLMapper {
         relation.setPprType(relationDSL.getPprType());
         relation.setMcmAttributes(keyValuesDSLMapper.fromObjectDSL(relationDSL.getProperties()));
         relation.setMcmAttributesInlineComments(keyValuesDSLMapper.fromStringDSL(relationDSL.getPropertiesInlineComments()));
-        relation.setTags(relationDSL.getTags());
+        relation.setTags(relationDSL.getTags() == null ? Collections.emptyList() : relationDSL.getTags());
 
         Optional.ofNullable(relationDSL.getMetadata()).ifPresent(metadata -> {
             relation.setUmletPosition(coordinatesDSLMapper.fromDSL(metadata.getCoordinates()));

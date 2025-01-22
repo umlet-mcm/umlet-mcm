@@ -16,25 +16,41 @@ const functions = [
 ]
 
 const macros = [
-    {'ALL_NODES': 'MATCH (n) RETURN n'},
-    {'ALL_RELATIONS': 'MATCH ()-[r]->() RETURN r'},
-    {'ALL_LABELS': 'CALL db.labels()'},
-    {'ALL_REL_TYPES': 'CALL db.relationshipTypes()'},
-    {'FIND_BY_LABEL': 'MATCH (n:LabelName) RETURN n'},
-    {'FIND_BY_PROPERTY': 'MATCH (n) WHERE n.propertyName = "value" RETURN n'},
-    {'FIND_RELATED_NODES': 'MATCH (n)-[r:RELATION_TYPE]->(m) WHERE n.propertyName = "value" RETURN m'},
-    {'CREATE_NODE': 'CREATE (n:LabelName {propertyName: "value"}) RETURN n'},
-    {'CREATE_RELATION': 'MATCH (a:LabelA), (b:LabelB) WHERE a.propertyName = "value1" AND b.propertyName = "value2" CREATE (a)-[r:RELATION_TYPE]->(b) RETURN r'},
-    {'DELETE_NODE': 'MATCH (n:LabelName) WHERE n.propertyName = "value" DELETE n'},
-    {'DELETE_RELATION': 'MATCH ()-[r:RELATION_TYPE]->() DELETE r'},
-    {'COUNT_NODES': 'MATCH (n) RETURN COUNT(n)'},
-    {'COUNT_RELATIONS': 'MATCH ()-[r]->() RETURN COUNT(r)'},
-    {'FIND_SHORTEST_PATH': 'MATCH p = shortestPath((a)-[*]->(b)) WHERE a.propertyName = "value1" AND b.propertyName = "value2" RETURN p'},
-    {'GET_SCHEMA': 'CALL db.schema.visualization()'},
-    {'FIND_DUPLICATE_NODES': 'MATCH (n:LabelName) WITH n.propertyName AS key, COUNT(n) AS count WHERE count > 1 RETURN key, count'},
-    {'REMOVE_PROPERTY': 'MATCH (n:LabelName) REMOVE n.propertyName RETURN n'},
-    {'ADD_INDEX': 'CREATE INDEX index_name FOR (n:LabelName) ON (n.propertyName)'},
-    {'DROP_INDEX': 'DROP INDEX index_name'},
+    {'Get_everything': 'MATCH (n) RETURN n'},
+    {'Get_all_nodes': 'MATCH (n:Node) RETURN n'},
+    {'Get_all_models': 'MATCH (n:Model) RETURN n'},
+    {'Get_all_relations': 'MATCH ()-[r:RELATION]->() RETURN r'},
+    {'Get_all_labels': 'CALL db.labels()'},
+    {'Get_all_relationship_types': 'CALL db.relationshipTypes()'},
+    {'Get_database_schema': 'CALL db.schema.visualization()'},
+    {'Find_node_by_name': 'MATCH (n:Node) WHERE n["name"] CONTAINS "(part of) node-name" RETURN n'},
+    {'Find_node_by_user_defined_property (single value)': 'MATCH (n:Node) WHERE n["properties.propertyName"] = "value" RETURN n'},
+    {'Find_node_by_user_defined_property (list)': 'MATCH (n:Node) WHERE n["properties.propertyName"] CONTAINS "value" RETURN n'},
+    {'Find_node_by_Umlet_property (e.g. background)': 'MATCH (n:Node) WHERE n["umletProperties.bg"] = "#ffffff" RETURN n'},
+    {'Find_relation_by_name': 'MATCH ()-[r:RELATION]->() WHERE r["name"] CONTAINS "(part of) relation-name" RETURN r'},
+    {'Find_duplicate_nodes': 'MATCH (n:Node) WITH n["properties.propertyName"] AS key, COUNT(n) AS count WHERE count > 1 RETURN key, count'},
+    {'Find_shortest_path_between_two_nodes': 'MATCH p = shortestPath((a)-[*]->(b)) WHERE a["properties.propertyName"] = "value1" AND b["properties.propertyName"] = "value2" RETURN p'},
+    {'Count_everything': 'MATCH (n) RETURN COUNT(n)'},
+    {'Count_models': 'MATCH (m:Model) RETURN COUNT(m) as ModelCount'},
+    {'Count_nodes': 'MATCH (n:Node) RETURN COUNT(n) as NodeCount'},
+    {'Count_relations': 'MATCH ()-[r:RELATION]->() RETURN COUNT(r) as RelationCount'},
+    {'Sum_up_all_costs': 'CALL apoc.periodic.commit(\n' +
+            '\'MATCH (n)\n' +
+            'WHERE n["properties.cost"] = -1\n' +
+            'WITH n LIMIT $limit\n' +
+            'MATCH (n)<-[r:RELATION]-(predecessor)\n' +
+            'WITH n, COLLECT(predecessor) AS predecessors, COLLECT(r) AS relations\n' +
+            'WHERE ALL(predecessor IN predecessors WHERE predecessor["properties.cost"] <> -1)\n' +
+            'UNWIND range(0, size(predecessors) - 1) AS idx\n' +
+            'WITH n, predecessors[idx] AS predecessor, relations[idx] AS rel\n' +
+            'WITH n, SUM(predecessor["properties.cost"] * rel["properties.cost"]) AS summedCost\n' +
+            'SET n["properties.cost"] = summedCost\n' +
+            'RETURN COUNT(*)\',\n' +
+            '{limit: 1000}\n' +
+    ')'},
+    {'Remove_properties': 'MATCH (n:LabelName) REMOVE n["properties.propertyName"] RETURN n'},
+    {'Add_an_index': 'CREATE INDEX index_name FOR (n:LabelName) ON (n["properties.propertyName"])'},
+    {'Drop_an_index': 'DROP INDEX index_name'},
 ];
 
 export function cypherCompletion(context: CompletionContext): CompletionResult | null {

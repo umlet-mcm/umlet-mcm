@@ -55,9 +55,6 @@ r2pos=-63,30
 group=group-1</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>170</x><y>310</y><w>100</w><h>40</h></coordinates><panel_attributes>Machining
 Activity
 // PPR-Type: "GHG PPR Module Process Activity"
-// Id:
-// Version: 0.1
-// Tags:
 // BOP-Type: "Machining"
 // Number-of-activity-units: 1.0
 // Activity-UOM: "Process Cycle"

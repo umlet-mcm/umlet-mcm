@@ -1019,6 +1019,45 @@ public class ManagedRepositoryVersioningTest {
     }
 
     @Test
+    public void testListTagsForCommit_twoCommitsWithOneTagsEach_shouldAlwaysReturnCorrectTags() {
+        versioning.init();
+        var commitHash1 = versioning.commit("Test commit 1", true);
+        var commitHash2 = versioning.commit("Test commit 2", true);
+        var tag1 = "testTag1";
+        var tag2 = "testTag2";
+        versioning.tagCommit(commitHash1, tag1);
+        versioning.tagCommit(commitHash2, tag2);
+
+        Assertions.assertThat(versioning.listTagsForCommit(commitHash1)).containsExactly(tag1);
+        Assertions.assertThat(versioning.listTagsForCommit(commitHash2)).containsExactly(tag2);
+    }
+
+    @Test
+    public void testListTagsForCommit_multipleTagsOnDifferentCommits_shouldAlwaysReturnCorrectTags() {
+        var tag1 = "testTag1";
+        var tags3 = List.of("testTag2", "testTag3");
+        var tag4 = "testTag4";
+        var tags5 = List.of("testTag5", "testTag6", "testTag7", "testTag8", "testTag9");
+
+        versioning.init();
+        var commitHash1 = versioning.commit("Test commit 1", true);
+        var commitHash2 = versioning.commit("Test commit 2", true);
+        var commitHash3 = versioning.commit("Test commit 3", true);
+        var commitHash4 = versioning.commit("Test commit 4", true);
+        var commitHash5 = versioning.commit("Test commit 5", true);
+        versioning.tagCommit(commitHash1, tag1);
+        tags3.forEach(tag -> versioning.tagCommit(commitHash3, tag));
+        versioning.tagCommit(commitHash4, tag4);
+        tags5.forEach(tag -> versioning.tagCommit(commitHash5, tag));
+
+        Assertions.assertThat(versioning.listTagsForCommit(commitHash1)).containsExactly(tag1);
+        Assertions.assertThat(versioning.listTagsForCommit(commitHash2)).isEmpty();
+        Assertions.assertThat(versioning.listTagsForCommit(commitHash3)).containsExactlyElementsOf(tags3);
+        Assertions.assertThat(versioning.listTagsForCommit(commitHash4)).containsExactly(tag4);
+        Assertions.assertThat(versioning.listTagsForCommit(commitHash5)).containsExactlyElementsOf(tags5);
+    }
+
+    @Test
     public void testListTags_noTags_shouldReturnEmptyList() {
         versioning.init();
         Assertions.assertThat(versioning.listTags()).isEmpty();

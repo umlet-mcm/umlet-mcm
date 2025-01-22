@@ -1,6 +1,7 @@
 package at.ac.tuwien.model.change.management.git.operation;
 
 import at.ac.tuwien.model.change.management.core.model.Configuration;
+import at.ac.tuwien.model.change.management.core.model.ConfigurationVersion;
 import at.ac.tuwien.model.change.management.core.model.versioning.ModelDiff;
 import at.ac.tuwien.model.change.management.core.model.versioning.NodeDiff;
 import at.ac.tuwien.model.change.management.core.model.versioning.RelationDiff;
@@ -97,4 +98,27 @@ public interface ConfigurationRepositoryActions {
      * @param repository the repository to clear the configuration working directory of
      */
     void renameConfigurationRepository(@NonNull ManagedRepository repository, @NonNull String newName);
+
+    /**
+     * Get the metadata for the configuration version with the given version in the given repository
+     * Includes the commit hash, the auto-generated version name and the user-supplied version name if there is one
+     * Note that the version should exist in the repository.
+     * If it does not, a new {@link ConfigurationVersion} object will still be created but only the
+     * commit hash will be set to the version parameter.
+     *
+     * @param repository the repository to get the configuration version metadata from
+     * @param version    the version of the configuration to get the metadata for
+     *                   this should be a valid version in the repository
+     * @return the configuration version metadata
+     */
+    ConfigurationVersion getConfigurationVersionMetadata(@NonNull ManagedRepository repository, @NonNull String version);
+
+    /**
+     * List the metadata for all configuration versions in the given repository
+     * Includes the commit hash, the auto-generated version name and the user-supplied version name if there is one
+     *
+     * @param repository the repository to list the configuration version metadata from
+     * @return a list of configuration version metadata
+     */
+    List<ConfigurationVersion> getMetadataForAllConfigurationVersions(@NonNull ManagedRepository repository);
 }

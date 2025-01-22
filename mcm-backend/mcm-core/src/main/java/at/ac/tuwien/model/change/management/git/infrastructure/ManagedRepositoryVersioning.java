@@ -146,15 +146,18 @@ public class ManagedRepositoryVersioning {
             throw new RepositoryVersioningException("Cannot commit changes in uninitialized repository: " + name);
         }
 
-        // we want to update the HEAD, if HEAD and reference match
-        // because in that case we want to move both HEAD and reference
-        var headCommitId = resolveHead().orElse(ObjectId.zeroId());
-        var updateReferenceID = resolve(referenceToUpdate).orElse(ObjectId.zeroId());
-        var updateMatchesHead = updateReferenceID.getName().equals(headCommitId.getName());
-        var updateReference = updateMatchesHead ? Constants.HEAD : referenceToUpdate;
-        var parentCommit = updateMatchesHead
-                ? (headCommitId.equals(ObjectId.zeroId()) ? null : headCommitId)
-                : updateReferenceID;
+        String updateReference;
+        ObjectId parentCommit;
+
+        // if HEAD is attached to referenceToUpdate, we want to update HEAD rather than the reference directly
+        // this ensures that we don't enter detached HEAD state
+        if (headIsAttachedToRef(referenceToUpdate)) {
+            updateReference = Constants.HEAD;
+            parentCommit = resolveHead().orElse(null);
+        } else {
+            updateReference = referenceToUpdate;
+            parentCommit = resolveCommit(referenceToUpdate).orElse(null);
+        }
 
         log.debug("Committing changes with message '{}' in repository: {}", message, name);
         if (message.isBlank()) {
@@ -272,20 +275,62 @@ public class ManagedRepositoryVersioning {
     }
 
     /**
-     * Checkout a specific version of the repository.
+     * Checkout the supplied version
+     * or the branch at the supplied version if one exists.
+     * If there are multiple branches at the supplied version, `main` will be checked out
+     * <p>
+     * overloaded methods used mainly to maintain compatibility with caller
+     * can at some point refactor this to a more intuitive API
      *
      * @param version the version to `git checkout`
      */
     public void checkout(@NonNull String version) {
+        checkout(version, true, DEFAULT_BRANCH_REF);
+    }
+
+    /**
+     * Checkout a specific version of the repository.
+     *
+     * @param version         the version to `git checkout`
+     * @param attachToBranch  whether to try to attach to a branch at the specified version
+     *                        if set to true, the method will try to `git checkout` a branch with the specified name or
+     *                        at the specified commit hash before trying to `git checkout` a tag
+     * @param preferredBranch the preferred branch to `git checkout` if attachToBranch is set to true
+     *                        <p>
+     *                        if there are multiple branches at the resolved version String, the one
+     *                        supplied here will be checked out
+     *                        <p>
+     *                        if there is only one, the method will check out that branch regardless of this parameter
+     */
+    public void checkout(@NonNull String version, boolean attachToBranch, @Nullable String preferredBranch) {
         if (!isInitialized()) {
             throw new RepositoryVersioningException("Cannot checkout version in uninitialized repository: " + name);
         }
-
-        log.debug("Checking out version '{}' in repository: {}", version, name);
         try (var git = Git.wrap(repository)) {
+            log.debug("Checking out version '{}' in repository: {}", version, name);
+
+            // attempt to determine whether we are actually checking out the commit hash (thus detaching the HEAD)
+            // or checking out some branch that's at the commit hash
+            // all assuming of course that the version String isn't already a branch name - which should also work fine
+            String checkoutRef;
+            if (!attachToBranch) {
+                checkoutRef = version;
+            } else {
+                var branches = listBranches(version);
+                if (branches.size() > 1 && preferredBranch != null) {
+                    var preferredRef = findRef(preferredBranch);
+                    checkoutRef = preferredRef
+                            .map(Ref::getName)
+                            .filter(b -> branches.stream().anyMatch(br -> br.getName().equals(b)))
+                            .orElse(branches.getFirst().getName());
+                } else {
+                    checkoutRef = branches.isEmpty() ? version : branches.getFirst().getName();
+                }
+            }
+
             // setting forced=true, because any files in the working tree should immediately be committed after being written
             // so we should never be in a position where we are discarding changes
-            git.checkout().setForced(true).setName(version).call();
+            git.checkout().setForced(true).setName(checkoutRef).call();
             log.debug("Checked out version '{}' in repository: {}", version, name);
         } catch (GitAPIException e) {
             throw new RepositoryVersioningException("Failed to checkout version '" + version + "' in repository: " + name, e);
@@ -324,7 +369,7 @@ public class ManagedRepositoryVersioning {
         try (var git = Git.wrap(repository)) {
             log.debug("Tagging commit '{}' with tag '{}' in repository: {}", commit, tagName, name);
             git.tag().setObjectId(resolveCommit(commit)
-                    .orElseThrow(() -> new RepositoryVersioningException("Commit '" + commit + "' not found in repository: " + name)))
+                            .orElseThrow(() -> new RepositoryVersioningException("Commit '" + commit + "' not found in repository: " + name)))
                     .setName(tagName)
                     .call();
             log.debug("Tagged commit '{}' with tag '{}' in repository: {}", commit, tagName, name);
@@ -335,9 +380,10 @@ public class ManagedRepositoryVersioning {
 
     /**
      * List all tags in the repository.
+     *
      * @return a list of tag names in the repository
      */
-    public List<String> listTags(){
+    public List<String> listTags() {
         log.debug("Listing tags in repository: {}", name);
         if (!isInitialized()) {
             throw new RepositoryVersioningException("Cannot list tags in uninitialized repository: " + name);
@@ -349,6 +395,7 @@ public class ManagedRepositoryVersioning {
 
     /**
      * List all tags for a specific commit in the repository.
+     *
      * @param forCommit the commit to list tags for
      * @return a list of tag names for the specified commit in the repository
      */
@@ -365,49 +412,6 @@ public class ManagedRepositoryVersioning {
         return tags;
     }
 
-    private List<String> listTags(@Nullable ObjectId forCommit) {
-        try (var git = Git.wrap(repository)) {
-            var listTagsCommand = git.tagList();
-            if (forCommit != null) {
-                listTagsCommand.setContains(forCommit);
-            }
-            return listTagsCommand.call().stream()
-                    .map(Ref::getName)
-                    .map(this::stripTags)
-                    .toList();
-        } catch (GitAPIException e) {
-            throw new RepositoryVersioningException("Failed to list tags in repository: " + name, e);
-        } catch (IOException e) {
-            throw new RepositoryVersioningException("Failed to list tags in repository '" + name +
-                    "' for commit '" + forCommit.getName() + "'", e);
-        }
-    }
-
-    private String stripTags(String tagName) {
-        return tagName.replace(Constants.R_TAGS, "");
-    }
-
-    private Optional<ObjectId> resolveHead() {
-        return resolve(Constants.HEAD);
-    }
-
-    private Optional<RevCommit> resolveCommit(String id) {
-        return resolve(id).map(objectId -> {
-            try {
-                return repository.parseCommit(objectId);
-            } catch (IOException e) {
-                throw new RepositoryVersioningException("Failed to parse commit: " + id, e);
-            }
-        });
-    }
-
-    private Optional<ObjectId> resolve(String id) {
-        try {
-            return Optional.ofNullable(repository.resolve(id));
-        } catch (IOException e) {
-            throw new RepositoryVersioningException("Failed to resolve current version of repository: " + name, e);
-        }
-    }
 
     /*
      * Build a commit in the repository.
@@ -478,19 +482,6 @@ public class ManagedRepositoryVersioning {
         }
     }
 
-    private DirCache stageAll(boolean onlyStageFilesAlreadyTracked) {
-        return applyStagingAction(add -> add.addFilepattern(ALL_FILES_PATTERN).setUpdate(onlyStageFilesAlreadyTracked));
-    }
-
-    private DirCache applyStagingAction(Consumer<AddCommand> action) {
-        try {
-            var addCommand = new AddCommand(repository);
-            action.accept(addCommand);
-            return addCommand.call();
-        } catch (GitAPIException e) {
-            throw new RepositoryVersioningException("Failed to perform staging in repository: " + name, e);
-        }
-    }
 
     private CommitBuilder configureCommitBuilder(
             String message,
@@ -539,6 +530,99 @@ public class ManagedRepositoryVersioning {
             default:
                 throw new RepositoryVersioningException("Failed to update reference '" + referenceToUpdate +
                         "' in repository '" + name + "': " + JGitText.get().updatingRefFailed);
+        }
+    }
+
+    private List<String> listTags(@Nullable ObjectId forCommit) {
+        try (var git = Git.wrap(repository)) {
+            var listTagsCommand = git.tagList();
+            if (forCommit != null) {
+                listTagsCommand.setContains(forCommit);
+            }
+            return listTagsCommand.call().stream()
+                    .map(Ref::getName)
+                    .map(this::stripTags)
+                    .toList();
+        } catch (GitAPIException e) {
+            throw new RepositoryVersioningException("Failed to list tags in repository: " + name, e);
+        } catch (IOException e) {
+            throw new RepositoryVersioningException("Failed to list tags in repository '" + name +
+                    "' for commit '" + forCommit.getName() + "'", e);
+        }
+    }
+
+    private String stripTags(String tagName) {
+        return tagName.replace(Constants.R_TAGS, "");
+    }
+
+    private List<Ref> listBranches(@Nullable String atCommit) {
+        try (var git = Git.wrap(repository)) {
+            var listBranchesCommand = git.branchList();
+            return atCommit == null
+                    ? listBranchesCommand.call()
+                    // need to deliberately filter here since `setCommit` unfortunately includes
+                    // branches whose ancestors contain the given commit, not just those actually pointing to it
+                    : listBranchesCommand.setContains(atCommit).call().stream()
+                    .filter(ref -> {
+                        var objectId = ref.getLeaf().getObjectId();
+                        return objectId != null && objectId.getName().equals(atCommit);
+                    })
+                    .toList();
+        } catch (GitAPIException e) {
+            throw new RepositoryVersioningException("Failed to list branches in repository: " + name, e);
+        }
+    }
+
+    private Optional<ObjectId> resolveHead() {
+        return resolve(Constants.HEAD);
+    }
+
+    private Optional<RevCommit> resolveCommit(String id) {
+        return resolve(id).map(objectId -> {
+            try {
+                return repository.parseCommit(objectId);
+            } catch (IOException e) {
+                throw new RepositoryVersioningException("Failed to parse commit: " + id, e);
+            }
+        });
+    }
+
+    private Optional<ObjectId> resolve(String id) {
+        try {
+            return Optional.ofNullable(repository.resolve(id));
+        } catch (IOException e) {
+            throw new RepositoryVersioningException("Failed to resolve current version of repository: " + name, e);
+        }
+    }
+
+    private boolean headIsAttachedToRef(String refName) {
+        try {
+            if (refName == null) return false;
+            return Objects.equals(repository.getFullBranch(), refName) || Objects.equals(repository.getBranch(), refName);
+        } catch (IOException e) {
+            throw new RepositoryVersioningException("Failed to retrieve branch HEAD is attached to in repository: " + name, e);
+        }
+    }
+
+    private Optional<Ref> findRef(String refName) {
+        try {
+            return Optional.ofNullable(repository.findRef(refName));
+        } catch (IOException e) {
+            throw new RepositoryVersioningException("Failed to find reference linked to '" + refName + "' in repository: " + name, e);
+        }
+    }
+
+    private DirCache stageAll(boolean onlyStageFilesAlreadyTracked) {
+        return applyStagingAction(add -> add.addFilepattern(ALL_FILES_PATTERN).setUpdate(onlyStageFilesAlreadyTracked));
+    }
+
+    private DirCache applyStagingAction(Consumer<AddCommand> action) {
+        try {
+            var addCommand = new AddCommand(repository);
+            action.accept(addCommand);
+            return addCommand.call();
+        } catch (GitAPIException e) {
+            throw new RepositoryVersioningException("Failed to perform staging in repository: " + name, e);
         }
     }
 }

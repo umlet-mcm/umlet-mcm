@@ -29,6 +29,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.InstanceOfAssertFactories.STRING;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -323,14 +324,67 @@ public class ConfigurationControllerIntegrationTest {
     }
 
     @Test
-    public void testListConfigurationVersions_nonExistingConfiguration_shouldReturnEmptyList() throws Exception {
+    public void testListConfigurationVersions_nonExistingConfiguration_shouldReturnNotFound() throws Exception {
+        mockMvc.perform(get(BASE_URL + "/" + TEST_CONFIGURATION_NAME + "/versions"))
+                .andExpect(status().isNotFound());
+    }
 
-        var result = mockMvc.perform(get(BASE_URL + "/" + TEST_CONFIGURATION_NAME + "/versions"))
+    @Test
+    public void testListConfigurationVersions_existingConfigurationWithVersion_shouldReturnVersion() throws Exception {
+        var originalConfiguration = DtoGen.generateRandomizedConfigurationDTO(TEST_CONFIGURATION_NAME, 0, 0, 0);
+        var configurationJson = jsonify(originalConfiguration);
+
+        var resultCreate = mockMvc.perform(post(BASE_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(configurationJson))
+                .andExpect(status().isOk())
+                .andReturn();
+        var createdConfiguration = deserialize(resultCreate, ConfigurationDTO.class);
+
+        var result = mockMvc.perform(get(BASE_URL + "/" + createdConfiguration.name() + "/versions"))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        var foundVersions = deserialize(result, String[].class);
-        Assertions.assertThat(foundVersions).isEmpty();
+        var foundVersions = deserialize(result, ConfigurationVersionDTO[].class);
+        Assertions.assertThat(foundVersions).singleElement().extracting(ConfigurationVersionDTO::hash, STRING).hasSize(40);
+        Assertions.assertThat(foundVersions).singleElement().extracting(ConfigurationVersionDTO::name, STRING).isEqualTo("v1.0.0");
+        Assertions.assertThat(foundVersions).singleElement().extracting(ConfigurationVersionDTO::customName).isNull();
+    }
+
+    @Test
+    public void testListConfigurationVersions_existingConfigurationWithTwoVersions_shouldReturnVersions() throws Exception {
+        var originalConfiguration = DtoGen.generateRandomizedConfigurationDTO(TEST_CONFIGURATION_NAME, 0, 0, 0);
+        var originalConfigurationJson = jsonify(originalConfiguration);
+
+        var resultCreate = mockMvc.perform(post(BASE_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(originalConfigurationJson))
+                .andExpect(status().isOk())
+                .andReturn();
+        var createdConfiguration = deserialize(resultCreate, ConfigurationDTO.class);
+
+        var newConfiguration = DtoGen.generateRandomizedConfigurationDTO(TEST_CONFIGURATION_NAME, createdConfiguration.version().hash(), 2, 5, 0);
+        var newConfigurationJson = jsonify(newConfiguration);
+
+        mockMvc.perform(put(BASE_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(newConfigurationJson))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        var result = mockMvc.perform(get(BASE_URL + "/" + createdConfiguration.name() + "/versions"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        var foundVersions = deserialize(result, ConfigurationVersionDTO[].class);
+        Assertions.assertThat(foundVersions).hasSize(2)
+                .allSatisfy(version -> Assertions.assertThat(version.hash()).hasSize(40));
+
+        Assertions.assertThat(foundVersions).extracting(ConfigurationVersionDTO::name)
+                .containsExactly("v1.0.1", "v1.0.0");
+
+        Assertions.assertThat(foundVersions).extracting(ConfigurationVersionDTO::customName)
+                .containsOnlyNulls();
     }
 
     @Test

@@ -1,6 +1,7 @@
 package at.ac.tuwien.model.change.management.git.repository;
 
 import at.ac.tuwien.model.change.management.core.model.Configuration;
+import at.ac.tuwien.model.change.management.core.model.ConfigurationVersion;
 import at.ac.tuwien.model.change.management.core.model.versioning.ModelDiff;
 import at.ac.tuwien.model.change.management.core.model.versioning.NodeDiff;
 import at.ac.tuwien.model.change.management.core.model.versioning.RelationDiff;
@@ -137,6 +138,19 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
             var configurationComparison = repositoryActions.compareConfigurationVersions(repository, oldVersion, newVersion, includeUnchanged);
             log.info("Created comparison of versions '{}' and '{}' for configuration '{}'.", oldVersion, newVersion, name);
             return configurationComparison;
+        });
+    }
+
+    @Override
+    public List<ConfigurationVersion> listConfigurationVersions(@NonNull String name) {
+        log.debug("Listing versions of configuration '{}'.", name);
+        return repositoryManager.withRepository(name, repository -> {
+            if (!repository.exists()) {
+                throw new RepositoryDoesNotExistException("Repository for configuration '" + name + "' does not exist.");
+            }
+            var versions = repositoryActions.getMetadataForAllConfigurationVersions(repository);
+            log.info("Listed {} versions of configuration '{}'.", versions.size(), name);
+            return versions;
         });
     }
 

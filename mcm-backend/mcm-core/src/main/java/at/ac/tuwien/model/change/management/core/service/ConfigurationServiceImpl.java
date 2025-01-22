@@ -2,6 +2,7 @@ package at.ac.tuwien.model.change.management.core.service;
 
 import at.ac.tuwien.model.change.management.core.exception.*;
 import at.ac.tuwien.model.change.management.core.model.Configuration;
+import at.ac.tuwien.model.change.management.core.model.ConfigurationVersion;
 import at.ac.tuwien.model.change.management.core.model.versioning.BaseAttributesDiff;
 import at.ac.tuwien.model.change.management.core.utils.ConfigurationProcessor;
 import at.ac.tuwien.model.change.management.core.utils.ConfigurationUtils;
@@ -44,11 +45,22 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             }
 
             return savedConfiguration;
-        } catch (RepositoryAlreadyExistsException e) {
-            throw new ConfigurationAlreadyExistsException("Configuration with name '" + configuration.getName() + "' already exists.", e);
-        } catch (RepositoryAccessException e) {
-            // repository really should exist at this point
-            throw new ConfigurationCreateException("Failed to create configuration with name '" + configuration.getName() + "'.", e);
+        } catch (Exception e) {
+            // attempt rollback - delete repository if it was created
+            try {
+                configurationRepository.deleteConfiguration(configuration.getName());
+            } catch (Exception ex) {
+                log.error("Failed to rollback creation of configuration '{}'", configuration.getName(), ex);
+            }
+
+            if (e instanceof RepositoryAlreadyExistsException) {
+                throw new ConfigurationAlreadyExistsException("Configuration with name '" + configuration.getName() + "' already exists.", e);
+            }
+            if (e instanceof RepositoryAccessException) {
+                throw new ConfigurationCreateException("Failed to create configuration with name '" + configuration.getName() + "'.", e);
+            }
+
+            throw e;
         }
     }
 
@@ -162,13 +174,15 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     @Override
-    public List<String> listConfigurationVersions(@NonNull String configurationName) {
+    public List<ConfigurationVersion> listConfigurationVersions(@NonNull String configurationName) {
         try {
             log.debug("Listing all versions of configuration '{}'.", configurationName);
             var sanitizedName = ConfigurationUtils.sanitizeConfigurationName(configurationName);
-            var versions = versionControlRepository.listVersions(sanitizedName);
+            var versions = configurationRepository.listConfigurationVersions(sanitizedName);
             log.info("Listed {} versions of configuration '{}'.", versions.size(), sanitizedName);
             return versions;
+        } catch (RepositoryDoesNotExistException e) {
+            throw new ConfigurationDoesNotExistException("Could not list versions because configuration '" + configurationName + "' was not found.", e);
         } catch (RepositoryAccessException e) {
             throw new ConfigurationGetException("Failed to list all versions of configuration '" + configurationName + "'.", e);
         }

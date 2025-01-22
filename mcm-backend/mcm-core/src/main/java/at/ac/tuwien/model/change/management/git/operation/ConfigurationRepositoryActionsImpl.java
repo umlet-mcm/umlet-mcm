@@ -147,6 +147,28 @@ public class ConfigurationRepositoryActionsImpl implements ConfigurationReposito
         log.info("Renamed repository '{}' to '{}'", repository.getName(), newName);
     }
 
+    @Override
+    public ConfigurationVersion getConfigurationVersionMetadata(@NonNull ManagedRepository repository, @NonNull String version) {
+        log.debug("Getting metadata for configuration version '{}' in repository: {}", version, repository.getName());
+        var tags = repository.versioning().listTagsForCommit(version);
+        var generatedName = findName(tags, true);
+        var customName = findName(tags, false);
+        var configurationVersion = new ConfigurationVersion(version, generatedName, customName);
+        log.debug("Got metadata for configuration version '{}' in repository: {}", version, repository.getName());
+        return configurationVersion;
+    }
+
+    @Override
+    public List<ConfigurationVersion> getMetadataForAllConfigurationVersions(@NonNull ManagedRepository repository) {
+        log.debug("Getting metadata for all configuration versions in repository: {}", repository.getName());
+        var versions = repository.versioning().listVersions();
+        var metadata = versions.stream()
+                .map(version -> getConfigurationVersionMetadata(repository, version))
+                .toList();
+        log.debug("Got metadata for all {} configuration versions in repository: {}", metadata.size(), repository.getName());
+        return metadata;
+    }
+
     private Set<ManagedRepositoryFile> generateRepositoryFiles(
             ConfigurationContents<DSLElement<Model>, DSLElement<Node>, DSLElement<Relation>> configurationContents
     ) {

@@ -130,6 +130,42 @@ public class ConfigurationServiceTest {
     }
 
     @Test
+    public void testCreateConfiguration_saveThrowsException_shouldAttemptRollbackByDeletingConfiguration() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        doThrow(new RuntimeException()).when(configurationRepository).saveConfiguration(configuration);
+
+        Assertions.assertThatThrownBy(() -> configurationService.createConfiguration(configuration, false))
+                .isInstanceOf(RuntimeException.class);
+
+        verify(configurationRepository).deleteConfiguration(TEST_CONFIGURATION_NAME);
+    }
+
+    @Test
+    public void testCreateConfiguration_createThrowsException_shouldAttemptRollbackByDeletingConfiguration() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        doThrow(new RuntimeException()).when(configurationRepository).createConfiguration(TEST_CONFIGURATION_NAME);
+
+        Assertions.assertThatThrownBy(() -> configurationService.createConfiguration(configuration, false))
+                .isInstanceOf(RuntimeException.class);
+
+        verify(configurationRepository).deleteConfiguration(TEST_CONFIGURATION_NAME);
+    }
+
+    @Test
+    public void testCreateConfiguration_saveThrowsException_thenDeleteAgainThrowsException_shouldStillPropagateOriginalException() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        doThrow(new RepositoryAccessException("")).when(configurationRepository).saveConfiguration(configuration);
+        doThrow(new RuntimeException()).when(configurationRepository).deleteConfiguration(TEST_CONFIGURATION_NAME);
+
+        Assertions.assertThatThrownBy(() -> configurationService.createConfiguration(configuration, false))
+                .isInstanceOf(ConfigurationCreateException.class)
+                .cause()
+                .isInstanceOf(RepositoryAccessException.class);
+
+        verify(configurationRepository).deleteConfiguration(TEST_CONFIGURATION_NAME);
+    }
+
+    @Test
     public void testUpdateConfiguration_emptyConfiguration_shouldUpdateConfiguration() {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
         configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
@@ -163,11 +199,11 @@ public class ConfigurationServiceTest {
     }
 
     @Test
-    public void testUpdateConfiguration_updateThrowsConfigurationDoesNotExistException_shouldThrowConfigurationDoesNotExistException() {
+    public void testUpdateConfiguration_updateThrowsRepositoryDoesNotExistException_shouldThrowConfigurationDoesNotExistException() {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
         configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
 
-        when(configurationRepository.saveConfiguration(configuration)).thenThrow(new ConfigurationDoesNotExistException(""));
+        when(configurationRepository.saveConfiguration(configuration)).thenThrow(new RepositoryDoesNotExistException(""));
 
         Assertions.assertThatThrownBy(() -> configurationService.updateConfiguration(configuration, false))
                 .isInstanceOf(ConfigurationDoesNotExistException.class);
@@ -391,18 +427,30 @@ public class ConfigurationServiceTest {
 
     @Test
     public void testListConfigurationVersions_existingConfiguration_shouldReturnVersions() {
-        var versions = List.of("1.0.0", "1.1.0", "1.2.0");
-        when(versionControlRepository.listVersions(TEST_CONFIGURATION_NAME)).thenReturn(versions);
+        var versions = List.of(
+                new ConfigurationVersion("1.0.0", null, null),
+                new ConfigurationVersion("1.1.0", null, null),
+                new ConfigurationVersion("1.2.0", null, null)
+        );
+        when(configurationRepository.listConfigurationVersions(TEST_CONFIGURATION_NAME)).thenReturn(versions);
 
         var retrievedVersions = configurationService.listConfigurationVersions(TEST_CONFIGURATION_NAME);
 
         Assertions.assertThat(retrievedVersions).containsExactlyInAnyOrderElementsOf(versions);
-        verify(versionControlRepository).listVersions(TEST_CONFIGURATION_NAME);
+        verify(configurationRepository).listConfigurationVersions(TEST_CONFIGURATION_NAME);
+    }
+
+    @Test
+    public void testListConfigurationVersions_nonExistingConfiguration_shouldThrowConfigurationDoesNotExistException() {
+        doThrow(new RepositoryDoesNotExistException("")).when(configurationRepository).listConfigurationVersions(TEST_CONFIGURATION_NAME);
+
+        Assertions.assertThatThrownBy(() -> configurationService.listConfigurationVersions(TEST_CONFIGURATION_NAME))
+                .isInstanceOf(ConfigurationDoesNotExistException.class);
     }
 
     @Test
     public void testListConfigurationVersions_findAllConfigurationsThrowsRepositoryAccessException_shouldThrowConfigurationGetException() {
-        when(versionControlRepository.listVersions(TEST_CONFIGURATION_NAME)).thenThrow(new RepositoryAccessException(TEST_CONFIGURATION_NAME));
+        when(configurationRepository.listConfigurationVersions(TEST_CONFIGURATION_NAME)).thenThrow(new RepositoryAccessException(TEST_CONFIGURATION_NAME));
 
         Assertions.assertThatThrownBy(() -> configurationService.listConfigurationVersions(TEST_CONFIGURATION_NAME))
                 .isInstanceOf(ConfigurationGetException.class);
@@ -414,7 +462,7 @@ public class ConfigurationServiceTest {
         var newVersion = "1.1.0";
         var includeUnchanged = true;
 
-        doThrow(new ConfigurationDoesNotExistException("")).when(configurationRepository).compareConfigurationVersions(TEST_CONFIGURATION_NAME, oldVersion, newVersion, includeUnchanged);
+        doThrow(new RepositoryDoesNotExistException("")).when(configurationRepository).compareConfigurationVersions(TEST_CONFIGURATION_NAME, oldVersion, newVersion, includeUnchanged);
 
         Assertions.assertThatThrownBy(() -> configurationService.compareConfigurationVersions(TEST_CONFIGURATION_NAME, oldVersion, newVersion, includeUnchanged))
                 .isInstanceOf(ConfigurationDoesNotExistException.class);

@@ -19,7 +19,7 @@ This section contains all documentation related to the code behavior of the appl
 
 ### Attribute Conventions
 
-The custom attributes stored in the uxf files follow strict conventions. The most up-to-date information is available on [TU Colab](https://colab.tuwien.ac.at/display/SE/Conventions+for+element+properties). 
+The custom attributes stored in the uxf files follow strict conventions. The most up-to-date information is available on [TU Colab](https://colab.tuwien.ac.at/display/SE/How+to+create+properties). 
 
 ### [Versioning](docs/model_versioning.md)
 Find the code documentation about versioning packages and modules in this section.

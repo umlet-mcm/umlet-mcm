@@ -69,11 +69,22 @@ public class Relation extends ElementAttributes {
         }
         Relation r = new Relation();
 
-        String lt = source.getUmletAttributes().get(AttributeKeys.LINE_TYPE);
-        lt = lt == null ? "-" : lt; // default to "-" if the line type was missing
+        r.setUmletAttributes(new LinkedHashMap<>());
+        if (source.getUmletAttributes() != null) {
+            r.getUmletAttributes().putAll(source.getUmletAttributes());
+        }
+        String lt = null;
+        if (source.getUmletAttributes() != null) {
+            lt = source.getUmletAttributes().get(AttributeKeys.LINE_TYPE);
+        }
+        if (lt == null) {
+            // default to "-" if the line type was missing
+            lt = "-";
+            r.getUmletAttributes().put(AttributeKeys.LINE_TYPE, lt);
+        }
+
         r.setType(lt);
         r.setUmletPosition(source.getUmletPosition());
-        r.setUmletAttributes(new LinkedHashMap<>(source.getUmletAttributes()));
         r.setId(source.getId());
         r.setTags(source.getTags());
         r.setMcmModel(source.getMcmModel());

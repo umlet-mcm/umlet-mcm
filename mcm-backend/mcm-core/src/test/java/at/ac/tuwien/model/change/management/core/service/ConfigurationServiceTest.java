@@ -35,6 +35,9 @@ public class ConfigurationServiceTest {
     @Mock
     private GraphDBService graphDBService;
 
+    @Mock
+    private NameValidationService nameValidationService;
+
     @InjectMocks
     private ConfigurationServiceImpl configurationService;
 
@@ -166,6 +169,15 @@ public class ConfigurationServiceTest {
     }
 
     @Test
+    public void testCreateConfiguration_nameValidationThrowsInvalidNameException_shouldThrowConfigurationValidationException() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        doThrow(new InvalidNameException("")).when(nameValidationService).validateRepositoryName(TEST_CONFIGURATION_NAME);
+
+        Assertions.assertThatThrownBy(() -> configurationService.createConfiguration(configuration, false))
+                .isInstanceOf(ConfigurationValidationException.class);
+    }
+
+    @Test
     public void testUpdateConfiguration_emptyConfiguration_shouldUpdateConfiguration() {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
         configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
@@ -257,6 +269,33 @@ public class ConfigurationServiceTest {
     }
 
     @Test
+    public void testUpdateConfiguration_nameValidationThrowsInvalidNameException_shouldThrowConfigurationValidationException() {
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
+
+        doThrow(new InvalidNameException("")).when(nameValidationService).validateRepositoryName(TEST_CONFIGURATION_NAME);
+
+        Assertions.assertThatThrownBy(() -> configurationService.updateConfiguration(configuration, false))
+                .isInstanceOf(ConfigurationValidationException.class);
+    }
+
+    @Test
+    public void testUpdateConfiguration_versionWithCustomName_shouldEncodeAndDecodeCustomName() {
+        var customName = "customName";
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, customName));
+
+        when(configurationRepository.saveConfiguration(configuration)).thenReturn(configuration);
+        when(nameValidationService.encodeVersionName(customName, true)).thenReturn(customName);
+        when(nameValidationService.decodeVersionName(customName)).thenReturn(customName);
+
+        configurationService.updateConfiguration(configuration, false);
+
+        verify(nameValidationService).encodeVersionName(customName, true);
+        verify(nameValidationService).decodeVersionName(customName);
+    }
+
+    @Test
     public void testDeleteConfiguration_shouldDeleteConfiguration() {
         configurationService.deleteConfiguration(TEST_CONFIGURATION_NAME);
 
@@ -269,6 +308,14 @@ public class ConfigurationServiceTest {
 
         Assertions.assertThatThrownBy(() -> configurationService.deleteConfiguration(TEST_CONFIGURATION_NAME))
                 .isInstanceOf(ConfigurationDeleteException.class);
+    }
+
+    @Test
+    public void testDeleteConfiguration_nameValidationThrowsInvalidNameException_shouldThrowConfigurationValidationException() {
+        doThrow(new InvalidNameException("")).when(nameValidationService).validateRepositoryName(TEST_CONFIGURATION_NAME);
+
+        Assertions.assertThatThrownBy(() -> configurationService.deleteConfiguration(TEST_CONFIGURATION_NAME))
+                .isInstanceOf(ConfigurationValidationException.class);
     }
 
     @Test
@@ -330,12 +377,35 @@ public class ConfigurationServiceTest {
         verifyNoInteractions(graphDBService);
     }
 
+    @Test
+    public void testGetConfigurationByName_nameValidationThrowsInvalidNameException_shouldThrowConfigurationValidationException() {
+        doThrow(new InvalidNameException("")).when(nameValidationService).validateRepositoryName(TEST_CONFIGURATION_NAME);
+
+        Assertions.assertThatThrownBy(() -> configurationService.getConfigurationByName(TEST_CONFIGURATION_NAME, false))
+                .isInstanceOf(ConfigurationValidationException.class);
+    }
+
+    @Test
+    public void testGetConfigurationByName_versionWithCustomName_shouldEncodeAndDecodeCustomName() {
+        var customName = "customName";
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, customName));
+
+        when(configurationRepository.findCurrentVersionOfConfigurationByName(TEST_CONFIGURATION_NAME)).thenReturn(Optional.of(configuration));
+        when(nameValidationService.decodeVersionName(customName)).thenReturn(customName);
+
+        configurationService.getConfigurationByName(TEST_CONFIGURATION_NAME, false);
+
+        verify(nameValidationService).decodeVersionName(customName);
+    }
 
     @Test
     public void testGetConfigurationVersion_existingConfigurationVersion_shouldReturnConfiguration() {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
         configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
+
         when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
+        when(nameValidationService.encodeVersionName(TEST_CONFIGURATION_VERSION, true)).thenReturn(TEST_CONFIGURATION_VERSION);
 
         var retrievedConfiguration = configurationService.getConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false);
 
@@ -349,6 +419,7 @@ public class ConfigurationServiceTest {
     @Test
     public void testGetConfigurationVersion_nonExistingConfigurationVersion_shouldThrowConfigurationNotFoundException() {
         when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.empty());
+        when(nameValidationService.encodeVersionName(TEST_CONFIGURATION_VERSION, true)).thenReturn(TEST_CONFIGURATION_VERSION);
 
         Assertions.assertThatThrownBy(() -> configurationService.getConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false))
                 .isInstanceOf(ConfigurationNotFoundException.class);
@@ -357,6 +428,7 @@ public class ConfigurationServiceTest {
     @Test
     public void testGetConfigurationVersion_findSpecifiedVersionThrowsRepositoryAccessException_shouldThrowConfigurationGetException() {
         when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenThrow(new RepositoryAccessException(TEST_CONFIGURATION_NAME));
+        when(nameValidationService.encodeVersionName(TEST_CONFIGURATION_VERSION, true)).thenReturn(TEST_CONFIGURATION_VERSION);
 
         Assertions.assertThatThrownBy(() -> configurationService.getConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false))
                 .isInstanceOf(ConfigurationGetException.class);
@@ -366,7 +438,9 @@ public class ConfigurationServiceTest {
     public void testGetConfigurationVersion_loadIntoGraphDBFalse_shouldNotLoadIntoGraphDB() {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
         configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
+
         when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
+        when(nameValidationService.encodeVersionName(TEST_CONFIGURATION_VERSION, true)).thenReturn(TEST_CONFIGURATION_VERSION);
 
         configurationService.getConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false);
 
@@ -378,6 +452,7 @@ public class ConfigurationServiceTest {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
         configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
         when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
+        when(nameValidationService.encodeVersionName(TEST_CONFIGURATION_VERSION, true)).thenReturn(TEST_CONFIGURATION_VERSION);
 
         configurationService.getConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, true);
 
@@ -389,10 +464,35 @@ public class ConfigurationServiceTest {
         var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
         configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
         when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
+        when(nameValidationService.encodeVersionName(TEST_CONFIGURATION_VERSION, true)).thenReturn(TEST_CONFIGURATION_VERSION);
 
         configurationService.getConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION);
 
         verifyNoInteractions(graphDBService);
+    }
+
+    @Test
+    public void testGetConfigurationVersion_nameValidationThrowsInvalidNameException_shouldThrowConfigurationValidationException() {
+        doThrow(new InvalidNameException("")).when(nameValidationService).validateRepositoryName(TEST_CONFIGURATION_NAME);
+
+        Assertions.assertThatThrownBy(() -> configurationService.getConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false))
+                .isInstanceOf(ConfigurationValidationException.class);
+    }
+
+    @Test
+    public void testGetConfigurationVersion_versionWithCustomName_shouldEncodeAndDecodeCustomName() {
+        var customName = "customName";
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, customName));
+
+        when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, customName)).thenReturn(Optional.of(configuration));
+        when(nameValidationService.encodeVersionName(customName, true)).thenReturn(customName);
+        when(nameValidationService.decodeVersionName(customName)).thenReturn(customName);
+
+        configurationService.getConfigurationVersion(TEST_CONFIGURATION_NAME, customName, false);
+
+        verify(nameValidationService).encodeVersionName(customName, true);
+        verify(nameValidationService).decodeVersionName(customName);
     }
 
     @Test
@@ -423,6 +523,20 @@ public class ConfigurationServiceTest {
 
         Assertions.assertThatThrownBy(() -> configurationService.getAllConfigurations())
                 .isInstanceOf(ConfigurationGetException.class);
+    }
+
+    @Test
+    public void testGetAllConfigurations_configurationWithCustomName_shouldDecodeCustomName() {
+        var customName = "customName";
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, customName));
+
+        when(configurationRepository.findAllConfigurations()).thenReturn(List.of(configuration));
+        when(nameValidationService.decodeVersionName(customName)).thenReturn(customName);
+
+        configurationService.getAllConfigurations();
+
+        verify(nameValidationService).decodeVersionName(customName);
     }
 
     @Test
@@ -457,11 +571,35 @@ public class ConfigurationServiceTest {
     }
 
     @Test
+    public void testListConfigurationVersions_nameValidationThrowsInvalidNameException_shouldThrowConfigurationValidationException() {
+        doThrow(new InvalidNameException("")).when(nameValidationService).validateRepositoryName(TEST_CONFIGURATION_NAME);
+
+        Assertions.assertThatThrownBy(() -> configurationService.listConfigurationVersions(TEST_CONFIGURATION_NAME))
+                .isInstanceOf(ConfigurationValidationException.class);
+    }
+
+    @Test
+    public void testListConfigurationVersions_versionWithCustomName_shouldDecodeCustomName() {
+        var customName = "customName";
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, customName));
+
+        when(configurationRepository.listConfigurationVersions(TEST_CONFIGURATION_NAME)).thenReturn(List.of(configuration.getVersion()));
+        when(nameValidationService.decodeVersionName(customName)).thenReturn(customName);
+
+        configurationService.listConfigurationVersions(TEST_CONFIGURATION_NAME);
+
+        verify(nameValidationService).decodeVersionName(customName);
+    }
+
+    @Test
     public void testCompareConfigurationVersions_nonExistingConfiguration_shouldThrowConfigurationDoesNotExistException() {
         var oldVersion = "1.0.0";
         var newVersion = "1.1.0";
         var includeUnchanged = true;
 
+        when(nameValidationService.encodeVersionName(oldVersion, true)).thenReturn(oldVersion);
+        when(nameValidationService.encodeVersionName(newVersion, true)).thenReturn(newVersion);
         doThrow(new RepositoryDoesNotExistException("")).when(configurationRepository).compareConfigurationVersions(TEST_CONFIGURATION_NAME, oldVersion, newVersion, includeUnchanged);
 
         Assertions.assertThatThrownBy(() -> configurationService.compareConfigurationVersions(TEST_CONFIGURATION_NAME, oldVersion, newVersion, includeUnchanged))
@@ -474,6 +612,7 @@ public class ConfigurationServiceTest {
         var newVersion = "1.1.0";
         var includeUnchanged = true;
 
+
         var modelDiffs = List.of(new ModelDiff(new Model(), "UNCHANGED", "diff"), new ModelDiff(new Model(), "ADD", "diff"));
         var nodeDiffs = List.of(new NodeDiff(new Node(), "DELETE", "diff"), new NodeDiff(new Node(), "MODIFY", "diff"));
         var relationDiffs = List.of(new RelationDiff(new Relation(), "UNCHANGED", "diff"), new RelationDiff(new Relation(), "ADD", "diff"));
@@ -484,6 +623,8 @@ public class ConfigurationServiceTest {
         diffs.setRelations(new HashSet<>(relationDiffs));
 
         when(configurationRepository.compareConfigurationVersions(TEST_CONFIGURATION_NAME, oldVersion, newVersion, includeUnchanged)).thenReturn(diffs);
+        when(nameValidationService.encodeVersionName(oldVersion, true)).thenReturn(oldVersion);
+        when(nameValidationService.encodeVersionName(newVersion, true)).thenReturn(newVersion);
 
         var retrievedDiffs = configurationService.compareConfigurationVersions(TEST_CONFIGURATION_NAME, oldVersion, newVersion, includeUnchanged);
         Assertions.assertThat(retrievedDiffs).containsExactlyInAnyOrderElementsOf(
@@ -499,9 +640,39 @@ public class ConfigurationServiceTest {
         var includeUnchanged = true;
 
         when(configurationRepository.compareConfigurationVersions(TEST_CONFIGURATION_NAME, oldVersion, newVersion, includeUnchanged)).thenThrow(new RepositoryAccessException(TEST_CONFIGURATION_NAME));
+        when(nameValidationService.encodeVersionName(oldVersion, true)).thenReturn(oldVersion);
+        when(nameValidationService.encodeVersionName(newVersion, true)).thenReturn(newVersion);
 
         Assertions.assertThatThrownBy(() -> configurationService.compareConfigurationVersions(TEST_CONFIGURATION_NAME, oldVersion, newVersion, includeUnchanged))
                 .isInstanceOf(ConfigurationComparisonException.class);
+    }
+
+    @Test
+    public void testCompareConfigurationVersions_nameValidationThrowsInvalidNameException_shouldThrowConfigurationValidationException() {
+        var oldVersion = "1.0.0";
+        var newVersion = "1.1.0";
+        var includeUnchanged = true;
+
+        doThrow(new InvalidNameException("")).when(nameValidationService).validateRepositoryName(TEST_CONFIGURATION_NAME);
+
+        Assertions.assertThatThrownBy(() -> configurationService.compareConfigurationVersions(TEST_CONFIGURATION_NAME, oldVersion, newVersion, includeUnchanged))
+                .isInstanceOf(ConfigurationValidationException.class);
+    }
+
+    @Test
+    public void testCompareConfigurationVersions_versionsWithCustomName_shouldEncodeCustomNames() {
+        var customOldVersion = "customOldVersion";
+        var customNewVersion = "customNewVersion";
+        var diffs = new ConfigurationContents<ModelDiff, NodeDiff, RelationDiff>();
+
+        when(configurationRepository.compareConfigurationVersions(TEST_CONFIGURATION_NAME, customOldVersion, customNewVersion, true)).thenReturn(diffs);
+        when(nameValidationService.encodeVersionName(customOldVersion, true)).thenReturn(customOldVersion);
+        when(nameValidationService.encodeVersionName(customNewVersion, true)).thenReturn(customNewVersion);
+
+        configurationService.compareConfigurationVersions(TEST_CONFIGURATION_NAME, customOldVersion, customNewVersion, true);
+
+        verify(nameValidationService).encodeVersionName(customOldVersion, true);
+        verify(nameValidationService).encodeVersionName(customNewVersion, true);
     }
 
     @Test
@@ -510,6 +681,7 @@ public class ConfigurationServiceTest {
         configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
 
         when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
+        when(nameValidationService.encodeVersionName(TEST_CONFIGURATION_VERSION, true)).thenReturn(TEST_CONFIGURATION_VERSION);
 
         var retrievedConfiguration = configurationService.checkoutConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false);
 
@@ -525,6 +697,8 @@ public class ConfigurationServiceTest {
     public void testCheckoutConfigurationVersion_nonExistingConfigurationVersion_shouldThrowConfigurationDoesNotExistException() {
         doThrow(new RepositoryDoesNotExistException("")).when(versionControlRepository).checkoutVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION);
 
+        when(nameValidationService.encodeVersionName(TEST_CONFIGURATION_VERSION, true)).thenReturn(TEST_CONFIGURATION_VERSION);
+
         Assertions.assertThatThrownBy(() -> configurationService.checkoutConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false))
                 .isInstanceOf(ConfigurationDoesNotExistException.class);
     }
@@ -532,6 +706,8 @@ public class ConfigurationServiceTest {
     @Test
     public void testCheckoutConfigurationVersion_checkoutVersionThrowsRepositoryAccessException_shouldThrowConfigurationCheckoutException() {
         doThrow(new RepositoryAccessException(TEST_CONFIGURATION_NAME)).when(versionControlRepository).checkoutVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION);
+
+        when(nameValidationService.encodeVersionName(TEST_CONFIGURATION_VERSION, true)).thenReturn(TEST_CONFIGURATION_VERSION);
 
         Assertions.assertThatThrownBy(() -> configurationService.checkoutConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false))
                 .isInstanceOf(ConfigurationCheckoutException.class);
@@ -543,6 +719,7 @@ public class ConfigurationServiceTest {
         configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
 
         when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
+        when(nameValidationService.encodeVersionName(TEST_CONFIGURATION_VERSION, true)).thenReturn(TEST_CONFIGURATION_VERSION);
 
         configurationService.checkoutConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false);
 
@@ -555,6 +732,7 @@ public class ConfigurationServiceTest {
         configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
 
         when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
+        when(nameValidationService.encodeVersionName(TEST_CONFIGURATION_VERSION, true)).thenReturn(TEST_CONFIGURATION_VERSION);
 
         configurationService.checkoutConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, true);
 
@@ -567,10 +745,35 @@ public class ConfigurationServiceTest {
         configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
 
         when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
+        when(nameValidationService.encodeVersionName(TEST_CONFIGURATION_VERSION, true)).thenReturn(TEST_CONFIGURATION_VERSION);
 
         configurationService.checkoutConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION);
 
         verifyNoInteractions(graphDBService);
+    }
+
+    @Test
+    public void testCheckoutConfigurationVersion_nameValidationThrowsInvalidNameException_shouldThrowConfigurationValidationException() {
+        doThrow(new InvalidNameException("")).when(nameValidationService).validateRepositoryName(TEST_CONFIGURATION_NAME);
+
+        Assertions.assertThatThrownBy(() -> configurationService.checkoutConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false))
+                .isInstanceOf(ConfigurationValidationException.class);
+    }
+
+    @Test
+    public void testCheckoutConfigurationVersion_versionWithCustomName_shouldEncodeAndDecodeCustomName() {
+        var customName = "customName";
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, customName));
+
+        when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, customName)).thenReturn(Optional.of(configuration));
+        when(nameValidationService.encodeVersionName(customName, true)).thenReturn(customName);
+        when(nameValidationService.decodeVersionName(customName)).thenReturn(customName);
+
+        configurationService.checkoutConfigurationVersion(TEST_CONFIGURATION_NAME, customName, false);
+
+        verify(nameValidationService).encodeVersionName(customName, true);
+        verify(nameValidationService).decodeVersionName(customName);
     }
 
     @Test
@@ -579,6 +782,7 @@ public class ConfigurationServiceTest {
         configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
 
         when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
+        when(nameValidationService.encodeVersionName(TEST_CONFIGURATION_VERSION, true)).thenReturn(TEST_CONFIGURATION_VERSION);
 
         var retrievedConfiguration = configurationService.resetConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false);
 
@@ -594,6 +798,8 @@ public class ConfigurationServiceTest {
     public void testResetConfigurationVersion_nonExistingConfigurationVersion_shouldThrowConfigurationDoesNotExistException() {
         doThrow(new RepositoryDoesNotExistException("")).when(versionControlRepository).resetToVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION);
 
+        when(nameValidationService.encodeVersionName(TEST_CONFIGURATION_VERSION, true)).thenReturn(TEST_CONFIGURATION_VERSION);
+
         Assertions.assertThatThrownBy(() -> configurationService.resetConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false))
                 .isInstanceOf(ConfigurationDoesNotExistException.class);
     }
@@ -601,6 +807,8 @@ public class ConfigurationServiceTest {
     @Test
     public void testResetConfigurationVersion_resetToVersionThrowsRepositoryAccessException_shouldThrowConfigurationResetException() {
         doThrow(new RepositoryAccessException(TEST_CONFIGURATION_NAME)).when(versionControlRepository).resetToVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION);
+
+        when(nameValidationService.encodeVersionName(TEST_CONFIGURATION_VERSION, true)).thenReturn(TEST_CONFIGURATION_VERSION);
 
         Assertions.assertThatThrownBy(() -> configurationService.resetConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false))
                 .isInstanceOf(ConfigurationResetException.class);
@@ -612,6 +820,7 @@ public class ConfigurationServiceTest {
         configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
 
         when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
+        when(nameValidationService.encodeVersionName(TEST_CONFIGURATION_VERSION, true)).thenReturn(TEST_CONFIGURATION_VERSION);
 
         configurationService.resetConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false);
 
@@ -624,6 +833,7 @@ public class ConfigurationServiceTest {
         configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
 
         when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
+        when(nameValidationService.encodeVersionName(TEST_CONFIGURATION_VERSION, true)).thenReturn(TEST_CONFIGURATION_VERSION);
 
         configurationService.resetConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, true);
 
@@ -636,10 +846,35 @@ public class ConfigurationServiceTest {
         configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, null));
 
         when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION)).thenReturn(Optional.of(configuration));
+        when(nameValidationService.encodeVersionName(TEST_CONFIGURATION_VERSION, true)).thenReturn(TEST_CONFIGURATION_VERSION);
 
         configurationService.resetConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION);
 
         verifyNoInteractions(graphDBService);
+    }
+
+    @Test
+    public void testResetConfigurationVersion_nameValidationThrowsInvalidNameException_shouldThrowConfigurationValidationException() {
+        doThrow(new InvalidNameException("")).when(nameValidationService).validateRepositoryName(TEST_CONFIGURATION_NAME);
+
+        Assertions.assertThatThrownBy(() -> configurationService.resetConfigurationVersion(TEST_CONFIGURATION_NAME, TEST_CONFIGURATION_VERSION, false))
+                .isInstanceOf(ConfigurationValidationException.class);
+    }
+
+    @Test
+    public void testResetConfigurationVersion_versionWithCustomName_shouldEncodeAndDecodeCustomName() {
+        var customName = "customName";
+        var configuration = getEmptyConfiguration(TEST_CONFIGURATION_NAME);
+        configuration.setVersion(new ConfigurationVersion(TEST_CONFIGURATION_VERSION, null, customName));
+
+        when(configurationRepository.findSpecifiedVersionOfConfigurationByName(TEST_CONFIGURATION_NAME, customName)).thenReturn(Optional.of(configuration));
+        when(nameValidationService.encodeVersionName(customName, true)).thenReturn(customName);
+        when(nameValidationService.decodeVersionName(customName)).thenReturn(customName);
+
+        configurationService.resetConfigurationVersion(TEST_CONFIGURATION_NAME, customName, false);
+
+        verify(nameValidationService).encodeVersionName(customName, true);
+        verify(nameValidationService).decodeVersionName(customName);
     }
 
     private Configuration getEmptyConfiguration(String name) {

@@ -33,11 +33,14 @@ public class ModelServiceTest {
     @Mock
     private GraphDBService graphDBService;
 
+    @Mock
+    private NameValidationService nameValidationService;
+
     @BeforeEach
     public void setup() {
         configurationRepository = new MockConfigurationRepository();
         annotations = MockitoAnnotations.openMocks(this);
-        configurationService = new ConfigurationServiceImpl(configurationRepository, versionControlRepository, graphDBService);
+        configurationService = new ConfigurationServiceImpl(configurationRepository, versionControlRepository, graphDBService, nameValidationService);
         modelService = new ModelServiceImpl(configurationService);
     }
 

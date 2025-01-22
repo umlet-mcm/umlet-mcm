@@ -5,7 +5,6 @@ import at.ac.tuwien.model.change.management.core.model.Configuration;
 import at.ac.tuwien.model.change.management.core.model.ConfigurationVersion;
 import at.ac.tuwien.model.change.management.core.model.versioning.BaseAttributesDiff;
 import at.ac.tuwien.model.change.management.core.utils.ConfigurationProcessor;
-import at.ac.tuwien.model.change.management.core.utils.ConfigurationUtils;
 import at.ac.tuwien.model.change.management.git.exception.RepositoryAccessException;
 import at.ac.tuwien.model.change.management.git.exception.RepositoryAlreadyExistsException;
 import at.ac.tuwien.model.change.management.git.exception.RepositoryDoesNotExistException;
@@ -29,13 +28,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     private final ConfigurationRepository configurationRepository;
     private final VersionControlRepository versionControlRepository;
     private final GraphDBService graphDBService;
+    private final NameValidationService nameValidationService;
 
     @Override
     public Configuration createConfiguration(@NonNull Configuration configuration, boolean loadIntoGraphDB) {
         try {
             log.debug("Creating configuration '{}'.", configuration.getName());
             validateNewConfiguration(configuration);
-            configuration.setName(ConfigurationUtils.sanitizeConfigurationName(configuration.getName()));
             configurationRepository.createConfiguration(configuration.getName());
             var savedConfiguration = configurationRepository.saveConfiguration(configuration);
             log.info("Created configuration '{}'.", configuration.getName());
@@ -44,7 +43,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                 loadConfigurationIntoGraphDB(savedConfiguration);
             }
 
-            return savedConfiguration;
+            return decodeVersionName(savedConfiguration);
         } catch (Exception e) {
             // attempt rollback - delete repository if it was created
             try {
@@ -68,8 +67,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     public Configuration updateConfiguration(@NonNull Configuration configuration, boolean loadIntoGraphDB) {
         try {
             log.debug("Updating configuration '{}'.", configuration.getName());
-            validateExistingConfiguration(configuration);
-            configuration.setName(ConfigurationUtils.sanitizeConfigurationName(configuration.getName()));
+            validateConfiguration(configuration);
             var savedConfiguration = configurationRepository.saveConfiguration(configuration);
             log.info("Updated configuration '{}'.", configuration.getName());
 
@@ -77,7 +75,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                 loadConfigurationIntoGraphDB(savedConfiguration);
             }
 
-            return savedConfiguration;
+            return decodeVersionName(savedConfiguration);
         } catch (RepositoryDoesNotExistException e) {
             throw new ConfigurationDoesNotExistException("Could not update configuration '" + configuration.getName() + "' because it was not found.", e);
         } catch (RepositoryAccessException e) {
@@ -88,12 +86,12 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     @Override
     public void deleteConfiguration(@NonNull String name) {
         log.debug("Deleting configuration '{}'.", name);
-        var sanitizedName = ConfigurationUtils.sanitizeConfigurationName(name);
+        validateConfigurationName(name);
         try {
-            configurationRepository.deleteConfiguration(sanitizedName);
-            log.info("Deleted configuration '{}'.", sanitizedName);
+            configurationRepository.deleteConfiguration(name);
+            log.info("Deleted configuration '{}'.", name);
         } catch (RepositoryAccessException e) {
-            throw new ConfigurationDeleteException("Failed to delete configuration '" + sanitizedName + "'.", e);
+            throw new ConfigurationDeleteException("Failed to delete configuration '" + name + "'.", e);
         }
     }
 
@@ -101,63 +99,66 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     public Configuration renameConfiguration(@NonNull String currentName, @NonNull String newName) {
         log.debug("Renaming configuration '{}' to '{}'.", currentName, newName);
 
-        var sanitizedCurrentName = ConfigurationUtils.sanitizeConfigurationName(currentName);
-        var sanitizedNewName = ConfigurationUtils.sanitizeConfigurationName(newName);
+        validateConfigurationName(currentName);
+        validateConfigurationName(newName);
 
-        if (sanitizedCurrentName.equals(sanitizedNewName)) {
-            return configurationRepository.findCurrentVersionOfConfigurationByName(sanitizedCurrentName)
-                    .orElseThrow(() -> new ConfigurationNotFoundException("Configuration '" + sanitizedCurrentName + "' not found."));
+        if (currentName.equals(newName)) {
+            return configurationRepository.findCurrentVersionOfConfigurationByName(currentName)
+                    .orElseThrow(() -> new ConfigurationNotFoundException("Configuration '" + currentName + "' not found."));
         }
 
         try {
-            configurationRepository.renameConfiguration(sanitizedCurrentName, sanitizedNewName);
-            log.info("Renamed configuration '{}' to '{}'.", sanitizedCurrentName, sanitizedNewName);
+            configurationRepository.renameConfiguration(currentName, newName);
+            log.info("Renamed configuration '{}' to '{}'.", currentName, newName);
 
-            return configurationRepository.findCurrentVersionOfConfigurationByName(sanitizedNewName)
-                    .orElseThrow(() -> new ConfigurationNotFoundException("Failed to rename configuration '" + sanitizedCurrentName + "' to '" + sanitizedNewName + "'.\n"
-                            + "Renamed version of configuration '" + sanitizedNewName + "' could not be found."));
+            var configuration = configurationRepository.findCurrentVersionOfConfigurationByName(newName)
+                    .orElseThrow(() -> new ConfigurationNotFoundException("Failed to rename configuration '" + currentName + "' to '" + newName + "'.\n"
+                            + "Renamed version of configuration '" + newName + "' could not be found."));
+            return decodeVersionName(configuration);
         } catch (RepositoryAlreadyExistsException e) {
-            throw new ConfigurationAlreadyExistsException("Configuration with name '" + sanitizedNewName + "' already exists.", e);
+            throw new ConfigurationAlreadyExistsException("Configuration with name '" + newName + "' already exists.", e);
         } catch (RepositoryAccessException e) {
-            throw new ConfigurationRenameException("Failed to rename configuration '" + sanitizedCurrentName + "' to '" + sanitizedNewName + "'.", e);
+            throw new ConfigurationRenameException("Failed to rename configuration '" + currentName + "' to '" + newName + "'.", e);
         }
     }
 
     @Override
     public Configuration getConfigurationByName(@NonNull String name, boolean loadIntoGraphDB) {
         log.debug("Finding current version of configuration '{}'.", name);
-        var sanitizedName = ConfigurationUtils.sanitizeConfigurationName(name);
+
         try {
-            var foundConfiguration = configurationRepository.findCurrentVersionOfConfigurationByName(sanitizedName)
-                    .orElseThrow(() -> new ConfigurationNotFoundException("Current version of configuration '" + sanitizedName + "' could not be found."));
-            log.info("Found current version of configuration '{}'.", sanitizedName);
+            validateConfigurationName(name);
+            var foundConfiguration = configurationRepository.findCurrentVersionOfConfigurationByName(name)
+                    .orElseThrow(() -> new ConfigurationNotFoundException("Current version of configuration '" + name + "' could not be found."));
+            log.info("Found current version of configuration '{}'.", name);
 
             if (loadIntoGraphDB) {
                 loadConfigurationIntoGraphDB(foundConfiguration);
             }
 
-            return foundConfiguration;
+            return decodeVersionName(foundConfiguration);
         } catch (RepositoryAccessException e) {
-            throw new ConfigurationGetException("Failed to access current version of configuration '" + sanitizedName + "'.", e);
+            throw new ConfigurationGetException("Failed to access current version of configuration '" + name + "'.", e);
         }
     }
 
     @Override
     public Configuration getConfigurationVersion(@NonNull String name, @NonNull String version, boolean loadIntoGraphDB) {
         log.debug("Finding configuration '{}' with version '{}'.", name, version);
-        var sanitizedName = ConfigurationUtils.sanitizeConfigurationName(name);
         try {
-            var foundConfiguration = configurationRepository.findSpecifiedVersionOfConfigurationByName(sanitizedName, version)
-                    .orElseThrow(() -> new ConfigurationNotFoundException("Version '" + version + "' of configuration '" + sanitizedName + "' could not be found."));
-            log.info("Found configuration version '{}' of configuration '{}'.", version, sanitizedName);
+            validateConfigurationName(name);
+            var encodedVersion = encodeVersionName(version);
+            var foundConfiguration = configurationRepository.findSpecifiedVersionOfConfigurationByName(name, encodedVersion)
+                    .orElseThrow(() -> new ConfigurationNotFoundException("Version '" + encodedVersion + "' of configuration '" + name + "' could not be found."));
+            log.info("Found configuration version '{}' of configuration '{}'.", version, name);
 
             if (loadIntoGraphDB) {
                 loadConfigurationIntoGraphDB(foundConfiguration);
             }
 
-            return foundConfiguration;
+            return decodeVersionName(foundConfiguration);
         } catch (RepositoryAccessException e) {
-            throw new ConfigurationGetException("Failed to access version '" + version + "' of configuration '" + sanitizedName + "'.", e);
+            throw new ConfigurationGetException("Failed to access version '" + version + "' of configuration '" + name + "'.", e);
         }
     }
 
@@ -165,7 +166,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     public List<Configuration> getAllConfigurations() {
         try {
             log.debug("Finding all configurations.");
-            var configurations = configurationRepository.findAllConfigurations();
+            var configurations = configurationRepository
+                    .findAllConfigurations().stream().map(this::decodeVersionName)
+                    .toList();
             log.info("Found {} configurations.", configurations.size());
             return configurations;
         } catch (RepositoryAccessException e) {
@@ -177,9 +180,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     public List<ConfigurationVersion> listConfigurationVersions(@NonNull String configurationName) {
         try {
             log.debug("Listing all versions of configuration '{}'.", configurationName);
-            var sanitizedName = ConfigurationUtils.sanitizeConfigurationName(configurationName);
-            var versions = configurationRepository.listConfigurationVersions(sanitizedName);
-            log.info("Listed {} versions of configuration '{}'.", versions.size(), sanitizedName);
+            validateConfigurationName(configurationName);
+            var versions = configurationRepository.listConfigurationVersions(configurationName).stream()
+                    .map(this::decodeVersionName)
+                    .toList();
+            log.info("Listed {} versions of configuration '{}'.", versions.size(), configurationName);
             return versions;
         } catch (RepositoryDoesNotExistException e) {
             throw new ConfigurationDoesNotExistException("Could not list versions because configuration '" + configurationName + "' was not found.", e);
@@ -190,10 +195,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     @Override
     public List<BaseAttributesDiff> compareConfigurationVersions(@NonNull String name, @NonNull String oldVersion, @NonNull String newVersion, boolean includeUnchanged) {
+        log.debug("Comparing versions '{}' and '{}' of configuration '{}'.", oldVersion, newVersion, name);
+        validateConfigurationName(name);
+        var oldVersionEncoded = encodeVersionName(oldVersion);
+        var newVersionEncoded = encodeVersionName(newVersion);
+
         try {
-            log.debug("Comparing versions '{}' and '{}' of configuration '{}'.", oldVersion, newVersion, name);
-            var sanitizedName = ConfigurationUtils.sanitizeConfigurationName(name);
-            var configurationContents = configurationRepository.compareConfigurationVersions(sanitizedName, oldVersion, newVersion, includeUnchanged);
+            var configurationContents = configurationRepository.compareConfigurationVersions(name, oldVersionEncoded, newVersionEncoded, includeUnchanged);
             var diffs = new ArrayList<BaseAttributesDiff>();
             diffs.addAll(configurationContents.getModels());
             diffs.addAll(configurationContents.getNodes());
@@ -203,29 +211,35 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         } catch (RepositoryDoesNotExistException e) {
             throw new ConfigurationDoesNotExistException("Could not compare versions because configuration '" + name + "' was not found.", e);
         } catch (RepositoryAccessException e) {
-            throw new ConfigurationComparisonException("Failed to compare versions '" + oldVersion +
-                    "' and '" + newVersion + "' of configuration '" + name + "'.", e);
+            throw new ConfigurationComparisonException("Failed to compare versions '" + oldVersionEncoded +
+                    "' and '" + newVersionEncoded + "' of configuration '" + name + "'.", e);
         }
     }
 
     @Override
     public Configuration checkoutConfigurationVersion(@NonNull String name, @NonNull String version, boolean loadIntoGraphDB) {
+        log.debug("Checking out version '{}' of configuration '{}'.", version, name);
+        validateConfigurationName(name);
+        var versionEncoded = encodeVersionName(version);
+
         try {
-            log.debug("Checking out version '{}' of configuration '{}'.", version, name);
-            var sanitizedName = ConfigurationUtils.sanitizeConfigurationName(name);
-            versionControlRepository.checkoutVersion(sanitizedName, version);
-            var configuration = getConfigurationVersion(sanitizedName, version);
-            log.info("Checked out version '{}' of configuration '{}'.", version, sanitizedName);
+            versionControlRepository.checkoutVersion(name, versionEncoded);
+            var configuration = configurationRepository.findSpecifiedVersionOfConfigurationByName(name, versionEncoded)
+                    .orElseThrow(() -> new ConfigurationNotFoundException(
+                            "Could not find version '" + version + "' of configuration '" + name + "' after checkout."
+                    ));
+
+            log.info("Checked out version '{}' of configuration '{}'.", version, name);
 
             if (loadIntoGraphDB) {
                 loadConfigurationIntoGraphDB(configuration);
             }
 
-            return configuration;
+            return decodeVersionName(configuration);
         } catch (RepositoryDoesNotExistException e) {
             throw new ConfigurationDoesNotExistException("Could not checkout because configuration '" + name + "' was not found.", e);
         } catch (RepositoryAccessException e) {
-            throw new ConfigurationCheckoutException("Failed to checkout version '" + version + "' of configuration '" + name + "'.", e);
+            throw new ConfigurationCheckoutException("Failed to checkout version '" + versionEncoded + "' of configuration '" + name + "'.", e);
         }
     }
 
@@ -234,20 +248,24 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         try {
             log.debug("Resetting configuration '{}' to {}.", name,
                     version == null ? "current version" : "version '" + version + "'");
-            var sanitizedName = ConfigurationUtils.sanitizeConfigurationName(name);
+            validateConfigurationName(name);
+
             var resetVersion = version == null
-                    ? versionControlRepository.getCurrentVersion(sanitizedName)
-                    .orElseThrow(() -> new ConfigurationVersionDoesNotExistException("No versions exist for configuration '" + sanitizedName + "'."))
-                    : version;
-            versionControlRepository.resetToVersion(sanitizedName, resetVersion);
-            var configuration = getConfigurationVersion(sanitizedName, resetVersion);
-            log.info("Reset configuration '{}' to version '{}'.", sanitizedName, version);
+                    ? versionControlRepository.getCurrentVersion(name)
+                    .orElseThrow(() -> new ConfigurationVersionDoesNotExistException("No versions exist for configuration '" + name + "'."))
+                    : encodeVersionName(version);
+            versionControlRepository.resetToVersion(name, resetVersion);
+            var configuration = configurationRepository.findSpecifiedVersionOfConfigurationByName(name, resetVersion)
+                    .orElseThrow(() -> new ConfigurationNotFoundException(
+                            "Could not find version '" + resetVersion + "' of configuration '" + name + "' after reset."
+                    ));
+            log.info("Reset configuration '{}' to version '{}'.", name, version);
 
             if (loadIntoGraphDB) {
                 loadConfigurationIntoGraphDB(configuration);
             }
 
-            return configuration;
+            return decodeVersionName(configuration);
         } catch (RepositoryDoesNotExistException e) {
             throw new ConfigurationDoesNotExistException("Could not reset because configuration '" + name + "' was not found.", e);
         } catch (RepositoryAccessException e) {
@@ -259,11 +277,12 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         if (configuration.getVersionHash() != null) {
             throw new ConfigurationValidationException("New configuration cannot have a version.");
         }
-
-        processModelElementIDs(configuration);
+        validateConfiguration(configuration);
     }
 
-    private void validateExistingConfiguration(Configuration configuration) {
+    private void validateConfiguration(Configuration configuration) {
+        validateConfigurationName(configuration.getName());
+        encodeVersionName(configuration);
         processModelElementIDs(configuration);
     }
 
@@ -306,5 +325,49 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         graphDBService.clearDatabase();
         graphDBService.loadConfiguration(configuration);
         log.info("Loaded configuration '{}' into graph database.", configuration.getName());
+    }
+
+    private void validateConfigurationName(String name) {
+        try {
+            if (name == null || name.isBlank()) {
+                throw new ConfigurationValidationException("Configuration name cannot be null or empty.");
+            }
+            nameValidationService.validateRepositoryName(name);
+        } catch (InvalidNameException e) {
+            throw new ConfigurationValidationException("Configuration name '" + name + "' is invalid.", e);
+        }
+    }
+
+    @SuppressWarnings("UnusedReturnValue")
+    private Configuration encodeVersionName(Configuration configuration) {
+        var originalVersion = configuration.getVersion();
+        if (originalVersion != null && originalVersion.customName() != null) {
+            var encodedVersion = originalVersion.withCustomName(encodeVersionName(originalVersion.customName()));
+            configuration.setVersion(encodedVersion);
+        }
+        return configuration;
+    }
+
+    private String encodeVersionName(String version) {
+        return version == null
+                ? null
+                : nameValidationService.encodeVersionName(version, true);
+    }
+
+    private Configuration decodeVersionName(Configuration configuration) {
+        configuration.setVersion(decodeVersionName(configuration.getVersion()));
+        return configuration;
+    }
+
+    private ConfigurationVersion decodeVersionName(ConfigurationVersion version) {
+        return version == null || version.customName() == null
+                ? version
+                : version.withCustomName(decodeVersionName(version.customName()));
+    }
+
+    private String decodeVersionName(String version) {
+        return version == null
+                ? null
+                : nameValidationService.decodeVersionName(version);
     }
 }

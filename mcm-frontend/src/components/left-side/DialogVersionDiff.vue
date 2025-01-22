@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle} from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
-import {Configuration} from "@/types/Configuration.ts";
+import {Configuration, Version} from "@/types/Configuration.ts";
 import {ref} from "vue";
 import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {Button} from "@/components/ui/button";
@@ -21,7 +21,7 @@ const props = defineProps({
     required: true
   },
   versionList: {
-    type: Array as () => string[],
+    type: Array as () => Version[],
     required: true
   }
 });
@@ -30,7 +30,7 @@ const emit = defineEmits<{
 }>()
 
 //variables
-const firstSelected = ref<string | undefined>(props.currentConfiguration.version)
+const firstSelected = ref<string | undefined>(props.currentConfiguration.version.hash)
 const secondSelected = ref<string | undefined>(undefined)
 const errorMessage = ref<string | undefined>(undefined)
 const isLoading = ref(false)
@@ -40,7 +40,7 @@ const diffHtml = ref<string>('')
 const closeDialog = () => {
   errorMessage.value = undefined
   diffHtml.value = ''
-  firstSelected.value = props.currentConfiguration.version
+  firstSelected.value = props.currentConfiguration.version.hash
   secondSelected.value = undefined
   emit('update:isOpen', false)
 }
@@ -63,7 +63,7 @@ const compareVersions = async () => {
       diffHtml.value = diff2html(diffJson, {
         drawFileList: false,
         matching: 'lines',
-        outputFormat: 'side-by-side'
+        outputFormat: 'side-by-side',
       });
     }
   } catch (error: any) {
@@ -97,9 +97,9 @@ const compareVersions = async () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <div v-for="version in versionList.values()" :key="version">
-                      <SelectItem :value="version">
-                        {{ version }}
+                    <div v-for="version in versionList.values()" :key="version.hash">
+                      <SelectItem :value="version.hash">
+                        {{ version.customName ?? version.name }}
                       </SelectItem>
                     </div>
                   </SelectGroup>
@@ -111,9 +111,9 @@ const compareVersions = async () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <div v-for="version in versionList.values()" :key="version">
-                      <SelectItem :value="version">
-                        {{ version }}
+                    <div v-for="version in versionList.values()" :key="version.hash">
+                      <SelectItem :value="version.hash">
+                        {{ version.customName ?? version.name }}
                       </SelectItem>
                     </div>
                   </SelectGroup>

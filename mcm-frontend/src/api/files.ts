@@ -22,7 +22,7 @@ export const uploadUxfToConfiguration = async (file: any, name: string | undefin
         formData.append("file", file);
         if(name) formData.append("name", name);
         if(version) formData.append("version", version);
-        else formData.append("version", "V1.0.0");
+        else formData.append("version", "v1.0.0");
         const response = await apiClient.post(
             '/files/uxf',
             formData,
@@ -89,7 +89,7 @@ export const uploadUxfConfiguration = async (file: any, configName: string): Pro
         let formData = new FormData();
         formData.append("file", file);
         formData.append("name", configName);
-        formData.append("version", "V1.0.0");
+        formData.append("version", "v1.0.0");
         const response = await apiClient.post(
             '/files/uxf',
             formData,

@@ -2,9 +2,9 @@
 
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { Configuration } from '@/types/Configuration.ts'
+import {Configuration, Version} from '@/types/Configuration.ts'
 import ModelList from "@/components/left-side/ModelList.vue"
-import {FileUp, FileOutput, FileInput, FileStack, HelpCircle, Diff} from 'lucide-vue-next'
+import {FileUp, FileOutput, FileInput, FileStack, HelpCircle, Diff, FilePenLine} from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
 import DialogMerge from "@/components/left-side/DialogMerge.vue";
 import {onMounted, ref, watch} from "vue";
@@ -18,6 +18,7 @@ import AlertConfirmation from "@/components/left-side/AlertConfirmation.vue";
 import {deleteModelFromConfig} from "@/api/model.ts";
 import SaveButton from "@/components/left-side/SaveButton.vue";
 import { useToast } from '@/components/ui/toast/use-toast'
+import DialogUpdateUXF from "@/components/left-side/DialogUpdateUXF.vue";
 
 /**
  * @param {Model} selectedModel, selected model to display (if any)
@@ -44,9 +45,9 @@ const emit = defineEmits<{
 }>()
 
 // variables
-const isDialogOpen = ref({merge: false, export: false, upload: false, confirmation: false, versionDiff:false})
+const isDialogOpen = ref({merge: false, export: false, upload: false, confirmation: false, versionDiff:false, update:false})
 const errorDelete = ref<string | undefined>(undefined)
-const versionList = ref<string[]>([])
+const versionList = ref<Version[]>([])
 const { toast } = useToast()
 
 // functions
@@ -63,7 +64,7 @@ const placeholder = () => {
 const exportCurrentModel = async () => {
   if(!props.selectedModel) return;
   try {
-    await exportToUxf(props.selectedModel.id, props.selectedModel.id, "model");
+    await exportToUxf(props.selectedConfiguration.name, props.selectedModel.id, "model");
   } catch (e) {
     console.error(e)
   }
@@ -78,6 +79,7 @@ const confirmDeletion = async () => {
   const index = props.selectedConfiguration.models.findIndex(model => model.id === props.selectedModel!.id)
   if (index !== -1) {
     try {
+      //todo updateCurrentConfiguration version after delete
       await deleteModelFromConfig(props.selectedModel!.id)
       props.selectedConfiguration.models.splice(index, 1)
       emit('update:selectedModel', undefined)
@@ -96,7 +98,7 @@ const confirmDeletion = async () => {
   * Watchers
   * When the version changes it means either the user selected a new version or a new configuration was loaded
  */
-watch(() => props.selectedConfiguration.version, async (newVersion, oldVersion) => {
+watch(() => props.selectedConfiguration.version.hash, async (newVersion, oldVersion) => {
   if (newVersion !== oldVersion) {
     try {
       versionList.value = await listConfigurationVersions(props.selectedConfiguration.name)
@@ -150,6 +152,10 @@ onMounted(async () => {
               :selected-model="selectedModel"
               @update:selectedModel="emit('update:selectedModel', $event)"
           />
+          <Button variant="outline" class="w-full justify-start" @click="isDialogOpen.update = true">
+            <FilePenLine class="mr-2" />
+            Update from UXF file
+          </Button>
           <Button variant="outline" class="w-full justify-start" @click="isDialogOpen.upload = true">
             <FileInput class="mr-2" />
             Import UXF file
@@ -208,6 +214,13 @@ onMounted(async () => {
   <DialogUploadUXF
       v-model:isOpen="isDialogOpen.upload"
       :currentConfiguration="selectedConfiguration"
+      @update:currentConfiguration="emit('update:selectedConfiguration', $event)"
+      @update:currentModel="emit('update:selectedModel', $event)"
+  />
+  <DialogUpdateUXF
+      v-model:isOpen="isDialogOpen.update"
+      :currentConfiguration="selectedConfiguration"
+      :selected-model="selectedModel"
       @update:currentConfiguration="emit('update:selectedConfiguration', $event)"
       @update:currentModel="emit('update:selectedModel', $event)"
   />

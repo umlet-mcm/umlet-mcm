@@ -3,7 +3,7 @@
 import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {Settings} from "lucide-vue-next";
 import {Button} from "@/components/ui/button";
-import {Configuration} from "@/types/Configuration.ts";
+import {Configuration, Version} from "@/types/Configuration.ts";
 import {Model} from "@/types/Model.ts";
 import {ref, watch} from "vue";
 import AlertConfirmation from "@/components/left-side/AlertConfirmation.vue";
@@ -22,7 +22,7 @@ const props = defineProps({
     required: false
   },
   versionList: {
-    type: Array as () => string[],
+    type: Array as () => Version[],
     required: true
   }
 });
@@ -38,7 +38,7 @@ const emit = defineEmits<{
 
 // variables
 const isDialogOpen = ref({settings: false, confirmation: false})
-const selectedVersion = ref<string | undefined>(props.selectedConfiguration.version)
+const selectedVersion = ref<string | undefined>(props.selectedConfiguration.version.hash)
 const { toast } = useToast()
 
 // functions
@@ -69,7 +69,7 @@ async function confirmLoadVersion() {
 }
 
 const rejectLoadVersion = () => {
-  selectedVersion.value = props.selectedConfiguration.version
+  selectedVersion.value = props.selectedConfiguration.version.hash
 }
 
 /*
@@ -78,12 +78,16 @@ const rejectLoadVersion = () => {
  */
 watch(() => props.selectedConfiguration.version, async (newVersion, oldVersion) => {
   if (newVersion !== oldVersion) {
-    selectedVersion.value = props.selectedConfiguration.version
+    selectedVersion.value = props.selectedConfiguration.version.hash
   }
 })
 
-watch(() => selectedVersion.value, (newVersion, oldVersion) => {
-  if (newVersion !== oldVersion && newVersion !== props.selectedConfiguration.version) {
+/**
+ * When the selected version changes, open the confirmation dialog
+ * the versions are in hash form
+ */
+watch(() => selectedVersion.value, (newVersion: any, oldVersion: any) => {
+  if (newVersion !== oldVersion && newVersion !== props.selectedConfiguration.version.hash) {
     isDialogOpen.value.confirmation = true
   }
 })
@@ -104,9 +108,9 @@ watch(() => selectedVersion.value, (newVersion, oldVersion) => {
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
-            <div v-for="version in versionList.values()" :key="version">
-              <SelectItem :value="version">
-                {{ version }}
+            <div v-for="version in versionList.values()" :key="version.hash">
+              <SelectItem :value="version.hash">
+                {{ version.customName ?? version.name }}
               </SelectItem>
             </div>
           </SelectGroup>

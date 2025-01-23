@@ -26,7 +26,7 @@
       }
     ],
     "directories": {
-      "buildResources": "assets",
+      "buildResources": "electron/resources",
       "output": "release/${version}"
     },
     "files": [

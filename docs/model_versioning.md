@@ -96,7 +96,6 @@ I.e., users may want to create new configurations by uploading (and thus parsing
 # Peculiarities of the implementation
 
 Commits always extend the `main` branch. If the repository HEAD is detached, the new commit updates `main` instead of the HEAD.
-
 This was done because more advanced branching logic was out of scope for this project and we therefore wanted to avoid
 the "accidental" creation of different branches by updating, e.g., a detached HEAD.
 
@@ -112,7 +111,7 @@ to the repository.
 
 The configuration name must be a valid folder name, i.e., it cannot include forward or backward slashes nor other special characters or reserved keywords that aren't allowed by the file system
 
-Each node and relations has a model ID attribute referencing the model that contains it. This attribute can be `null` in which case it is set by the backend.
+Each node and relation has a model ID attribute referencing the model that contains it. This attribute can be `null` in which case it is set by the backend.
 However, if it is set it must be set to the ID of the model that actually contains the node or relation.
 Otherwise, an exception will be thrown.
 

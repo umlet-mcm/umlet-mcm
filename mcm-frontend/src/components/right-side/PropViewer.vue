@@ -45,6 +45,10 @@ defineProps({
             <TableCell class="font-medium w-1/3">{{ key }}</TableCell>
             <TableCell class="w-2/3">{{ value }}</TableCell>
           </TableRow>
+          <TableRow class="table-head" v-if="Object.keys(selectedEntity.mcmAttributes).length">
+            <TableHead>Details</TableHead>
+            <TableHead>value</TableHead>
+          </TableRow>
           <TableRow>
             <TableCell class="font-medium w-1/3">&lt;Full name&gt;</TableCell>
             <TableCell class="w-2/3">{{ selectedEntity.title }}</TableCell>

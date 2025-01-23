@@ -182,7 +182,7 @@ onMounted(() => {
       <div class="flex items-center ">
         <h2 class="text-xl font-semibold">Neo4J Query</h2>
         <span title="Focus the query field and press Ctrl+Space to use predefined queries (or just start typing)">
-          <HelpCircle class="w-4 h-4" />
+          <HelpCircle class="w-4 h-4 ml-2"/>
         </span>
         <div class="ml-auto text-right">
           <div v-if="isLoadingNeo4j">

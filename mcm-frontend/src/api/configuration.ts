@@ -1,8 +1,7 @@
 import axios from "axios"
-import { Configuration } from "@/types/Configuration";
-import { Model } from "@/types/Model.ts";
-import { DiffObject } from "@/types/DiffObject.ts";
-import { AppConfig } from "@/config";
+import {Configuration, Version} from "@/types/Configuration";
+import {DiffObject} from "@/types/DiffObject.ts";
+import {AppConfig} from "@/config";
 
 
 const apiClient = axios.create({
@@ -62,7 +61,7 @@ export const createConfiguration = async (data: { name: string }): Promise<Confi
  * @param data the new configuration data
  * @return the updated configuration
  */
-export const updateConfiguration = async (data: { name: string, version: string, models: Model[] }): Promise<Configuration> => {
+export const updateConfiguration = async (data: Configuration): Promise<Configuration> => {
     try {
         const response = await apiClient.put('', data);
         return response.data;
@@ -88,7 +87,7 @@ export const deleteConfiguration = async (data: { name: string }): Promise<void>
  * @param name the name of the configuration to retrieve versions for
  * @return a list of all versions of the configuration
  */
-export const listConfigurationVersions = async (name: string): Promise<string[]> => {
+export const listConfigurationVersions = async (name: string): Promise<Version[]> => {
     try {
         const response = await apiClient.get(`/${name}/versions`);
         return response.data;
@@ -149,6 +148,25 @@ export const resetConfiguration = async (name: string, version: string): Promise
     try {
         const response = await apiClient.post(`/${name}/versions/${version}/reset`);
         return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const renameConfiguration = async (name: string, newName: string): Promise<Configuration> => {
+    try {
+        const response = await apiClient.put(`/${name}/rename`, null, { params: { newName } });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const getLastCreatedConfiguration = async (name: string, currentVersion: Version): Promise<Configuration> => {
+    try {
+        const versionList = await listConfigurationVersions(name)
+        const lastVersion = versionList[0]
+        return checkoutConfiguration(name, lastVersion.hash !== currentVersion.hash ? lastVersion.hash : currentVersion.hash)
     } catch (error) {
         throw error;
     }

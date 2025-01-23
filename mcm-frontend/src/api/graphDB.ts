@@ -71,7 +71,7 @@ export const saveNeo4JToRepository = async () => {
 
 export const exportQueryToCsv = async (query: string, filename: string) => {
     try {
-        const response = await apiClient.post('/graphdb/csvExport', {"query": query.trim()}, {params: {fileName: filename}});
+        const response = await apiClient.post('/graphdb/csvExport', {"query": query.trim().replace(new RegExp('"','g'),"'")}, {params: {fileName: filename}});
         const blob = new Blob([response.data], { type: 'application/octet-stream' });
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');

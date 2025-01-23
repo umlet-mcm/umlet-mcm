@@ -18,7 +18,8 @@ import {uploadUxfToConfiguration, uploadUxfToModel} from "@/api/files.ts";
 import AlertConfirmation from "@/components/left-side/AlertConfirmation.vue";
 import {LoaderCircleIcon} from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
-import { useToast } from '@/components/ui/toast/use-toast'
+import {useToast} from '@/components/ui/toast/use-toast'
+import {getLastCreatedConfiguration} from "@/api/configuration.ts";
 
 /**
  * @param {Boolean} isOpen, dialog visibility
@@ -53,6 +54,7 @@ const selectedFile = ref(undefined)
 const uploadLocation = ref("Model")
 const newConfig = ref<Configuration | undefined>(undefined)
 const uploadedName = ref("")
+const versionName = ref("")
 const isLoadingValidate = ref(false)
 const isDialogOpen = ref({confirmation: false}) // confirmation dialog for deletion
 const { toast } = useToast()
@@ -67,6 +69,7 @@ const closeDialog = () => {
   isLoadingValidate.value = false
   uploadLocation.value = "Model"
   uploadedName.value = ""
+  versionName.value = ""
   emit('update:isOpen', false)
 }
 
@@ -88,15 +91,21 @@ const fileSelected = (event: any) => {
 const validateButton = async () => {
   isLoadingValidate.value = true
   try {
-    if(uploadLocation.value === "configuration") {
+    if(uploadLocation.value === "Configuration") {
       // create a new configuration and open the alert dialog
-      newConfig.value = await uploadUxfToConfiguration(selectedFile.value)
+      newConfig.value = await uploadUxfToConfiguration(selectedFile.value, uploadedName.value, "V1.0.0")
       isDialogOpen.value.confirmation = true
     } else {
       // upload uxf to current configuration
-      newConfig.value = await uploadUxfToModel(selectedFile.value, props.currentConfiguration.name)
+      newConfig.value = await uploadUxfToModel(selectedFile.value, props.currentConfiguration.name, uploadedName.value, versionName.value.trim().length > 0 ? versionName.value : undefined)
       // find the first model that is not in the current configuration (newly created model)
       const newModel = newConfig.value.models.find(m => !props.currentConfiguration.models.map(m => m.id).includes(m.id))
+
+      if(newConfig.value.version.hash === props.currentConfiguration.version.hash) {
+        // if the configuration has the same version, get the last created configuration
+        newConfig.value = await getLastCreatedConfiguration(props.currentConfiguration.name, props.currentConfiguration.version)
+      }
+
       emit('update:currentConfiguration', newConfig.value)
       if(newModel) emit('update:currentModel', newModel)
 
@@ -156,10 +165,7 @@ const loadNewConfiguration = () => {
           <Card>
             <CardContent class="p-4 space-y-4">
               <div class="space-y-2">
-                <div class="mb-4">
-                  <label class="text-sm font-medium">{{ uploadLocation }} name</label>
-                  <Input id="uploadedName" type="text" placeholder="Name" v-model="uploadedName"/>
-                </div>
+
                 <label class="text-sm font-medium">Upload as?</label>
                   <RadioGroup v-model="uploadLocation">
                     <div class="flex items-center space-x-2">
@@ -171,6 +177,17 @@ const loadNewConfiguration = () => {
                       <label for="configuration" class="text-sm">New model configuration</label>
                     </div>
                   </RadioGroup>
+
+                <div class="mb-4">
+                  <label class="text-sm font-medium">{{ uploadLocation }} name</label>
+                  <Input id="uploadedName" type="text" placeholder="Name" v-model="uploadedName"/>
+                </div>
+                  <div class="space-y-2" v-if="uploadLocation === 'Model'">
+                    <div class="mb-4">
+                      <label class="text-sm font-medium">New version name (optional)</label>
+                      <Input type="text" placeholder="Version name" v-model="versionName"/>
+                    </div>
+                  </div>
                 </div>
             </CardContent>
           </Card>

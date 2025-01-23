@@ -3,15 +3,16 @@ import {Button} from '@/components/ui/button'
 import QueryEditor from "@/components/main-content/QueryEditor.vue"
 import GraphVisualisation from "@/components/main-content/GraphVisualisation.vue"
 import {onMounted, ref, watch} from "vue"
-import {Table2, FileOutput, HelpCircle, LoaderCircleIcon, Play, RotateCcw} from 'lucide-vue-next'
+import {FileOutput, HelpCircle, LoaderCircleIcon, Play, RotateCcw, Table2} from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
 import {Node, Relation} from "@/types/Node.ts";
-import {loadConfigurationDatabase, sendRequest, exportQueryToCsv, exportQueryToUxf} from "@/api/graphDB.ts";
+import {exportQueryToCsv, exportQueryToUxf, loadConfigurationDatabase, sendRequest} from "@/api/graphDB.ts";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import QueryResult from "@/components/main-content/QueryResult.vue";
 import {parseResponseGraph} from "@/components/main-content/responseGraphVisualization.ts";
 import {Configuration} from "@/types/Configuration.ts";
 import TableContent from "@/components/main-content/TableContent.vue";
+import {alignModels} from "@/api/model.ts";
 
 /**
  * @param {Model} selectedModel, model to display (optional)
@@ -117,17 +118,38 @@ const uxfCsvExportFull = async (type:string) => {
 }
 
 
+function combine(selectedModels: Model[]): Model {
+  const nodes = selectedModels.flatMap(model => model.nodes)
+
+  return {
+    id: "RequestModel",
+    description: "",
+    mcmAttributes: {},
+    originalText: "",
+    title: "Merged Model",
+    tags: [],
+    nodes: nodes,
+    zoomLevel: 10
+  };
+}
+
 // when the response changes, parse it to a graph
 watch(() => queryResponse.value, async (newValue) => {
   queryGeneratedGraph.value = undefined
   if (newValue.length > 0) {
     if(props.selectedModel) {
-      queryGraph.value = await parseResponseGraph(newValue)
+      const nodeModels = await parseResponseGraph(newValue, props.selectedConfiguration.models)
+      queryGraph.value = combine(await alignModels(nodeModels))
       queryGeneratedGraph.value = query.value
+      if (queryGraph.value.nodes.length > 0 && activeTab.value === 'full') activeTab.value = "requestfull"
     }
   } else {
     queryGraph.value = undefined;
   }
+});
+
+watch(() => props.selectedConfiguration.version.hash, async () => {
+  await loadNeo4JDatabase()
 });
 
 /**

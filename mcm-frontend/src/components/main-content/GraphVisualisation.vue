@@ -76,6 +76,16 @@ const initializeGraph = () => {
   const edges: Edge[] = []
   props.modelToDisplay.nodes.forEach((node) => {
     node.relations.forEach((relation) => {
+      // check if the edge already exists to display it as a bidirectional edge
+      const existingEdge = edges.find(edge =>
+          (edge.to === relation.target && edge.from === node.id) ||
+          (edge.to === node.id && edge.from === relation.target) ||
+          (edge.id === relation.id)
+      );
+      if (existingEdge) {
+        existingEdge.arrows = '';
+        return;
+      }
       edges.push({
         id: relation.id,
         from: node.id,

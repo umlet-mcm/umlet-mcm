@@ -7,7 +7,7 @@ import {Button} from '@/components/ui/button'
 import {Input} from '@/components/ui/input'
 import {Checkbox} from '@/components/ui/checkbox'
 import {Configuration} from '@/types/Configuration.ts'
-import {updateConfiguration} from "@/api/configuration.ts";
+import {getLastCreatedConfiguration, updateConfiguration} from "@/api/configuration.ts";
 import {Model} from "@/types/Model.ts";
 import {LoaderCircleIcon} from "lucide-vue-next";
 import {alignModels} from "@/api/model.ts";
@@ -34,11 +34,13 @@ const props = defineProps({
 const emit = defineEmits<{
   'update:isOpen': [value: boolean],
   'update:configuration': [value: Configuration],
+  'update:model': [value: Model]
 }>()
 
 // variables
 const selectedModelsId = ref<string[]>([])
 const newModelName = ref('')
+const newVersionName = ref('')
 const errorMessage = ref<string | undefined>(undefined)
 const isLoadingValidate = ref(false)
 
@@ -116,11 +118,22 @@ const handleMerge = async () => {
       const alignedModels = await alignModels(selectedModels)
       const mergedModel = combine(JSON.parse(JSON.stringify(alignedModels)))
 
-      const newConfig = await updateConfiguration({
+      let newConfig = await updateConfiguration({
         ...props.configuration,
+        version: {
+          ...props.configuration.version,
+          customName: newVersionName.value || props.configuration.version.customName
+        },
         models: [...props.configuration.models, mergedModel]
       })
+
+      if(newConfig.version.hash === props.configuration.version.hash) {
+        // if the configuration has the same version, get the last created configuration
+        newConfig = await getLastCreatedConfiguration(props.configuration.name, props.configuration.version)
+      }
+
       emit('update:configuration', newConfig)
+      emit("update:model", mergedModel)
       closeDialog()
     } catch (error:any) {
       errorMessage.value = 'An error occurred while combining the models: ' + (error.response?.data?.message || error.message)
@@ -132,6 +145,7 @@ const handleMerge = async () => {
 const closeDialog = () => {
   selectedModelsId.value = []
   newModelName.value = ''
+  newVersionName.value = ''
   errorMessage.value = undefined
   isLoadingValidate.value = false
   emit('update:isOpen', false)
@@ -164,7 +178,7 @@ const closeDialog = () => {
                   <label
                       :for="model.id"
                       class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                    {{ model.title }}
+                    {{ model.title || "Untitled" }}
                   </label>
                 </div>
               </div>
@@ -186,14 +200,13 @@ const closeDialog = () => {
                     v-model="newModelName"
                     placeholder="Enter new model name"/>
               </div>
-
-              <div v-if="selectedModelsId.length > 0" class="text-sm">
-                Selected models to combine:
-                <ul class="list-disc list-inside mt-2">
-                  <li v-for="modelId in selectedModelsId" :key="modelId">
-                    {{ configuration.models.find(m => m.id === modelId)?.title }}
-                  </li>
-                </ul>
+              <div class="space-y-2">
+                <label for="newModelName" class="text-sm font-medium">
+                  New version name (optional)
+                </label>
+                <Input
+                    v-model="newVersionName"
+                    placeholder="Enter new version name"/>
               </div>
             </div>
           </CardContent>

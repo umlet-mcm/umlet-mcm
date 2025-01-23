@@ -1,10 +1,10 @@
 <script setup lang="ts">
 
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
+import {Button} from '@/components/ui/button'
+import {Separator} from '@/components/ui/separator'
 import {Configuration, Version} from '@/types/Configuration.ts'
 import ModelList from "@/components/left-side/ModelList.vue"
-import {FileUp, FileOutput, FileInput, FileStack, HelpCircle, Diff, FilePenLine} from 'lucide-vue-next'
+import {Diff, FileInput, FileOutput, FilePenLine, FileStack, FileUp, HelpCircle} from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
 import DialogMerge from "@/components/left-side/DialogMerge.vue";
 import {onMounted, ref, watch} from "vue";
@@ -13,11 +13,11 @@ import DialogExport from "@/components/left-side/DialogExport.vue";
 import DialogUploadUXF from "@/components/left-side/DialogUploadUXF.vue";
 import TopLeftPannel from "@/components/left-side/TopLeftPannel.vue";
 import DialogVersionDiff from "@/components/left-side/DialogVersionDiff.vue";
-import {listConfigurationVersions} from "@/api/configuration.ts";
+import {getLastCreatedConfiguration, listConfigurationVersions} from "@/api/configuration.ts";
 import AlertConfirmation from "@/components/left-side/AlertConfirmation.vue";
 import {deleteModelFromConfig} from "@/api/model.ts";
 import SaveButton from "@/components/left-side/SaveButton.vue";
-import { useToast } from '@/components/ui/toast/use-toast'
+import {useToast} from '@/components/ui/toast/use-toast'
 import DialogUpdateUXF from "@/components/left-side/DialogUpdateUXF.vue";
 
 /**
@@ -79,9 +79,14 @@ const confirmDeletion = async () => {
   const index = props.selectedConfiguration.models.findIndex(model => model.id === props.selectedModel!.id)
   if (index !== -1) {
     try {
-      //todo updateCurrentConfiguration version after delete
-      await deleteModelFromConfig(props.selectedModel!.id)
-      props.selectedConfiguration.models.splice(index, 1)
+      let updatedConfig = await deleteModelFromConfig(props.selectedModel!.id)
+
+      if(updatedConfig.version.hash === props.selectedConfiguration.version.hash) {
+        // if the configuration has the same version, get the last created configuration
+        updatedConfig = await getLastCreatedConfiguration(props.selectedConfiguration.name, props.selectedConfiguration.version)
+      }
+
+      emit('update:selectedConfiguration', updatedConfig)
       emit('update:selectedModel', undefined)
       errorDelete.value = undefined
       toast({
@@ -206,6 +211,7 @@ onMounted(async () => {
       v-model:isOpen="isDialogOpen.merge"
       :configuration="selectedConfiguration"
       @update:configuration="emit('update:selectedConfiguration', $event)"
+      @update:model="emit('update:selectedModel', $event)"
   />
   <DialogExport
       v-model:isOpen="isDialogOpen.export"

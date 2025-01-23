@@ -9,7 +9,7 @@ import {ref, watch} from "vue";
 import AlertConfirmation from "@/components/left-side/AlertConfirmation.vue";
 import DialogSettings from "@/components/left-side/DialogSettings.vue";
 import {checkoutConfiguration} from "@/api/configuration.ts";
-import { useToast } from '@/components/ui/toast/use-toast'
+import {useToast} from '@/components/ui/toast/use-toast'
 
 // props related
 const props = defineProps({
@@ -48,6 +48,7 @@ async function confirmLoadVersion() {
     const newConfiguration = await checkoutConfiguration(props.selectedConfiguration.name, selectedVersion.value)
     isDialogOpen.value.confirmation = false
     emit('update:selectedConfiguration', newConfiguration)
+
     if(props.selectedModel) {
       const model: Model|undefined = newConfiguration.models.find(model => model.id === props.selectedModel!.id)
       if(model) {

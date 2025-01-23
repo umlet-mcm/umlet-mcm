@@ -2,12 +2,12 @@
 
 import {LoaderCircleIcon, Save} from "lucide-vue-next";
 import {Button} from "@/components/ui/button";
-import { Configuration } from '@/types/Configuration.ts'
+import {Configuration} from '@/types/Configuration.ts'
 import {Model} from "@/types/Model.ts";
 import {ref} from "vue";
-import {getConfigurationById} from "@/api/configuration.ts";
+import {getConfigurationById, getLastCreatedConfiguration} from "@/api/configuration.ts";
 import {saveNeo4JToRepository} from "@/api/graphDB.ts";
-import { useToast } from '@/components/ui/toast/use-toast'
+import {useToast} from '@/components/ui/toast/use-toast'
 
 /**
  * @param {Model} selectedModel, selected model to display (if any)
@@ -43,7 +43,13 @@ const save = async () => {
   try {
     // save the current neo4j state to the repository to create a new version
     await saveNeo4JToRepository()
-    const newConfiguration = await getConfigurationById({id: props.selectedConfiguration.name})
+    let newConfiguration = await getConfigurationById({id: props.selectedConfiguration.name})
+
+    if(newConfiguration.version.hash === props.selectedConfiguration.version.hash) {
+      // if the configuration has the same version, get the last created configuration
+      newConfiguration = await getLastCreatedConfiguration(props.selectedConfiguration.name, props.selectedConfiguration.version)
+    }
+
     emit('update:selectedConfiguration', newConfiguration)
     if(props.selectedModel) {
       const model: Model|undefined = newConfiguration.models.find(model => model.id === props.selectedModel!.id)

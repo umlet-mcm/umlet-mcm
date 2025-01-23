@@ -17,12 +17,17 @@ export async function parseResponseGraph(response: Record<string, any>[], modelL
         if (nodes.some((n) => n.id === rawNode.properties.generatedID)) return;
         if (Object.keys(rawNode.properties).length > 0 && rawNode.properties.name) {
             const n = nodesModelList.find((node) => node.id === rawNode.properties.generatedID);
-            if(n) nodes.push(n)
+            if(n) {
+                // update the properties of the node with the ones from the response
+                const deepNode = JSON.parse(JSON.stringify(n));
+                deepNode.mcmAttributes = extractAttributes(rawNode.properties, "properties")
+                deepNode.umletAttributes = extractAttributes(rawNode.properties, "umletProperties")
+                nodes.push(deepNode)
+            }
         }
     });
 
     const retModel: Record<string, Model> = {};
-
     nodes.forEach(node => {
         const modelId = node.mcmModelId;
         const model = modelList.find((m) => m.id === modelId);
@@ -57,4 +62,21 @@ function detectNodes(response: Record<string, any>[]): any[] {
         }
     }
     return nodes;
+}
+
+/**
+ * Extracts attributes from the object that have a specific prefix.
+ * @param obj The object from which the attributes should be extracted
+ * @param prefix The prefix that the attributes should have
+ * @return An object with the extracted attributes
+ */
+function extractAttributes(obj: Record<string, any>, prefix: string): Record<string, any> {
+    // Filter the object for keys that start with the given prefix and extract the values
+    return Object.entries(obj)
+        .filter(([key]) => key.startsWith(prefix))
+        .reduce((result, [key, value]) => {
+            const keyWithoutPrefix = key.split('.')[1];
+            result[keyWithoutPrefix] = value;
+            return result;
+        }, {} as Record<string, any>);
 }

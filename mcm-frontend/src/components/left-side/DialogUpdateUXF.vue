@@ -12,7 +12,7 @@ import {Configuration} from "@/types/Configuration.ts";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {ref} from "vue";
-import {updateConfiguration} from "@/api/files.ts";
+import {updateConfigurationUXF} from "@/api/files.ts";
 import {LoaderCircleIcon} from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
 import {useToast} from '@/components/ui/toast/use-toast'
@@ -85,7 +85,7 @@ const validateButton = async () => {
   isLoadingValidate.value = true
   try {
     versionName.value = versionName.value.trim()
-    newConfig.value = await updateConfiguration(selectedFile.value, props.currentConfiguration.name, versionName.value.length > 0 ? versionName.value : undefined)
+    newConfig.value = await updateConfigurationUXF(selectedFile.value, props.currentConfiguration.name, versionName.value.length > 0 ? versionName.value : undefined)
     emit('update:currentConfiguration', newConfig.value)
     if(props.selectedModel) {
       const updatedSelectedModel = newConfig.value.models.find(m => m.id === props.selectedModel?.id)

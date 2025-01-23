@@ -41,11 +41,12 @@ export const uploadUxfToConfiguration = async (file: any, name: string | undefin
  * @param name the name of the model to add
  * @return the updated configuration
  */
-export const uploadUxfToModel = async (file: any, configName: string, name: string | undefined) : Promise<Configuration> => {
+export const uploadUxfToModel = async (file: any, configName: string, name: string | undefined, version: string | undefined) : Promise<Configuration> => {
     try {
         let formData = new FormData();
         formData.append("file", file);
         if(name) formData.append("modelName", name);
+        if(version) formData.append("version", version);
         const response = await apiClient.post(
             `/files/uxf/${configName}`,
             formData,
@@ -101,7 +102,7 @@ export const uploadUxfConfiguration = async (file: any, configName: string): Pro
     }
 };
 
-export const updateConfiguration = async (file: any, configName: string, version: string | undefined): Promise<Configuration> => {
+export const updateConfigurationUXF = async (file: any, configName: string, version: string | undefined): Promise<Configuration> => {
     try {
         let formData = new FormData();
         formData.append("file", file);

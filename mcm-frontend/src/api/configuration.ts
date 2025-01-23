@@ -161,3 +161,13 @@ export const renameConfiguration = async (name: string, newName: string): Promis
         throw error;
     }
 }
+
+export const getLastCreatedConfiguration = async (name: string, currentVersion: Version): Promise<Configuration> => {
+    try {
+        const versionList = await listConfigurationVersions(name)
+        const lastVersion = versionList[0]
+        return checkoutConfiguration(name, lastVersion.hash !== currentVersion.hash ? lastVersion.hash : currentVersion.hash)
+    } catch (error) {
+        throw error;
+    }
+}

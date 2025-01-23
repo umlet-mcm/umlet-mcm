@@ -3,10 +3,10 @@ import {Button} from '@/components/ui/button'
 import QueryEditor from "@/components/main-content/QueryEditor.vue"
 import GraphVisualisation from "@/components/main-content/GraphVisualisation.vue"
 import {onMounted, ref, watch} from "vue"
-import {Table2, FileOutput, HelpCircle, LoaderCircleIcon, Play, RotateCcw} from 'lucide-vue-next'
+import {FileOutput, HelpCircle, LoaderCircleIcon, Play, RotateCcw, Table2} from 'lucide-vue-next'
 import {Model} from "@/types/Model.ts";
 import {Node, Relation} from "@/types/Node.ts";
-import {loadConfigurationDatabase, sendRequest, exportQueryToCsv, exportQueryToUxf} from "@/api/graphDB.ts";
+import {exportQueryToCsv, exportQueryToUxf, loadConfigurationDatabase, sendRequest} from "@/api/graphDB.ts";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import QueryResult from "@/components/main-content/QueryResult.vue";
 import {parseResponseGraph} from "@/components/main-content/responseGraphVisualization.ts";
@@ -146,6 +146,10 @@ watch(() => queryResponse.value, async (newValue) => {
   } else {
     queryGraph.value = undefined;
   }
+});
+
+watch(() => props.selectedConfiguration.version.hash, async () => {
+  await loadNeo4JDatabase()
 });
 
 /**

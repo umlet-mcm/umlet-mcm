@@ -6,6 +6,8 @@ import at.ac.tuwien.model.change.management.core.model.dsl.ModelDSL;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
+
 @Component
 @AllArgsConstructor
 public class ModelDSLMapperImpl implements ModelDSLMapper {
@@ -18,7 +20,10 @@ public class ModelDSLMapperImpl implements ModelDSLMapper {
         modelDSL.setId(model.getId());
         modelDSL.setTitle(model.getTitle());
         modelDSL.setDescription(model.getDescription());
-        modelDSL.setTags(model.getTags());
+
+        if (model.getTags() != null && !model.getTags().isEmpty()) {
+            modelDSL.setTags(model.getTags());
+        }
         modelDSL.setProperties(keyValuesDSLMapper.toObjectDSL(model.getMcmAttributes()));
         modelDSL.setPropertiesInlineComments(keyValuesDSLMapper.toStringDSL(model.getMcmAttributesInlineComments()));
         modelDSL.setZoomLevel(model.getZoomLevel());
@@ -36,7 +41,7 @@ public class ModelDSLMapperImpl implements ModelDSLMapper {
         model.setId(modelDSL.getId());
         model.setDescription(modelDSL.getDescription());
         model.setTitle(modelDSL.getTitle());
-        model.setTags(modelDSL.getTags());
+        model.setTags(modelDSL.getTags() == null ? Collections.emptyList() : modelDSL.getTags());
         model.setMcmAttributes(keyValuesDSLMapper.fromObjectDSL(modelDSL.getProperties()));
         model.setMcmAttributesInlineComments(keyValuesDSLMapper.fromStringDSL(modelDSL.getPropertiesInlineComments()));
         model.setZoomLevel(modelDSL.getZoomLevel());

@@ -6,6 +6,8 @@ import at.ac.tuwien.model.change.management.core.model.dsl.NodeDSL;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
+
 @Component
 @AllArgsConstructor
 public class NodeDSLMapperImpl implements NodeDSLMapper {
@@ -33,7 +35,9 @@ public class NodeDSLMapperImpl implements NodeDSLMapper {
         nodeDSL.setPprType(node.getPprType());
         nodeDSL.setProperties(keyValuesDSLMapper.toObjectDSL(node.getMcmAttributes()));
         nodeDSL.setPropertiesInlineComments(keyValuesDSLMapper.toStringDSL(node.getMcmAttributesInlineComments()));
-        nodeDSL.setTags(node.getTags());
+        if (node.getTags() != null && !node.getTags().isEmpty()) {
+            nodeDSL.setTags(node.getTags());
+        }
         nodeDSL.setMetadata(metadataDSL);
 
         return nodeDSL;
@@ -62,7 +66,8 @@ public class NodeDSLMapperImpl implements NodeDSLMapper {
 
         node.setMcmAttributes(keyValuesDSLMapper.fromObjectDSL(nodeDSL.getProperties()));
         node.setMcmAttributesInlineComments(keyValuesDSLMapper.fromStringDSL(nodeDSL.getPropertiesInlineComments()));
-        node.setTags(nodeDSL.getTags());
+        node.setTags(nodeDSL.getTags() == null ? Collections.emptyList() : nodeDSL.getTags());
+
 
         return node;
     }

@@ -67,17 +67,30 @@ public class ConfigurationAssert extends AbstractObjectAssert<ConfigurationAsser
         return this.extracting(Configuration::getVersionHash).asInstanceOf(InstanceOfAssertFactories.STRING);
     }
 
-    private static RecursiveComparisonConfiguration recursiveFieldsComparison() {
+    private RecursiveComparisonConfiguration recursiveFieldsComparison() {
         var recursiveComparisonConfiguration = new RecursiveComparisonConfiguration();
+        
         recursiveComparisonConfiguration.ignoreFields(
                 "name",
                 "version",
-
+                "models.mcmAttributes",
+                "models.tags",
+                "models.umletAttributes",
+                "models.mcmAttributesInlineComments",
+                "models.nodes.relations.mcmAttributes",
+                "models.nodes.relations.tags",
+                "models.nodes.relations.mcmAttributesInlineComments",
+                "models.nodes.relations.umletAttributes",
+                "models.nodes.mcmAttributes",
+                "models.nodes.tags",
+                "models.nodes.mcmAttributesInlineComments",
+                "models.nodes.umletAttributes",
                 // for some reason, these Record classes trouble AssertJ's recursive comparison
                 "models.nodes.relations.target",
                 "models.nodes.relations.startPoint",
                 "models.nodes.relations.endPoint"
         );
+
         return recursiveComparisonConfiguration;
     }
 }

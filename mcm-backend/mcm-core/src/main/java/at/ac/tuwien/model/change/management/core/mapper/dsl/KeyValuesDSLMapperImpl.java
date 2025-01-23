@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class KeyValuesDSLMapperImpl implements KeyValuesDSLMapper {
     @Override
     public List<KeyValueDSL> toObjectDSL(Map<String, Object> keyValues) {
-        if (keyValues == null) return null;
+        if (keyValues == null || keyValues.isEmpty()) return null;
 
         return keyValues.entrySet().stream()
                 .map(entry -> new KeyValueDSL(entry.getKey(), entry.getValue().toString()))
@@ -24,7 +24,7 @@ public class KeyValuesDSLMapperImpl implements KeyValuesDSLMapper {
 
     @Override
     public LinkedHashMap<String, Object> fromObjectDSL(List<KeyValueDSL> keyValuesDSL) {
-        if (keyValuesDSL == null) return null;
+        if (keyValuesDSL == null) return new LinkedHashMap<>();
 
         return keyValuesDSL.stream()
                 .collect(Collectors.toMap(
@@ -37,7 +37,7 @@ public class KeyValuesDSLMapperImpl implements KeyValuesDSLMapper {
 
     @Override
     public List<KeyValueDSL> toStringDSL(Map<String, String> keyValues) {
-        if (keyValues == null) return null;
+        if (keyValues == null || keyValues.isEmpty()) return null;
 
         return keyValues.entrySet().stream()
                 .map(entry -> new KeyValueDSL(entry.getKey(), entry.getValue()))
@@ -46,7 +46,7 @@ public class KeyValuesDSLMapperImpl implements KeyValuesDSLMapper {
 
     @Override
     public LinkedHashMap<String, String> fromStringDSL(List<KeyValueDSL> keyValuesDSL) {
-        if (keyValuesDSL == null) return null;
+        if (keyValuesDSL == null) return new LinkedHashMap<>();
 
         return keyValuesDSL.stream()
                 .collect(Collectors.toMap(

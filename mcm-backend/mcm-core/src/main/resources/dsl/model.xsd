@@ -8,7 +8,7 @@
                 <xs:element name="id" type="xs:integer"/>
                 <xs:element name="title" type="xs:string"/>
                 <xs:element name="description" type="xs:string"/>
-                <xs:element name="tags">
+                <xs:element name="tags" minOccurs="0">
                     <xs:complexType>
                         <xs:sequence>
                             <xs:element name="tag" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>

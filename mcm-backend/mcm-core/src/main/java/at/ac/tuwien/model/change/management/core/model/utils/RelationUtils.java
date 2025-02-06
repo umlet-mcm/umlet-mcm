@@ -239,6 +239,21 @@ public class RelationUtils {
 
         Boolean fw1 = isRelationForward(split1);
         Boolean fw2 = isRelationForward(split2);
+
+        if (fw1 == null && fw2 == null && split1.length == 1 && split2.length == 1) {
+            e1.getAttributes().getUmletAttributes().put(
+                    AttributeKeys.LINE_TYPE, split1[0]
+            );
+
+            e1.getAttributes().getMcmAttributes().put(
+                    AttributeKeys.FORWARD_RELATION_ID, e1.getAttributes().getMcmAttributes().get(AttributeKeys.ID)
+            );
+
+            e1.getAttributes().getMcmAttributes().put(
+                    AttributeKeys.BACKWARD_RELATION_ID, e2.getAttributes().getMcmAttributes().get(AttributeKeys.ID)
+            );
+        }
+
         if (fw1 == null || fw2 == null) {
             return e1;
         }

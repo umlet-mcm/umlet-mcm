@@ -1,4 +1,7 @@
 # UMLet Model Change Management - 2024WS-ASE-PR
+UMLet MCM ("Model Change Management") allows importing diagrams created with the tool [UMLet](https://github.com/umlet/umlet) into a graph database (Neo4J) and to query them via Cypher Query Language. Changes are also automatically versioned in an (internal) git repo.
+
+This project was created for a university course at the TU Wien and was shown at the final demo, but otherwise **not been used in production** (as of February 2025).
 
 ### Versioning software for models created in UMLet(ino)
 
@@ -34,7 +37,7 @@ Documentation about how Java domain classes are transformed into a custom DSL fo
 Information regarding the Neo4J integration.
 
 ### [Frontend](docs/frontend.md)
-Information about the visual frontend part of the application.
+Information about the visual frontend part of the application (including requirements & setup).
 
 > **Note:**
 >Additional information can be found on the [TU Colab page](https://colab.tuwien.ac.at/display/SE/24WS+ASE+PR+UMLet+Model+Change+Management) of this project.

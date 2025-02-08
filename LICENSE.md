@@ -11,6 +11,7 @@ Software: UMLet-MCM
 License: GNU General Public License v3
 
 Licensor: umlet-mcm
+
 ---------------------------------------------------------
 
                     GNU GENERAL PUBLIC LICENSE

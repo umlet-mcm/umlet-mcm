@@ -4,6 +4,13 @@ UMLet MCM ("Model Change Management") allows importing diagrams created with the
 This project was created for a university course at the TU Wien and was shown at the final demo, but otherwise **not been used in production** (as of February 2025).
 
 ### Versioning software for models created in UMLet(ino)
+A [30min demo of the application](https://www.youtube.com/watch?v=ic5iJcUQFJA) can be found on YouTube.
+
+The idea of this project is based on the following papers:
+* [Efficient Multi-view Change Management in Agile Production Systems Engineering](http://hdl.handle.net/20.500.12708/142569)
+* [Traceable Multi‑view Model Integration: A Transformation Pipeline for Agile Production Systems Engineering](https://doi.org/10.1007/s42979-022-01572-5)
+* [Multi-Domain Modeling for Change Management in Cyber-Physical Production Systems Engineering](http://hdl.handle.net/20.500.12708/209733)
+* [Product-Process-Resource Asset Networks as Foundation for Improving CPPS Engineering](http://hdl.handle.net/20.500.12708/58358)
 
 ## Features
 
